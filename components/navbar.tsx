@@ -19,7 +19,7 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative w-10 h-10 transition-transform group-hover:scale-105">
             <Image
-              src="/cashmind-logo.png"
+              src="/cashmind-logo2.png"
               alt="CashMind Logo"
               fill
               className="object-contain"

@@ -7,25 +7,47 @@ import { cn } from "@/lib/utils"
 import {
     LayoutDashboard,
     ReceiptText,
-    PiggyBank,
-    Target,
-    Bot,
+    Zap,
     Settings,
     LogOut,
     ChevronLeft,
     ChevronRight,
+    User,
+    ChevronDown,
     Search,
-    Bell
+    Bot,
+    TrendingUp,
+    PanelLeft,
+    PanelLeftClose,
+    Target,
+    Wallet,
+    Repeat,
+    Sparkles,
+    Trophy,
+    Award
 } from "lucide-react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
-const menuItems = [
-    { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
-    { name: "Transactions", icon: ReceiptText, href: "/dashboard/transactions" },
-    { name: "Budget Planner", icon: PiggyBank, href: "/dashboard/budget" },
-    { name: "Savings Goals", icon: Target, href: "/dashboard/savings" },
-    { name: "AI Coach (Mindy)", icon: Bot, href: "/dashboard/ai-coach" },
+const menuCategories = [
+    {
+        title: "Home",
+        items: [
+            { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+            { name: "Transactions", icon: ReceiptText, href: "/dashboard/transactions" },
+            { name: "Budgets", icon: Wallet, href: "/dashboard/budgets" },
+            { name: "Goals & Savings", icon: Target, href: "/dashboard/goals" },
+            { name: "Challenges", icon: Trophy, href: "/dashboard/challenges" },
+            { name: "Mindy AI", icon: Bot, href: "/dashboard/ai" },
+        ]
+    },
+    {
+        title: "Reports",
+        items: [
+            { name: "Insights", icon: TrendingUp, href: "/dashboard/reports" },
+            { name: "Reports / Export", icon: ReceiptText, href: "/dashboard/export" },
+        ]
+    }
 ]
 
 const bottomMenuItems = [
@@ -43,88 +65,117 @@ export function Sidebar() {
                 isCollapsed ? "w-20" : "w-64"
             )}
         >
-            {/* Logo Section */}
-            <div className="p-6 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-3 overflow-hidden">
-                    <div className="relative w-8 h-8 flex-shrink-0">
-                        <Image
-                            src="/cashmind-logo.png"
-                            alt="CashMind Logo"
-                            fill
-                            className="object-contain"
-                        />
+            {/* Logo Section & Toggle Integration */}
+            <div className={cn("p-6 border-b border-gray-100 mb-4", isCollapsed && "px-0 flex justify-center")}>
+                {!isCollapsed ? (
+                    <div className="flex items-center justify-between">
+                        <Link href="/" className="flex items-center gap-2 overflow-hidden group">
+                            <div className="relative w-10 h-10 flex-shrink-0 transition-transform group-hover:scale-105">
+                                <Image
+                                    src="/cashmind-logo2.png"
+                                    alt="CashMind Logo"
+                                    fill
+                                    className="object-contain"
+                                />
+                            </div>
+                            <motion.span
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="text-xl font-semibold tracking-tight text-gray-900 whitespace-nowrap"
+                            >
+                                CashMind
+                            </motion.span>
+                        </Link>
+                        <button
+                            onClick={() => setIsCollapsed(true)}
+                            className="p-2 hover:bg-blue-50 rounded-xl text-gray-400 hover:text-blue-600 transition-all group lg:flex hidden"
+                            title="Collapse Sidebar"
+                        >
+                            <PanelLeftClose className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        </button>
+                    </div>
+                ) : (
+                    <div
+                        onClick={() => setIsCollapsed(false)}
+                        className="group relative flex items-center justify-center p-2 rounded-2xl transition-all hover:bg-blue-50 cursor-pointer h-12 w-12"
+                    >
+                        <div className="relative w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
+                            {/* Logo: Visible by default, hidden on hover */}
+                            <Image
+                                src="/cashmind-logo2.png"
+                                alt="CashMind Logo"
+                                fill
+                                className="object-contain transition-opacity group-hover:opacity-0"
+                            />
+                            {/* Toggle: Hidden by default, visible on hover */}
+                            <div className="absolute inset-0 flex items-center justify-center text-blue-600 opacity-0 group-hover:opacity-100 transition-all">
+                                <PanelLeft className="w-5 h-5" />
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+
+
+            {/* Menu Sections */}
+            <div className="flex-1 overflow-y-auto px-4 no-scrollbar">
+                {menuCategories.map((category) => (
+                    <div key={category.title} className="mb-8">
+                        {!isCollapsed && (
+                            <h4 className="px-3 mb-4 text-xs font-medium text-gray-400">
+                                {category.title}
+                            </h4>
+                        )}
+                        <div className="space-y-1">
+                            {category.items.map((item) => {
+                                const isActive = pathname === item.href
+                                return (
+                                    <div key={item.name}>
+                                        <Link
+                                            href={item.href}
+                                            className={cn(
+                                                "flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all group relative",
+                                                isActive
+                                                    ? "bg-white text-blue-600 shadow-[0px_2px_8px_0px_rgba(37,99,235,0.1)] border border-blue-100/50"
+                                                    : "text-gray-500 hover:bg-blue-50/50 hover:text-blue-600"
+                                            )}
+                                        >
+                                            <item.icon className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600")} />
+                                            {!isCollapsed && (
+                                                <span className="text-sm font-semibold tracking-tight flex-1">
+                                                    {item.name}
+                                                </span>
+                                            )}
+                                        </Link>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+
+            {/* User Profile */}
+            <div className="p-4 border-t border-gray-100">
+                <div className={cn(
+                    "flex items-center gap-3 p-2 rounded-2xl hover:bg-gray-50 transition-all cursor-pointer group",
+                    isCollapsed ? "justify-center" : ""
+                )}>
+                    <div className="w-10 h-10 bg-gray-200 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden">
+                        <User className="w-6 h-6 text-gray-500" />
                     </div>
                     {!isCollapsed && (
-                        <motion.span
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="text-xl font-bold tracking-tight text-gray-900 whitespace-nowrap"
-                        >
-                            CashMind
-                        </motion.span>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold tracking-tight text-gray-800 truncate">Fajar Alexander</p>
+                            <p className="text-[10px] text-gray-400 truncate font-medium">fajar@gmail.com</p>
+                        </div>
                     )}
-                </Link>
+                    {!isCollapsed && <ChevronRight className="w-4 h-4 text-gray-400 rotate-90" />}
+                </div>
             </div>
 
-            {/* Menu Items */}
-            <nav className="flex-1 px-4 space-y-2 mt-8">
-                {menuItems.map((item) => {
-                    const isActive = pathname === item.href
-                    return (
-                        <Link
-                            key={item.name}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-3 px-3 py-3 rounded-2xl transition-all group relative",
-                                isActive
-                                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-                                    : "text-gray-500 hover:bg-gray-50 hover:text-blue-600"
-                            )}
-                        >
-                            <item.icon className={cn("w-5 h-5", isActive ? "" : "group-hover:scale-110 transition-transform")} />
-                            {!isCollapsed && (
-                                <span className="text-sm font-bold whitespace-nowrap font-inter">{item.name}</span>
-                            )}
-                            {isCollapsed && (
-                                <div className="absolute left-full ml-4 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                                    {item.name}
-                                </div>
-                            )}
-                        </Link>
-                    )
-                })}
-            </nav>
-
-            {/* Bottom Section */}
-            <div className="p-4 space-y-2 border-t border-gray-100">
-                {bottomMenuItems.map((item) => (
-                    <Link
-                        key={item.name}
-                        href={item.href}
-                        className="flex items-center gap-3 px-3 py-3 rounded-2xl text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition-all group relative"
-                    >
-                        <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        {!isCollapsed && (
-                            <span className="text-sm font-bold whitespace-nowrap font-inter">{item.name}</span>
-                        )}
-                    </Link>
-                ))}
-
-                <button className="flex items-center gap-3 px-3 py-3 rounded-2xl text-red-500 hover:bg-red-50 transition-all w-full group relative">
-                    <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    {!isCollapsed && (
-                        <span className="text-sm font-bold whitespace-nowrap font-inter">Logout</span>
-                    )}
-                </button>
-            </div>
-
-            {/* Collapse Toggle */}
-            <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="absolute -right-3 top-20 w-6 h-6 bg-white border border-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:text-blue-600 shadow-sm transition-all z-50"
-            >
-                {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-            </button>
         </aside>
     )
 }
