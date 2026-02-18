@@ -22,7 +22,7 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
 
     return (
         <aside className="fixed right-0 top-0 h-screen w-80 bg-white border-l border-gray-100 flex flex-col z-50 shadow-2xl lg:shadow-none lg:static">
-            <div className="p-6 flex items-center justify-between border-b border-gray-50 bg-white flex-shrink-0">
+            <div className="p-5 flex items-center justify-between border-b border-gray-50 bg-white flex-shrink-0">
                 <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-600" />
                     <span className="font-bold text-gray-900 tracking-tight">Mindy AI</span>
@@ -36,7 +36,7 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
                 </Link>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col no-scrollbar bg-slate-50/30">
+            <div className="flex-1 overflow-y-auto p-5 flex flex-col no-scrollbar bg-slate-50/30">
                 {/* Advisor Profile */}
                 <div className="flex flex-col items-center text-center mb-8">
                     <div className="relative mb-4">
@@ -76,6 +76,7 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
                     {quickActions.map((action) => (
                         <button
                             key={action.name}
+                            suppressHydrationWarning
                             className="w-full flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100/50 hover:border-blue-100 hover:bg-white hover:shadow-md hover:shadow-blue-500/5 transition-all text-left group"
                         >
                             <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 transition-colors">
@@ -93,9 +94,13 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
                     <input
                         type="text"
                         placeholder="Ask Mindy anything..."
+                        suppressHydrationWarning
                         className="w-full bg-gray-50 border-transparent rounded-xl py-3.5 pl-4 pr-12 text-xs font-medium focus:bg-white focus:border-blue-100 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
                     />
-                    <button className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10">
+                    <button
+                        suppressHydrationWarning
+                        className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10"
+                    >
                         <Send className="w-3.5 h-3.5" />
                     </button>
                 </div>

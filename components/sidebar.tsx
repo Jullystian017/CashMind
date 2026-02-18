@@ -54,9 +54,13 @@ const bottomMenuItems = [
     { name: "Settings", icon: Settings, href: "/dashboard/settings" },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+    isCollapsed: boolean
+    setIsCollapsed: (value: boolean) => void
+}
+
+export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
     const pathname = usePathname()
-    const [isCollapsed, setIsCollapsed] = useState(false)
 
     return (
         <aside
@@ -88,6 +92,7 @@ export function Sidebar() {
                         </Link>
                         <button
                             onClick={() => setIsCollapsed(true)}
+                            suppressHydrationWarning
                             className="p-2 hover:bg-blue-50 rounded-xl text-gray-400 hover:text-blue-600 transition-all group lg:flex hidden"
                             title="Collapse Sidebar"
                         >

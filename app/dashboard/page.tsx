@@ -12,228 +12,321 @@ import {
     Timer,
     CircleDollarSign,
     Search,
-    Filter
+    Filter,
+    ArrowUpRight,
+    ArrowDownRight,
+    TrendingUp,
+    TrendingDown,
+    Zap,
+    ChevronRight,
+    MoreHorizontal,
+    Lightbulb
 } from "lucide-react"
 
 export default function DashboardOverview() {
     const stats = [
         {
-            label: "Monthly Budget",
-            amount: "$2,500",
-            subLabel: "For November",
-            trend: "-1.78%",
-            up: false,
-            icon: Target,
-            color: "text-blue-600 bg-blue-50"
-        },
-        {
-            label: "Total Spent",
-            amount: "$330",
-            subLabel: "of budget",
-            trend: "+13%",
+            label: "Total Balance",
+            amount: "Rp 24,500,000",
+            subLabel: "Updated just now",
+            trend: "+12.5%",
             up: true,
             icon: Wallet,
             color: "text-blue-600 bg-blue-50"
         },
         {
-            label: "Remaining",
-            amount: "$2,170",
-            subLabel: "Still available",
-            trend: "+4.68%",
+            label: "Total Income",
+            amount: "Rp 8,200,000",
+            subLabel: "This month",
+            trend: "+8.2%",
             up: true,
-            icon: Timer,
+            icon: TrendingUp,
             color: "text-blue-600 bg-blue-50"
         },
         {
-            label: "Income",
-            amount: "$2,700",
-            subLabel: "Total earned",
-            trend: "+14%",
+            label: "Total Expenses",
+            amount: "Rp 3,450,000",
+            subLabel: "this month",
+            trend: "-2.4%",
+            up: false,
+            icon: TrendingDown,
+            color: "text-blue-600 bg-blue-50"
+        },
+        {
+            label: "Savings Progress",
+            amount: "75%",
+            subLabel: "Goal: Rp 5M",
+            trend: "+5.1%",
             up: true,
-            icon: CircleDollarSign,
+            icon: Target,
             color: "text-blue-600 bg-blue-50"
         },
     ]
 
     const transactions = [
-        { date: "Jan 15, 2026", desc: "Client Payment - Project Alpha", cat: "Sales", amount: "+$5,000", status: "Completed", isPositive: true },
-        { date: "Jan 14, 2026", desc: "Office Rent - January", cat: "Operating", amount: "-$2,500", status: "Completed", isPositive: false },
-        { date: "Jan 14, 2026", desc: "Software Subscription", cat: "Technology", amount: "-$150", status: "Completed", isPositive: false },
-        { date: "Jan 13, 2026", desc: "Marketing Campaign - Social", cat: "Services", amount: "+$3,200", status: "Pending", isPositive: true },
-        { date: "Jan 12, 2026", desc: "Product Sales", cat: "Marketing", amount: "+$800", status: "Pending", isPositive: true },
+        { date: "Feb 18, 2026", desc: "Starbucks Coffee", cat: "Food & Drinks", amount: "-Rp 55,000", status: "Completed", isPositive: false },
+        { date: "Feb 17, 2026", desc: "Freelance Payment", cat: "Income", amount: "+Rp 2,500,000", status: "Completed", isPositive: true },
+        { date: "Feb 17, 2026", desc: "Indomaret", cat: "Shopping", amount: "-Rp 120,000", status: "Completed", isPositive: false },
+        { date: "Feb 16, 2026", desc: "Spotify Premium", cat: "Entertainment", amount: "-Rp 54,990", status: "Completed", isPositive: false },
+        { date: "Feb 15, 2026", desc: "Withdrawal", cat: "Transfer", amount: "-Rp 500,000", status: "Completed", isPositive: false },
+    ]
+
+    const budgetStatus = [
+        { name: "Food", spent: 1200000, limit: 2000000, color: "bg-blue-500" },
+        { name: "Transport", spent: 450000, limit: 600000, color: "bg-emerald-500" },
+        { name: "Entertainment", spent: 300000, limit: 500000, color: "bg-amber-500" },
     ]
 
     return (
-        <div className="space-y-8" suppressHydrationWarning={true}>
-            <div>
-                <h2 className="text-3xl font-bold text-gray-900 tracking-tight">CashMind Report</h2>
-                <p className="text-gray-500 text-sm mt-1 font-medium">Monitor your financial health and transaction history at a glance.</p>
+        <div className="space-y-8 pb-10" suppressHydrationWarning={true}>
+            {/* Header Section */}
+            <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
+                <div>
+                    <h2 className="text-2xl @md:text-3xl font-bold text-gray-900 tracking-tight">Financial Overview</h2>
+                    <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Welcome back! Here's what's happening with your money today.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white border border-gray-100 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all shadow-sm">
+                        <Filter className="w-3.5 h-3.5" />
+                        <span>This Month</span>
+                    </button>
+                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20">
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Transaction</span>
+                    </button>
+                </div>
             </div>
 
             {/* Stat Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-4 gap-6">
                 {stats.map((stat, i) => (
                     <motion.div
                         key={stat.label}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
-                        className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all group"
+                        className="bg-white @md:p-6 p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all group relative overflow-hidden"
                     >
-                        <div className="flex justify-between items-start mb-4">
-                            <p className="text-gray-800 text-sm font-bold tracking-tight">{stat.label}</p>
-                            <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110", stat.color)}>
-                                <stat.icon className="w-5 h-5" />
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/30 rounded-full -translate-y-12 translate-x-12 group-hover:scale-110 transition-transform"></div>
+
+                        <div className="flex items-center gap-3 @md:gap-4 mb-4 @md:mb-6 relative z-10">
+                            <div className={cn("w-10 h-10 @md:w-12 @md:h-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-3 shadow-sm", stat.color)}>
+                                <stat.icon className="w-5 h-5 @md:w-5 @md:h-5" />
+                            </div>
+                            <div>
+                                <p className="text-gray-500 text-[9px] @md:text-[10px] font-bold uppercase tracking-widest">{stat.label}</p>
+                                <h3 className="text-lg @md:text-xl font-bold tracking-tight text-gray-900 mt-0.5">{stat.amount}</h3>
                             </div>
                         </div>
 
-                        <div className="mb-4">
-                            <h3 className="text-2xl font-bold tracking-tight text-gray-800">{stat.amount}</h3>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-semibold text-gray-400">{stat.subLabel}</span>
-                            {stat.trend && (
+                        <div className="flex items-center justify-between relative z-10">
+                            <div className="flex items-center gap-1.5">
                                 <div className={cn(
-                                    "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight transition-colors",
+                                    "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight transition-colors flex-shrink-0",
                                     stat.up ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
                                 )}>
+                                    {stat.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
                                     {stat.trend}
                                 </div>
-                            )}
+                                <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">vs last month</span>
+                            </div>
                         </div>
                     </motion.div>
                 ))}
             </div>
 
-            {/* Chart Area */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-                className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm"
-            >
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h3 className="text-lg font-bold text-gray-900">Category Breakdown</h3>
-                        <p className="text-xs text-gray-500 font-medium">Financial summary by category</p>
-                    </div>
-                    <div className="flex items-center gap-4 text-[10px] font-bold">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-indigo-200"></div>
-                            <span className="text-gray-400 uppercase tracking-wider">Income <span className="text-gray-900">$2400</span></span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
-                            <span className="text-gray-400 uppercase tracking-wider">Expense <span className="text-gray-900">$1400</span></span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Mock Chart - Bar visual */}
-                <div className="h-48 flex items-end justify-between gap-4 px-2 border-b border-gray-100 pb-2">
-                    {["Sales", "Services", "Payroll", "Operating", "Training", "Marketing", "Maintenance", "Tech"].map((cat, i) => {
-                        const heights = [60, 40, 55, 85, 45, 75, 50, 40]
-                        return (
-                            <div key={cat} className="flex-1 flex flex-col items-center group relative">
-                                <div className="w-full max-w-[40px] flex flex-col items-center">
-                                    <motion.div
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${heights[i]}%` }}
-                                        transition={{ delay: 0.5 + (i * 0.05) }}
-                                        className="w-full bg-indigo-600 rounded-t-lg relative"
-                                    >
-                                        <div className="absolute inset-0 bg-indigo-200 opacity-40 rounded-t-lg -translate-y-1/2"></div>
-                                    </motion.div>
-                                </div>
-                                <span className="text-[9px] font-bold text-gray-400 mt-4 uppercase tracking-tighter truncate w-full text-center">
-                                    {cat}
-                                </span>
-
-                                {/* Tooltip on hover */}
-                                <div className="absolute bottom-full mb-2 bg-gray-900 text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 font-bold">
-                                    ${heights[i] * 10} (+15%)
-                                </div>
+            <div className="grid grid-cols-1 @xl:grid-cols-3 gap-8">
+                {/* Left Side: Charts & Transactions */}
+                <div className="@xl:col-span-2 space-y-8">
+                    {/* Expense Chart */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm"
+                    >
+                        <div className="flex flex-col @md:flex-row justify-between items-start @md:items-center gap-4 mb-8">
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 leading-none">Spending Analytics</h3>
+                                <p className="text-xs text-gray-500 font-medium mt-1.5">Monthly weekly expenses trend</p>
                             </div>
-                        )
-                    })}
-                </div>
-            </motion.div>
-
-            {/* Transaction Records */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-8 border-b border-gray-50 flex items-center justify-between gap-4 flex-wrap">
-                    <div>
-                        <h3 className="text-lg font-bold tracking-tight text-gray-800">Transaction Records</h3>
-                        <p className="text-xs text-gray-500 font-semibold">Complete list of all financial transactions</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="relative group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                className="pl-10 pr-4 py-2 bg-gray-50 border border-transparent rounded-2xl text-xs font-semibold outline-none focus:bg-white focus:border-blue-100 transition-all w-48"
-                            />
+                            <div className="flex bg-gray-50 p-1 rounded-xl w-full @md:w-auto">
+                                <button className="flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold text-blue-600 bg-white shadow-sm rounded-lg transition-all">Weekly</button>
+                                <button className="flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold text-gray-400 hover:text-gray-600 transition-colors">Monthly</button>
+                            </div>
                         </div>
-                        <button className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
-                            <Filter className="w-4 h-4" />
-                        </button>
-                        <button className="p-2.5 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all">
-                            <Plus className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="bg-gray-50/50 text-gray-400 text-[10px] font-semibold uppercase tracking-[0.2em]">
-                                <th className="px-8 py-4">Date</th>
-                                <th className="px-8 py-4">Description</th>
-                                <th className="px-8 py-4">Category</th>
-                                <th className="px-8 py-4">Amount</th>
-                                <th className="px-8 py-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        {/* SVG Bar Chart Placeholder */}
+                        <div className="h-64 flex items-end justify-between gap-2 @md:gap-4 px-1 @md:px-2 border-b border-gray-100 pb-2 relative">
+                            {/* Target/Budget Line */}
+                            <div className="absolute left-0 right-0 top-1/4 h-[1px] bg-emerald-400/20 border-dashed border-t flex items-center justify-end">
+                                <span className="text-[8px] font-bold text-emerald-500 -mt-3 transform translate-x-2">Target Limit</span>
+                            </div>
+
+                            {[550, 420, 780, 320, 610, 490, 850].map((val, i) => {
+                                const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                                const height = (val / 900) * 100
+                                return (
+                                    <div key={days[i]} className="flex-1 flex flex-col items-center group relative">
+                                        <div className="w-full max-w-[48px] flex flex-col items-center">
+                                            <motion.div
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${height}%` }}
+                                                transition={{ delay: 0.6 + (i * 0.05), type: "spring", damping: 15 }}
+                                                className={cn(
+                                                    "w-full rounded-t-xl group-hover:scale-x-105 transition-all shadow-sm",
+                                                    val > 700 ? "bg-rose-500" : "bg-blue-600"
+                                                )}
+                                            >
+                                                <div className="absolute inset-x-0 bottom-0 bg-white/20 h-1/2 rounded-t-xl"></div>
+                                            </motion.div>
+                                        </div>
+                                        <span className="text-[9px] @md:text-[10px] font-bold text-gray-400 mt-4 uppercase tracking-wider">{days[i]}</span>
+
+                                        {/* Tooltip */}
+                                        <div className="absolute bottom-full mb-2 bg-gray-900 text-white text-[10px] px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap z-20 font-bold shadow-xl">
+                                            Rp {val.toLocaleString('id-ID')},000
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </motion.div>
+
+                    {/* Transaction List */}
+                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="@md:p-8 p-6 border-b border-gray-50 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-bold tracking-tight text-gray-900">Recent Transactions</h3>
+                                <p className="text-xs text-gray-500 font-semibold tracking-wide">Last activities this week</p>
+                            </div>
+                            <button className="text-[11px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group">
+                                <span className="hidden @sm:inline">View All</span> <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                        </div>
+
+                        <div className="divide-y divide-gray-50">
                             {transactions.map((tx, i) => (
-                                <motion.tr
+                                <motion.div
                                     key={i}
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.6 + (i * 0.05) }}
-                                    className="hover:bg-blue-50/30 transition-colors cursor-pointer group"
+                                    transition={{ delay: 0.7 + (i * 0.05) }}
+                                    className="p-6 hover:bg-gray-50 transition-all flex items-center justify-between group cursor-pointer"
                                 >
-                                    <td className="px-8 py-5 text-xs font-semibold text-gray-900">{tx.date}</td>
-                                    <td className="px-8 py-5 text-xs font-semibold text-gray-500 group-hover:text-blue-600">{tx.desc}</td>
-                                    <td className="px-8 py-5">
-                                        <span className="px-2 py-1 rounded-lg bg-gray-100 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
-                                            {tx.cat}
-                                        </span>
-                                    </td>
-                                    <td className={cn(
-                                        "px-8 py-5 text-xs font-semibold",
-                                        tx.isPositive ? "text-emerald-600" : "text-rose-500"
-                                    )}>
-                                        {tx.amount}
-                                    </td>
-                                    <td className="px-8 py-5">
+                                    <div className="flex items-center gap-4">
                                         <div className={cn(
-                                            "inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-semibold uppercase tracking-wider",
-                                            tx.status === "Completed" ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"
+                                            "w-12 h-12 rounded-2xl flex items-center justify-center text-lg shadow-sm border border-white group-hover:scale-110 transition-transform",
+                                            tx.isPositive ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600"
                                         )}>
-                                            <div className={cn("w-1.5 h-1.5 rounded-full", tx.status === "Completed" ? "bg-emerald-600" : "bg-orange-600")}></div>
-                                            {tx.status}
+                                            {tx.isPositive ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                                         </div>
-                                    </td>
-                                </motion.tr>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-gray-900 tracking-tight">{tx.desc}</h4>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{tx.cat}</span>
+                                                <span className="w-1 h-1 rounded-full bg-gray-200"></span>
+                                                <span className="text-[10px] font-bold text-gray-400">{tx.date}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className={cn(
+                                            "text-sm font-bold tracking-tight",
+                                            tx.isPositive ? "text-emerald-600" : "text-gray-900"
+                                        )}>
+                                            {tx.amount}
+                                        </p>
+                                        <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">Completed</p>
+                                    </div>
+                                </motion.div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Side: Analytics & Planning */}
+                <div className="space-y-8">
+                    {/* Category Breakdown Donut (Mock SVG) */}
+                    <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-lg font-bold text-gray-900">Categories</h3>
+                            <button className="p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                                <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                            </button>
+                        </div>
+
+                        <div className="relative flex justify-center py-4">
+                            <svg viewBox="0 0 100 100" className="w-32 h-32 @md:w-48 @md:h-48 transform -rotate-90">
+                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f1f5f9" strokeWidth="12" />
+                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#2563eb" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="62.8" strokeLinecap="round" />
+                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="188.4" strokeLinecap="round" />
+                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f59e0b" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="226" strokeLinecap="round" />
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                <span className="text-[8px] @md:text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Total Spent</span>
+                                <span className="text-lg @md:text-xl font-bold text-gray-900 tracking-tight mt-1">Rp 3.4M</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 space-y-4">
+                            {[
+                                { name: "Food & Drinks", percent: 45, color: "bg-blue-600" },
+                                { name: "Entertainment", percent: 25, color: "bg-emerald-500" },
+                                { name: "Others", percent: 10, color: "bg-amber-500" },
+                            ].map((item) => (
+                                <div key={item.name} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className={cn("w-2 h-2 @md:w-2.5 @md:h-2.5 rounded-full", item.color)}></div>
+                                        <span className="text-[11px] @md:text-xs font-bold text-gray-600">{item.name}</span>
+                                    </div>
+                                    <span className="text-[11px] @md:text-xs font-bold text-gray-900">{item.percent}%</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Progress Trackers */}
+                    <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm transition-all">
+                        <h3 className="text-lg font-bold text-gray-900 mb-8">Budget Progress</h3>
+                        <div className="space-y-8">
+                            {budgetStatus.map((budget) => {
+                                const progress = (budget.spent / budget.limit) * 100
+                                return (
+                                    <div key={budget.name}>
+                                        <div className="flex justify-between items-center mb-3">
+                                            <span className="text-xs font-bold text-gray-900 tracking-tight">{budget.name}</span>
+                                            <span className="text-[11px] font-bold text-gray-500">
+                                                Rp {(budget.spent / 1000).toLocaleString('id-ID')}k <span className="text-gray-300 mx-1">/</span> Rp {(budget.limit / 1000).toLocaleString('id-ID')}k
+                                            </span>
+                                        </div>
+                                        <div className="h-2.5 bg-gray-50 rounded-full overflow-hidden border border-gray-100 p-[1px]">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${progress}%` }}
+                                                transition={{ delay: 0.8, duration: 1 }}
+                                                className={cn("h-full rounded-full shadow-sm", budget.color)}
+                                            ></motion.div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+
+                        <div className="mt-10 p-5 rounded-[24px] bg-blue-50 border border-blue-100/50">
+                            <div className="flex items-center gap-3 mb-2">
+                                <Target className="w-4 h-4 text-blue-600" />
+                                <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest">Savings Goal</h4>
+                            </div>
+                            <p className="text-[11px] font-bold text-gray-500 mb-4">You're Rp 1.5M away from your Trip to Bali goal!</p>
+                            <div className="h-1.5 bg-white rounded-full overflow-hidden p-[1px]">
+                                <div className="h-full w-4/5 bg-blue-600 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     )
 }
-

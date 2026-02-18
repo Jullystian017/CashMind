@@ -32,8 +32,16 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
     const [isAIPanelOpen, setIsAIPanelOpen] = useState(true)
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
     const isAIPage = pathname === "/dashboard/ai"
+
+    // Automatically collapse sidebar when AI panel is opened
+    useEffect(() => {
+        if (isAIPanelOpen && !isSidebarCollapsed) {
+            setIsSidebarCollapsed(true)
+        }
+    }, [isAIPanelOpen])
 
     useEffect(() => {
         if (searchParams.get('onboarding') === 'true') {
@@ -49,7 +57,10 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex bg-slate-50 min-h-screen text-gray-900 font-inter">
             {/* Sidebar */}
-            <Sidebar />
+            <Sidebar
+                isCollapsed={isSidebarCollapsed}
+                setIsCollapsed={setIsSidebarCollapsed}
+            />
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -62,40 +73,38 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                                 <input
                                     type="text"
                                     placeholder="Search anything..."
+                                    suppressHydrationWarning
                                     className="w-full pl-12 pr-4 py-2.5 bg-white border border-gray-200 rounded-2xl text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)]"
                                 />
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <button className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all relative" title="Notifications">
+                            <button className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all relative" title="Notifications" suppressHydrationWarning>
                                 <Bell className="w-4 h-4" />
                                 <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 border-2 border-white rounded-full"></span>
                             </button>
-                            <button className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all" title="Calendar">
+                            <button className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all" title="Calendar" suppressHydrationWarning>
                                 <Calendar className="w-4 h-4" />
                             </button>
-                            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-600 hover:bg-gray-100 transition-colors" title="Export Data">
+                            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-600 hover:bg-gray-100 transition-colors" title="Export Data" suppressHydrationWarning>
                                 <FileDown className="w-4 h-4" /> <span className="hidden lg:inline">Export</span>
                             </button>
 
-                            <div className="w-px h-6 bg-gray-200 mx-1"></div>
 
-                            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all text-xs font-semibold">
-                                <Plus className="w-4 h-4" /> <span className="hidden lg:inline">Quick Add</span>
-                            </button>
 
                             <button
                                 onClick={() => setIsAIPanelOpen(!isAIPanelOpen)}
+                                suppressHydrationWarning
                                 className={cn(
-                                    "flex items-center justify-center w-10 h-10 rounded-xl transition-all shadow-lg",
+                                    "flex items-center justify-center w-10 h-10 rounded-xl transition-all shadow-lg group hover:scale-105 active:scale-95",
                                     isAIPanelOpen
-                                        ? "bg-blue-600 text-white shadow-blue-500/20"
-                                        : "bg-blue-50 text-blue-600 shadow-transparent"
+                                        ? "bg-blue-600 text-white shadow-blue-500/20 hover:shadow-blue-500/40"
+                                        : "bg-blue-50 text-blue-600 shadow-transparent hover:bg-blue-100"
                                 )}
                                 title="AI Assistant"
                             >
-                                <Sparkles className="w-4 h-4" />
+                                <Sparkles className="w-4 h-4 transition-transform group-hover:rotate-12 group-hover:scale-110" />
                             </button>
                         </div>
                     </header>
@@ -103,7 +112,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
                 {/* Content Container */}
                 <main className={cn(
-                    "flex-1 overflow-y-auto bg-slate-50/50 no-scrollbar",
+                    "flex-1 overflow-y-auto bg-slate-50/50 no-scrollbar @container/main",
                     isAIPage ? "p-0" : "p-10"
                 )}>
                     {children}
