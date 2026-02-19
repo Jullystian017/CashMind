@@ -1,6 +1,7 @@
 "use client"
 
-import { motion } from "framer-motion"
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import {
     Plus,
@@ -20,11 +21,105 @@ import {
     Zap,
     ChevronRight,
     MoreHorizontal,
-    Lightbulb
+    Lightbulb,
+    Bell,
+    Calendar,
+    ShoppingCart,
+    Coffee,
+    Car,
+    Utensils
 } from "lucide-react"
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+    ReferenceLine, Cell
+} from 'recharts'
+
+const weeklyData = [
+    { name: 'Mon', income: 850, expense: 550 },
+    { name: 'Tue', income: 720, expense: 420 },
+    { name: 'Wed', income: 980, expense: 780 },
+    { name: 'Thu', income: 620, expense: 320 },
+    { name: 'Fri', income: 810, expense: 610 },
+    { name: 'Sat', income: 790, expense: 490 },
+    { name: 'Sun', income: 950, expense: 850 },
+]
+
+const monthlyData = [
+    { name: 'Jan', income: 6500, expense: 4500 },
+    { name: 'Feb', income: 7200, expense: 5200 },
+    { name: 'Mar', income: 5800, expense: 3800 },
+    { name: 'Apr', income: 8100, expense: 6100 },
+    { name: 'May', income: 6900, expense: 4900 },
+    { name: 'Jun', income: 7500, expense: 5500 },
+    { name: 'Jul', income: 6200, expense: 4200 },
+    { name: 'Aug', income: 7800, expense: 5800 },
+    { name: 'Sep', income: 6600, expense: 4600 },
+    { name: 'Oct', income: 7300, expense: 5300 },
+    { name: 'Nov', income: 8400, expense: 6400 },
+    { name: 'Dec', income: 9200, expense: 7200 },
+]
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload
+        const income = data.income || 0
+        const expense = data.expense || 0
+        const diff = income - expense
+        const isPositive = diff >= 0
+
+        return (
+            <div className="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-2xl min-w-[180px] backdrop-blur-md bg-opacity-95">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">{label}</p>
+
+                <div className="space-y-2.5">
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                            <span className="text-[10px] font-bold text-gray-400">Income</span>
+                        </div>
+                        <span className="text-xs font-bold text-white">Rp {income.toLocaleString('id-ID')},000</span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                            <span className="text-[10px] font-bold text-gray-400">Expense</span>
+                        </div>
+                        <span className="text-xs font-bold text-white">Rp {expense.toLocaleString('id-ID')},000</span>
+                    </div>
+
+                    <div className="pt-2 mt-2 border-t border-gray-800 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase">Savings Gap</span>
+                        <span className={cn(
+                            "text-xs font-black",
+                            isPositive ? "text-emerald-400" : "text-rose-400"
+                        )}>
+                            {isPositive ? "+" : ""}
+                            Rp {diff.toLocaleString('id-ID')},000
+                        </span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    return null;
+};
 
 export default function DashboardOverview() {
+    const [chartView, setChartView] = useState<'weekly' | 'monthly'>('weekly')
+    const chartData = chartView === 'weekly' ? weeklyData : monthlyData
+    const targetLimit = chartView === 'weekly' ? 700 : 5000
+
     const stats = [
+        {
+            label: "Financial Score",
+            amount: "85/100",
+            subLabel: "Status: Excellent",
+            trend: "+2.4%",
+            up: true,
+            icon: Zap,
+            color: "text-blue-600 bg-blue-50"
+        },
         {
             label: "Total Balance",
             amount: "Rp 24,500,000",
@@ -35,7 +130,7 @@ export default function DashboardOverview() {
             color: "text-blue-600 bg-blue-50"
         },
         {
-            label: "Total Income",
+            label: "Income",
             amount: "Rp 8,200,000",
             subLabel: "This month",
             trend: "+8.2%",
@@ -44,21 +139,12 @@ export default function DashboardOverview() {
             color: "text-blue-600 bg-blue-50"
         },
         {
-            label: "Total Expenses",
+            label: "Expenses",
             amount: "Rp 3,450,000",
             subLabel: "this month",
             trend: "-2.4%",
             up: false,
             icon: TrendingDown,
-            color: "text-blue-600 bg-blue-50"
-        },
-        {
-            label: "Savings Progress",
-            amount: "75%",
-            subLabel: "Goal: Rp 5M",
-            trend: "+5.1%",
-            up: true,
-            icon: Target,
             color: "text-blue-600 bg-blue-50"
         },
     ]
@@ -99,40 +185,74 @@ export default function DashboardOverview() {
 
             {/* Stat Cards */}
             <div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-4 gap-6">
-                {stats.map((stat, i) => (
-                    <motion.div
-                        key={stat.label}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="bg-white @md:p-6 p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all group relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/30 rounded-full -translate-y-12 translate-x-12 group-hover:scale-110 transition-transform"></div>
+                {stats.map((stat, i) => {
+                    const isSpecial = stat.label === "Financial Score"
+                    return (
+                        <motion.div
+                            key={stat.label}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className={cn(
+                                "rounded-3xl border shadow-sm transition-all group relative overflow-hidden flex flex-col justify-start gap-5 min-h-[110px]",
+                                isSpecial
+                                    ? "bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 border-blue-400/20 p-4 @md:p-5 shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-1"
+                                    : "bg-white p-4 @md:p-5 border-gray-100 hover:shadow-xl hover:shadow-blue-500/5"
+                            )}
+                        >
+                            {/* Decorative Background Elements */}
+                            {isSpecial ? (
+                                <>
+                                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"></div>
+                                    <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-blue-400/10 rounded-full blur-xl"></div>
+                                </>
+                            ) : (
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/30 rounded-full -translate-y-12 translate-x-12 group-hover:scale-110 transition-transform"></div>
+                            )}
 
-                        <div className="flex items-center gap-3 @md:gap-4 mb-4 @md:mb-6 relative z-10">
-                            <div className={cn("w-10 h-10 @md:w-12 @md:h-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-3 shadow-sm", stat.color)}>
-                                <stat.icon className="w-5 h-5 @md:w-5 @md:h-5" />
-                            </div>
-                            <div>
-                                <p className="text-gray-500 text-[9px] @md:text-[10px] font-bold uppercase tracking-widest">{stat.label}</p>
-                                <h3 className="text-lg @md:text-xl font-bold tracking-tight text-gray-900 mt-0.5">{stat.amount}</h3>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between relative z-10">
-                            <div className="flex items-center gap-1.5">
-                                <div className={cn(
-                                    "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight transition-colors flex-shrink-0",
-                                    stat.up ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
-                                )}>
-                                    {stat.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
-                                    {stat.trend}
+                            <div className="flex items-start justify-between relative z-10">
+                                <div className="flex items-center gap-3 @md:gap-4">
+                                    <div className={cn(
+                                        "w-10 h-10 @md:w-12 @md:h-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-3 shadow-sm",
+                                        isSpecial ? "bg-white/20 text-white backdrop-blur-md" : stat.color
+                                    )}>
+                                        <stat.icon className="w-5 h-5 @md:w-5 @md:h-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className={cn("text-[9px] @md:text-[10px] font-bold uppercase tracking-widest truncate", isSpecial ? "text-blue-100/80" : "text-gray-500")}>
+                                            {stat.label}
+                                        </p>
+                                        <h3 className={cn("text-lg @md:text-xl font-bold tracking-tight mt-0.5 whitespace-nowrap", isSpecial ? "text-white" : "text-gray-900")}>
+                                            {stat.amount}
+                                        </h3>
+                                    </div>
                                 </div>
-                                <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">vs last month</span>
+
                             </div>
-                        </div>
-                    </motion.div>
-                ))}
+
+                            <div className="relative z-10 mt-1">
+                                <div className="flex items-center justify-between">
+                                    <span className={cn("text-[9px] @md:text-[10px] font-bold truncate", isSpecial ? "text-blue-100/70" : "text-gray-400")}>
+                                        {stat.subLabel}
+                                    </span>
+                                    {isSpecial ? (
+                                        <div className="flex items-center gap-1 text-[9px] @md:text-[10px] font-bold cursor-pointer transition-all hover:translate-x-0.5 text-white/80 hover:text-white">
+                                            View Details <ChevronRight className="w-2.5 h-2.5" />
+                                        </div>
+                                    ) : (
+                                        <div className={cn(
+                                            "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-tight transition-colors w-fit shrink-0",
+                                            stat.up ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
+                                        )}>
+                                            {stat.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
+                                            {stat.trend}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )
+                })}
             </div>
 
             <div className="grid grid-cols-1 @xl:grid-cols-3 gap-8">
@@ -145,51 +265,109 @@ export default function DashboardOverview() {
                         transition={{ delay: 0.4 }}
                         className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm"
                     >
-                        <div className="flex flex-col @md:flex-row justify-between items-start @md:items-center gap-4 mb-8">
+                        <div className="flex flex-col @md:flex-row justify-between items-start @md:items-center gap-4 mb-4">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 leading-none">Spending Analytics</h3>
-                                <p className="text-xs text-gray-500 font-medium mt-1.5">Monthly weekly expenses trend</p>
+                                <p className="text-xs text-gray-500 font-medium mt-1.5">
+                                    {chartView === 'weekly' ? 'Weekly expenses trend' : 'Monthly expenses trend'}
+                                </p>
                             </div>
                             <div className="flex bg-gray-50 p-1 rounded-xl w-full @md:w-auto">
-                                <button className="flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold text-blue-600 bg-white shadow-sm rounded-lg transition-all">Weekly</button>
-                                <button className="flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold text-gray-400 hover:text-gray-600 transition-colors">Monthly</button>
+                                <button
+                                    onClick={() => setChartView('weekly')}
+                                    className={cn(
+                                        "flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all",
+                                        chartView === 'weekly' ? "text-blue-600 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"
+                                    )}
+                                >
+                                    Weekly
+                                </button>
+                                <button
+                                    onClick={() => setChartView('monthly')}
+                                    className={cn(
+                                        "flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all",
+                                        chartView === 'monthly' ? "text-blue-600 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"
+                                    )}
+                                >
+                                    Monthly
+                                </button>
                             </div>
                         </div>
 
-                        {/* SVG Bar Chart Placeholder */}
-                        <div className="h-64 flex items-end justify-between gap-2 @md:gap-4 px-1 @md:px-2 border-b border-gray-100 pb-2 relative">
-                            {/* Target/Budget Line */}
-                            <div className="absolute left-0 right-0 top-1/4 h-[1px] bg-emerald-400/20 border-dashed border-t flex items-center justify-end">
-                                <span className="text-[8px] font-bold text-emerald-500 -mt-3 transform translate-x-2">Target Limit</span>
+                        <div className="h-[280px] w-full mt-4">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#2563eb" stopOpacity={0.8} />
+                                            <stop offset="100%" stopColor="#2563eb" stopOpacity={0.3} />
+                                        </linearGradient>
+                                        <linearGradient id="warningGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#ef4444" stopOpacity={0.8} />
+                                            <stop offset="100%" stopColor="#ef4444" stopOpacity={0.3} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
+                                        dy={10}
+                                    />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
+                                    />
+                                    <Tooltip
+                                        cursor={{ fill: '#f8fafc' }}
+                                        content={<CustomTooltip />}
+                                    />
+                                    <ReferenceLine
+                                        y={targetLimit}
+                                        stroke="#10b981"
+                                        strokeDasharray="4 4"
+                                        label={{
+                                            position: 'right',
+                                            value: 'Budget Limit',
+                                            fill: '#10b981',
+                                            fontSize: 9,
+                                            fontWeight: 700,
+                                            dx: -35
+                                        }}
+                                    />
+                                    <Bar
+                                        dataKey="expense"
+                                        radius={[6, 6, 0, 0]}
+                                        barSize={chartView === 'weekly' ? 32 : 24}
+                                    >
+                                        {chartData.map((entry, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={entry.expense > targetLimit ? "url(#warningGradient)" : "url(#barGradient)"}
+                                            />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        {/* AI Insight Text */}
+                        <div className="mt-8 pt-6 border-t border-gray-50">
+                            <div className="flex items-start gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/30">
+                                <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
+                                    <Zap className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-bold text-blue-900 leading-tight">Mindy's Logic Insight</p>
+                                    <p className="text-[10px] font-medium text-blue-700/80 mt-1 leading-relaxed">
+                                        {chartView === 'weekly'
+                                            ? "Your spending increased by 18% compared to last week. Try to reduce your 'Entertainment' expenses to stay within your budget limit."
+                                            : "You've exceeded your budget cap in 4 out of 12 months this year. However, your Income-to-Savings ratio remains healthy at 24%."}
+                                    </p>
+                                </div>
                             </div>
-
-                            {[550, 420, 780, 320, 610, 490, 850].map((val, i) => {
-                                const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-                                const height = (val / 900) * 100
-                                return (
-                                    <div key={days[i]} className="flex-1 flex flex-col items-center group relative">
-                                        <div className="w-full max-w-[48px] flex flex-col items-center">
-                                            <motion.div
-                                                initial={{ height: 0 }}
-                                                animate={{ height: `${height}%` }}
-                                                transition={{ delay: 0.6 + (i * 0.05), type: "spring", damping: 15 }}
-                                                className={cn(
-                                                    "w-full rounded-t-xl group-hover:scale-x-105 transition-all shadow-sm",
-                                                    val > 700 ? "bg-rose-500" : "bg-blue-600"
-                                                )}
-                                            >
-                                                <div className="absolute inset-x-0 bottom-0 bg-white/20 h-1/2 rounded-t-xl"></div>
-                                            </motion.div>
-                                        </div>
-                                        <span className="text-[9px] @md:text-[10px] font-bold text-gray-400 mt-4 uppercase tracking-wider">{days[i]}</span>
-
-                                        {/* Tooltip */}
-                                        <div className="absolute bottom-full mb-2 bg-gray-900 text-white text-[10px] px-3 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap z-20 font-bold shadow-xl">
-                                            Rp {val.toLocaleString('id-ID')},000
-                                        </div>
-                                    </div>
-                                )
-                            })}
                         </div>
                     </motion.div>
 

@@ -70,9 +70,12 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             )}
         >
             {/* Logo Section & Toggle Integration */}
-            <div className={cn("p-6 border-b border-gray-100 mb-4", isCollapsed && "px-0 flex justify-center")}>
+            <div className={cn(
+                "h-[88px] flex items-center border-b border-gray-100 bg-white flex-shrink-0",
+                isCollapsed ? "justify-center" : "px-6"
+            )}>
                 {!isCollapsed ? (
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between w-full">
                         <Link href="/" className="flex items-center gap-2 overflow-hidden group">
                             <div className="relative w-10 h-10 flex-shrink-0 transition-transform group-hover:scale-105">
                                 <Image
@@ -124,7 +127,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
 
             {/* Menu Sections */}
-            <div className="flex-1 overflow-y-auto px-4 no-scrollbar">
+            <div className="flex-1 overflow-y-auto px-4 no-scrollbar pt-4">
                 {menuCategories.map((category) => (
                     <div key={category.title} className="mb-8">
                         {!isCollapsed && (

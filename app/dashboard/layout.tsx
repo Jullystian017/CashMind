@@ -31,7 +31,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathname = usePathname()
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
-    const [isAIPanelOpen, setIsAIPanelOpen] = useState(true)
+    const [isAIPanelOpen, setIsAIPanelOpen] = useState(false)
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
     const isAIPage = pathname === "/dashboard/ai"
@@ -42,6 +42,13 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             setIsSidebarCollapsed(true)
         }
     }, [isAIPanelOpen])
+
+    // Automatically close AI panel when sidebar is expanded
+    useEffect(() => {
+        if (!isSidebarCollapsed && isAIPanelOpen) {
+            setIsAIPanelOpen(false)
+        }
+    }, [isSidebarCollapsed])
 
     useEffect(() => {
         if (searchParams.get('onboarding') === 'true') {
@@ -69,12 +76,12 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                     <header className="h-[88px] bg-white border-b border-gray-100 flex items-center justify-between px-8 flex-shrink-0">
                         <div className="flex-1 max-w-md">
                             <div className="relative group">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
                                 <input
                                     type="text"
                                     placeholder="Search anything..."
                                     suppressHydrationWarning
-                                    className="w-full pl-12 pr-4 py-2.5 bg-white border border-gray-200 rounded-2xl text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)]"
+                                    className="w-full pl-12 pr-4 py-2.5 bg-white border border-gray-200 rounded-2xl group-hover:border-blue-500 transition-colors text-sm font-medium outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)]"
                                 />
                             </div>
                         </div>

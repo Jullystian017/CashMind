@@ -14,13 +14,13 @@ export function Footer() {
                         <Link href="/" className="flex items-center gap-2 mb-6 group">
                             <div className="relative w-8 h-8 transition-transform group-hover:scale-105">
                                 <Image
-                                    src="/cashmind-logo.png"
+                                    src="/cashmind-logo2.png"
                                     alt="CashMind Logo"
                                     fill
                                     className="object-contain"
                                 />
                             </div>
-                            <span className="text-xl font-bold tracking-tight text-gray-900">
+                            <span className="text-2xl font-semibold tracking-tight text-gray-900">
                                 CashMind
                             </span>
                         </Link>
@@ -39,7 +39,7 @@ export function Footer() {
 
                     {/* Links Columns */}
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-6">Discovery</h4>
+                        <h4 className="font-semibold text-gray-900 mb-6">Discovery</h4>
                         <ul className="space-y-4">
                             <li><Link href="/about" className="text-gray-500 hover:text-blue-600 text-sm transition-colors">About Us</Link></li>
                             <li><Link href="/features" className="text-gray-500 hover:text-blue-600 text-sm transition-colors">Features</Link></li>
@@ -49,7 +49,7 @@ export function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-6">Product</h4>
+                        <h4 className="font-semibold text-gray-900 mb-6">Product</h4>
                         <ul className="space-y-4">
                             <li><Link href="/dashboard" className="text-gray-500 hover:text-blue-600 text-sm transition-colors">Dashboard</Link></li>
                             <li><Link href="#" className="text-gray-500 hover:text-blue-600 text-sm transition-colors">Budget Planner</Link></li>
@@ -59,7 +59,7 @@ export function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-6">Contact</h4>
+                        <h4 className="font-semibold text-gray-900 mb-6">Contact</h4>
                         <ul className="space-y-4">
                             <li className="text-gray-500 text-sm">support@cashmind.com</li>
                             <li className="text-gray-500 text-sm">+62 812-3456-7890</li>

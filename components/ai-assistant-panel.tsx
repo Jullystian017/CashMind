@@ -22,7 +22,7 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
 
     return (
         <aside className="fixed right-0 top-0 h-screen w-80 bg-white border-l border-gray-100 flex flex-col z-50 shadow-2xl lg:shadow-none lg:static">
-            <div className="p-5 flex items-center justify-between border-b border-gray-50 bg-white flex-shrink-0">
+            <div className="h-[88px] px-6 flex items-center justify-between border-b border-gray-100 bg-white flex-shrink-0">
                 <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-600" />
                     <span className="font-bold text-gray-900 tracking-tight">Mindy AI</span>
