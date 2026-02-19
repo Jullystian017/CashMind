@@ -31,7 +31,7 @@ import {
 } from "lucide-react"
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    ReferenceLine, Cell
+    ReferenceLine, Cell, PieChart, Pie
 } from 'recharts'
 
 const weeklyData = [
@@ -150,11 +150,19 @@ export default function DashboardOverview() {
     ]
 
     const transactions = [
-        { date: "Feb 18, 2026", desc: "Starbucks Coffee", cat: "Food & Drinks", amount: "-Rp 55,000", status: "Completed", isPositive: false },
-        { date: "Feb 17, 2026", desc: "Freelance Payment", cat: "Income", amount: "+Rp 2,500,000", status: "Completed", isPositive: true },
-        { date: "Feb 17, 2026", desc: "Indomaret", cat: "Shopping", amount: "-Rp 120,000", status: "Completed", isPositive: false },
-        { date: "Feb 16, 2026", desc: "Spotify Premium", cat: "Entertainment", amount: "-Rp 54,990", status: "Completed", isPositive: false },
-        { date: "Feb 15, 2026", desc: "Withdrawal", cat: "Transfer", amount: "-Rp 500,000", status: "Completed", isPositive: false },
+        { date: "Feb 18, 2026", desc: "Starbucks Coffee", cat: "Food & Drinks", amount: "-Rp 55.000", isPositive: false, type: 'food' },
+        { date: "Feb 17, 2026", desc: "Freelance Payment", cat: "Income", amount: "+Rp 2.500.000", isPositive: true, type: 'income' },
+        { date: "Feb 17, 2026", desc: "Indomaret Plus", cat: "Shopping", amount: "-Rp 120.000", isPositive: false, type: 'shopping' },
+        { date: "Feb 16, 2026", desc: "Spotify Premium", cat: "Entertainment", amount: "-Rp 54.990", isPositive: false, type: 'entertainment' },
+        { date: "Feb 15, 2026", desc: "ATM Withdrawal", cat: "Cash", amount: "-Rp 500.000", isPositive: false, type: 'transfer' },
+    ]
+
+    const categoriesData = [
+        { name: "Food & Drinks", value: 1530000, percent: 45, color: "#2563eb", icon: Utensils },
+        { name: "Entertainment", value: 850000, percent: 25, color: "#6366f1", icon: Zap },
+        { name: "Transport", value: 680000, percent: 20, color: "#10b981", icon: Car },
+        { name: "Shopping", value: 300000, percent: 8, color: "#f59e0b", icon: ShoppingCart },
+        { name: "Others", value: 70000, percent: 2, color: "#94a3b8", icon: MoreHorizontal },
     ]
 
     const budgetStatus = [
@@ -383,82 +391,131 @@ export default function DashboardOverview() {
                             </button>
                         </div>
 
-                        <div className="divide-y divide-gray-50">
-                            {transactions.map((tx, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.7 + (i * 0.05) }}
-                                    className="p-6 hover:bg-gray-50 transition-all flex items-center justify-between group cursor-pointer"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={cn(
-                                            "w-12 h-12 rounded-2xl flex items-center justify-center text-lg shadow-sm border border-white group-hover:scale-110 transition-transform",
-                                            tx.isPositive ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600"
-                                        )}>
-                                            {tx.isPositive ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
-                                        </div>
-                                        <div>
-                                            <h4 className="text-sm font-bold text-gray-900 tracking-tight">{tx.desc}</h4>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{tx.cat}</span>
-                                                <span className="w-1 h-1 rounded-full bg-gray-200"></span>
-                                                <span className="text-[10px] font-bold text-gray-400">{tx.date}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className={cn(
-                                            "text-sm font-bold tracking-tight",
-                                            tx.isPositive ? "text-emerald-600" : "text-gray-900"
-                                        )}>
-                                            {tx.amount}
-                                        </p>
-                                        <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">Completed</p>
-                                    </div>
-                                </motion.div>
-                            ))}
+                        <div className="overflow-x-auto">
+                            <div className="min-w-[600px]">
+                                {/* Table Header */}
+                                <div className="grid grid-cols-[2.2fr_1.5fr_1fr_1fr] px-8 py-4 bg-gray-50/50 border-b border-gray-50">
+                                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Transaction</span>
+                                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Category</span>
+                                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Date</span>
+                                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest text-right">Amount</span>
+                                </div>
+
+                                <div className="divide-y divide-gray-50">
+                                    {transactions.map((tx, i) => {
+                                        // Find matching category style
+                                        const catStyle = categoriesData.find(c => c.name === tx.cat) ||
+                                            (tx.isPositive ? { color: "#10b981", icon: Wallet } : { color: "#94a3b8", icon: MoreHorizontal });
+
+                                        const Icon = catStyle.icon;
+
+                                        return (
+                                            <motion.div
+                                                key={i}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.7 + (i * 0.05) }}
+                                                className="grid grid-cols-[2.1fr_1.6fr_1fr_1fr] items-center px-8 py-5 hover:bg-gray-50/80 transition-all group cursor-pointer active:scale-[0.99]"
+                                                onClick={() => {/* Open Detail Modal logic will go here */ }}
+                                            >
+                                                {/* Column 1: Transaction */}
+                                                <div className="flex items-center gap-4">
+                                                    <div className={cn(
+                                                        "w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm border border-white group-hover:scale-110 transition-transform shrink-0"
+                                                    )} style={{ backgroundColor: `${catStyle.color}15`, color: catStyle.color }}>
+                                                        <Icon className="w-5 h-5" />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <h4 className="text-sm font-semibold text-gray-900 ">{tx.desc}</h4>
+                                                    </div>
+                                                </div>
+
+                                                {/* Column 2: Category */}
+                                                <div className="flex justify-start">
+                                                    <span className="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg uppercase tracking-widest">{tx.cat}</span>
+                                                </div>
+
+                                                {/* Column 3: Date */}
+                                                <div className="flex justify-start">
+                                                    <span className="text-[12px] font-medium text-gray-400">{tx.date.split(',')[0]}</span>
+                                                </div>
+
+                                                {/* Column 4: Amount */}
+                                                <div className="text-right">
+                                                    <p className={cn(
+                                                        "text-sm font-bold tracking-tight",
+                                                        tx.isPositive ? "text-emerald-600" : "text-rose-600"
+                                                    )}>
+                                                        {tx.amount}
+                                                    </p>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Side: Analytics & Planning */}
                 <div className="space-y-8">
-                    {/* Category Breakdown Donut (Mock SVG) */}
+                    {/* Top Categories Breakdown */}
                     <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm">
                         <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-lg font-bold text-gray-900">Categories</h3>
-                            <button className="p-2 hover:bg-gray-50 rounded-xl transition-colors">
-                                <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 leading-none">Top Categories</h3>
+                                <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">Monthly spending</p>
+                            </div>
+                            <button className="text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group">
+                                Details <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                             </button>
                         </div>
 
-                        <div className="relative flex justify-center py-4">
-                            <svg viewBox="0 0 100 100" className="w-32 h-32 @md:w-48 @md:h-48 transform -rotate-90">
-                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f1f5f9" strokeWidth="12" />
-                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#2563eb" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="62.8" strokeLinecap="round" />
-                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="188.4" strokeLinecap="round" />
-                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f59e0b" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="226" strokeLinecap="round" />
-                            </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-[8px] @md:text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Total Spent</span>
-                                <span className="text-lg @md:text-xl font-bold text-gray-900 tracking-tight mt-1">Rp 3.4M</span>
+                        <div className="relative flex justify-center py-2">
+                            <div className="w-32 h-32 @md:w-48 @md:h-48">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={categoriesData}
+                                            innerRadius={chartView === 'weekly' ? "65%" : "70%"}
+                                            outerRadius="100%"
+                                            paddingAngle={4}
+                                            dataKey="value"
+                                            startAngle={90}
+                                            endAngle={450}
+                                        >
+                                            {categoriesData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span className="text-[8px] @md:text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">Total Spent</span>
+                                <span className="text-lg @md:text-2xl font-black text-gray-900 tracking-tight">Rp 3.4M</span>
                             </div>
                         </div>
 
-                        <div className="mt-8 space-y-4">
-                            {[
-                                { name: "Food & Drinks", percent: 45, color: "bg-blue-600" },
-                                { name: "Entertainment", percent: 25, color: "bg-emerald-500" },
-                                { name: "Others", percent: 10, color: "bg-amber-500" },
-                            ].map((item) => (
-                                <div key={item.name} className="flex items-center justify-between">
+                        <div className="mt-8 space-y-3">
+                            {categoriesData.map((item) => (
+                                <div key={item.name} className="flex items-center justify-between p-2 rounded-2xl hover:bg-gray-50 transition-colors group cursor-pointer">
                                     <div className="flex items-center gap-3">
-                                        <div className={cn("w-2 h-2 @md:w-2.5 @md:h-2.5 rounded-full", item.color)}></div>
-                                        <span className="text-[11px] @md:text-xs font-bold text-gray-600">{item.name}</span>
+                                        <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border border-white group-hover:scale-110 transition-transform")} style={{ backgroundColor: `${item.color}15`, color: item.color }}>
+                                            <item.icon className="w-4 h-4" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <span className="text-[11px] font-black text-gray-800 block truncate">{item.name}</span>
+                                            <span className="text-[9px] font-bold text-gray-400 uppercase">Rp {(item.value / 1000).toLocaleString('id-ID')}k</span>
+                                        </div>
                                     </div>
-                                    <span className="text-[11px] @md:text-xs font-bold text-gray-900">{item.percent}%</span>
+                                    <div className="text-right">
+                                        <span className="text-xs font-black text-gray-900">{item.percent}%</span>
+                                        <div className="w-12 h-1 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                                            <div className="h-full rounded-full" style={{ width: `${item.percent}%`, backgroundColor: item.color }}></div>
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
