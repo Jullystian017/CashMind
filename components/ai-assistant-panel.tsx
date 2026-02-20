@@ -21,7 +21,7 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
     if (!isOpen) return null
 
     return (
-        <aside className="fixed right-0 top-0 h-screen w-80 bg-white border-l border-gray-100 flex flex-col z-50 shadow-2xl lg:shadow-none lg:static">
+        <aside className="fixed right-0 top-0 h-screen w-80 bg-white border-l border-gray-100 flex flex-col z-[70] shadow-2xl lg:shadow-none lg:static">
             <div className="h-[88px] px-6 flex items-center justify-between border-b border-gray-100 bg-white flex-shrink-0">
                 <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-600" />
@@ -45,30 +45,11 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
                             <div className="absolute -right-1 -bottom-1 w-5 h-5 bg-green-500 border-[3px] border-white rounded-full"></div>
                         </div>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 tracking-tight">Hi, Fajar Alexander! 👋</h3>
+                    <h3 className="text-lg font-bold text-gray-900 tracking-tight">Hi, Jullystian! 👋</h3>
                     <p className="text-xs text-gray-500 font-medium px-4">
                         I'm <span className="text-blue-600 font-bold">Mindy</span>, your smart financial coach. How can I help you today?
                     </p>
                 </div>
-
-                {/* Today's Tip Card */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mb-8 p-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl text-white shadow-lg shadow-blue-500/20 relative overflow-hidden group"
-                >
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Lightbulb className="w-4 h-4 text-blue-200" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-100">Today's Tip</span>
-                        </div>
-                        <p className="text-sm font-semibold leading-relaxed">
-                            "Kamu sudah hemat 12% dibanding bulan lalu. Terus pertahankan bray!"
-                        </p>
-                    </div>
-                    {/* Decorative Background Icon */}
-                    <Sparkles className="absolute -right-4 -bottom-4 w-20 h-20 text-white/10 rotate-12 group-hover:rotate-45 transition-transform duration-500" />
-                </motion.div>
 
                 {/* Quick Actions */}
                 <div className="w-full space-y-2 mb-8">

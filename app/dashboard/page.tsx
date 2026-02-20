@@ -20,19 +20,32 @@ import {
     TrendingDown,
     Zap,
     ChevronRight,
+    Eye,
+    Clock,
     MoreHorizontal,
     Lightbulb,
     Bell,
     Calendar,
-    ShoppingCart,
-    Coffee,
+    UtensilsCrossed,
     Car,
-    Utensils
+    Gamepad2,
+    ShoppingBag
 } from "lucide-react"
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     ReferenceLine, Cell, PieChart, Pie
 } from 'recharts'
+import { GoalsManagementModal } from "@/components/goals-management-modal"
+import { FinancialCalendarModal } from "@/components/financial-calendar-modal"
+
+export interface Goal {
+    id: string;
+    title: string;
+    targetAmount: number;
+    currentAmount: number;
+    deadline: string;
+    color: string;
+}
 
 const weeklyData = [
     { name: 'Mon', income: 850, expense: 550 },
@@ -110,6 +123,40 @@ export default function DashboardOverview() {
     const chartData = chartView === 'weekly' ? weeklyData : monthlyData
     const targetLimit = chartView === 'weekly' ? 700 : 5000
 
+    const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+    const [goals, setGoals] = useState<Goal[]>([
+        { id: '1', title: "Trip to Bali", targetAmount: 5000000, currentAmount: 3500000, deadline: "2026-06-15", color: "bg-blue-600" },
+        { id: '2', title: "New MacBook Pro", targetAmount: 25000000, currentAmount: 8500000, deadline: "2026-12-25", color: "bg-blue-600" }
+    ])
+
+    const formatIndoDate = (dateStr: string) => {
+        try {
+            const date = new Date(dateStr)
+            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+        } catch {
+            return dateStr
+        }
+    }
+
+    const calculateTimeLeft = (deadlineStr: string) => {
+        try {
+            const now = new Date()
+            const deadline = new Date(deadlineStr)
+            const diffTime = deadline.getTime() - now.getTime()
+
+            if (diffTime < 0) return "Terminated"
+
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+            if (diffDays < 30) return `${diffDays} days left`
+
+            const diffMonths = Math.ceil(diffDays / 30)
+            return `${diffMonths} months left`
+        } catch {
+            return "No deadline"
+        }
+    }
+
     const stats = [
         {
             label: "Financial Score",
@@ -132,7 +179,7 @@ export default function DashboardOverview() {
         {
             label: "Income",
             amount: "Rp 8,200,000",
-            subLabel: "This month",
+            subLabel: "Total earned",
             trend: "+8.2%",
             up: true,
             icon: TrendingUp,
@@ -141,7 +188,7 @@ export default function DashboardOverview() {
         {
             label: "Expenses",
             amount: "Rp 3,450,000",
-            subLabel: "this month",
+            subLabel: "This month",
             trend: "-2.4%",
             up: false,
             icon: TrendingDown,
@@ -155,24 +202,23 @@ export default function DashboardOverview() {
         { date: "Feb 17, 2026", desc: "Indomaret Plus", cat: "Shopping", amount: "-Rp 120.000", isPositive: false, type: 'shopping' },
         { date: "Feb 16, 2026", desc: "Spotify Premium", cat: "Entertainment", amount: "-Rp 54.990", isPositive: false, type: 'entertainment' },
         { date: "Feb 15, 2026", desc: "ATM Withdrawal", cat: "Cash", amount: "-Rp 500.000", isPositive: false, type: 'transfer' },
+        { date: "Feb 14, 2026", desc: "Shell V-Power", cat: "Transport", amount: "-Rp 150.000", isPositive: false, type: 'transport' },
     ]
 
     const categoriesData = [
-        { name: "Food & Drinks", value: 1530000, percent: 45, color: "#2563eb", icon: Utensils },
-        { name: "Entertainment", value: 850000, percent: 25, color: "#6366f1", icon: Zap },
-        { name: "Transport", value: 680000, percent: 20, color: "#10b981", icon: Car },
-        { name: "Shopping", value: 300000, percent: 8, color: "#f59e0b", icon: ShoppingCart },
+        { name: "Food & Drinks", value: 1530000, percent: 45, color: "#3b82f6", icon: UtensilsCrossed },
+        { name: "Entertainment", value: 850000, percent: 25, color: "#a855f7", icon: Gamepad2 },
+        { name: "Transport", value: 680000, percent: 20, color: "#f97316", icon: Car },
+        { name: "Shopping", value: 300000, percent: 8, color: "#ec4899", icon: ShoppingBag },
         { name: "Others", value: 70000, percent: 2, color: "#94a3b8", icon: MoreHorizontal },
     ]
 
-    const budgetStatus = [
-        { name: "Food", spent: 1200000, limit: 2000000, color: "bg-blue-500" },
-        { name: "Transport", spent: 450000, limit: 600000, color: "bg-emerald-500" },
-        { name: "Entertainment", spent: 300000, limit: 500000, color: "bg-amber-500" },
-    ]
 
     return (
-        <div className="space-y-8 pb-10" suppressHydrationWarning={true}>
+        <div className="space-y-8 pb-24" suppressHydrationWarning={true}>
+            {/* Financial Calendar Modal */}
+            <FinancialCalendarModal isOpen={isCalendarOpen} onClose={() => setIsCalendarOpen(false)} />
+
             {/* Header Section */}
             <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
                 <div>
@@ -180,13 +226,13 @@ export default function DashboardOverview() {
                     <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Welcome back! Here's what's happening with your money today.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white border border-gray-100 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all shadow-sm">
-                        <Filter className="w-3.5 h-3.5" />
-                        <span>This Month</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20">
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add Transaction</span>
+                    <button
+                        suppressHydrationWarning={true}
+                        onClick={() => setIsCalendarOpen(true)}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 group"
+                    >
+                        <Calendar className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                        <span>Financial Calendar</span>
                     </button>
                 </div>
             </div>
@@ -240,16 +286,16 @@ export default function DashboardOverview() {
 
                             <div className="relative z-10 mt-1">
                                 <div className="flex items-center justify-between">
-                                    <span className={cn("text-[9px] @md:text-[10px] font-bold truncate", isSpecial ? "text-blue-100/70" : "text-gray-400")}>
+                                    <span className={cn("text-[9px] @md:text-[11px] font-bold truncate", isSpecial ? "text-blue-100/70" : "text-gray-400")}>
                                         {stat.subLabel}
                                     </span>
                                     {isSpecial ? (
-                                        <div className="flex items-center gap-1 text-[9px] @md:text-[10px] font-bold cursor-pointer transition-all hover:translate-x-0.5 text-white/80 hover:text-white">
+                                        <div className="flex items-center gap-1 text-[9px] @md:text-[10px] font-bold cursor-pointer transition-all hover:translate-x-0.5 text-white/80 hover:text-white" suppressHydrationWarning={true}>
                                             View Details <ChevronRight className="w-2.5 h-2.5" />
                                         </div>
                                     ) : (
                                         <div className={cn(
-                                            "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-tight transition-colors w-fit shrink-0",
+                                            "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight transition-colors w-fit shrink-0",
                                             stat.up ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
                                         )}>
                                             {stat.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
@@ -283,6 +329,7 @@ export default function DashboardOverview() {
                             <div className="flex bg-gray-50 p-1 rounded-xl w-full @md:w-auto">
                                 <button
                                     onClick={() => setChartView('weekly')}
+                                    suppressHydrationWarning={true}
                                     className={cn(
                                         "flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all",
                                         chartView === 'weekly' ? "text-blue-600 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"
@@ -292,6 +339,7 @@ export default function DashboardOverview() {
                                 </button>
                                 <button
                                     onClick={() => setChartView('monthly')}
+                                    suppressHydrationWarning={true}
                                     className={cn(
                                         "flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all",
                                         chartView === 'monthly' ? "text-blue-600 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"
@@ -380,13 +428,16 @@ export default function DashboardOverview() {
                     </motion.div>
 
                     {/* Transaction List */}
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden pb-6">
                         <div className="@md:p-8 p-6 border-b border-gray-50 flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-bold tracking-tight text-gray-900">Recent Transactions</h3>
                                 <p className="text-xs text-gray-500 font-semibold tracking-wide">Last activities this week</p>
                             </div>
-                            <button className="text-[11px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group">
+                            <button
+                                suppressHydrationWarning={true}
+                                className="text-[11px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
+                            >
                                 <span className="hidden @sm:inline">View All</span> <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                             </button>
                         </div>
@@ -394,7 +445,7 @@ export default function DashboardOverview() {
                         <div className="overflow-x-auto">
                             <div className="min-w-[600px]">
                                 {/* Table Header */}
-                                <div className="grid grid-cols-[2.2fr_1.5fr_1fr_1fr] px-8 py-4 bg-gray-50/50 border-b border-gray-50">
+                                <div className="grid grid-cols-[2fr_1.5fr_1.2fr_1fr] px-8 py-4 bg-gray-50/50 border-b border-gray-50">
                                     <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Transaction</span>
                                     <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Category</span>
                                     <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Date</span>
@@ -415,16 +466,11 @@ export default function DashboardOverview() {
                                                 initial={{ opacity: 0, x: -10 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: 0.7 + (i * 0.05) }}
-                                                className="grid grid-cols-[2.1fr_1.6fr_1fr_1fr] items-center px-8 py-5 hover:bg-gray-50/80 transition-all group cursor-pointer active:scale-[0.99]"
+                                                className="grid grid-cols-[2fr_1.5fr_1.2fr_1fr] items-center px-8 py-5 hover:bg-gray-50/80 transition-all group cursor-pointer active:scale-[0.99]"
                                                 onClick={() => {/* Open Detail Modal logic will go here */ }}
                                             >
                                                 {/* Column 1: Transaction */}
                                                 <div className="flex items-center gap-4">
-                                                    <div className={cn(
-                                                        "w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm border border-white group-hover:scale-110 transition-transform shrink-0"
-                                                    )} style={{ backgroundColor: `${catStyle.color}15`, color: catStyle.color }}>
-                                                        <Icon className="w-5 h-5" />
-                                                    </div>
                                                     <div className="min-w-0">
                                                         <h4 className="text-sm font-semibold text-gray-900 ">{tx.desc}</h4>
                                                     </div>
@@ -432,12 +478,17 @@ export default function DashboardOverview() {
 
                                                 {/* Column 2: Category */}
                                                 <div className="flex justify-start">
-                                                    <span className="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg uppercase tracking-widest">{tx.cat}</span>
+                                                    <span
+                                                        className="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-widest border border-current/10"
+                                                        style={{ backgroundColor: `${catStyle.color}15`, color: catStyle.color }}
+                                                    >
+                                                        {tx.cat}
+                                                    </span>
                                                 </div>
 
                                                 {/* Column 3: Date */}
                                                 <div className="flex justify-start">
-                                                    <span className="text-[12px] font-medium text-gray-400">{tx.date.split(',')[0]}</span>
+                                                    <span className="text-[11px] font-bold text-gray-400 tracking-tight">{tx.date}</span>
                                                 </div>
 
                                                 {/* Column 4: Amount */}
@@ -467,7 +518,10 @@ export default function DashboardOverview() {
                                 <h3 className="text-lg font-bold text-gray-900 leading-none">Top Categories</h3>
                                 <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">Monthly spending</p>
                             </div>
-                            <button className="text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group">
+                            <button
+                                suppressHydrationWarning={true}
+                                className="text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
+                            >
                                 Details <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                             </button>
                         </div>
@@ -478,7 +532,7 @@ export default function DashboardOverview() {
                                     <PieChart>
                                         <Pie
                                             data={categoriesData}
-                                            innerRadius={chartView === 'weekly' ? "65%" : "70%"}
+                                            innerRadius={"68%"}
                                             outerRadius="100%"
                                             paddingAngle={4}
                                             dataKey="value"
@@ -521,47 +575,119 @@ export default function DashboardOverview() {
                         </div>
                     </div>
 
-                    {/* Progress Trackers */}
-                    <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm transition-all">
-                        <h3 className="text-lg font-bold text-gray-900 mb-8">Budget Progress</h3>
-                        <div className="space-y-8">
-                            {budgetStatus.map((budget) => {
-                                const progress = (budget.spent / budget.limit) * 100
+                    {/* Goal Spotlight */}
+                    <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm transition-all min-h-[395px]">
+                        <div className="flex items-center justify-between mb-9">
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 tracking-tight leading-none">Goal Spotlight</h3>
+                                <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">Fueling your future</p>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setIsGoalModalOpen(true)}
+                                    suppressHydrationWarning={true}
+                                    className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors group"
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-widest">View All</span>
+                                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {goals.slice(0, 2).map((goal) => {
+                                const progress = (goal.currentAmount / goal.targetAmount) * 100
+                                const remaining = goal.targetAmount - goal.currentAmount
+
+                                const formatJt = (val: number) => {
+                                    return (val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt'
+                                }
+
                                 return (
-                                    <div key={budget.name}>
-                                        <div className="flex justify-between items-center mb-3">
-                                            <span className="text-xs font-bold text-gray-900 tracking-tight">{budget.name}</span>
-                                            <span className="text-[11px] font-bold text-gray-500">
-                                                Rp {(budget.spent / 1000).toLocaleString('id-ID')}k <span className="text-gray-300 mx-1">/</span> Rp {(budget.limit / 1000).toLocaleString('id-ID')}k
-                                            </span>
+                                    <motion.div
+                                        key={goal.id}
+                                        whileHover={{ y: -1, scale: 1.002 }}
+                                        className="relative group p-4 rounded-[20px] bg-slate-50 border border-slate-100 hover:bg-white hover:border-blue-100 hover:shadow-xl hover:shadow-blue-500/5 transition-all cursor-pointer overflow-hidden"
+                                        onClick={() => setIsGoalModalOpen(true)}
+                                    >
+                                        <div className="relative z-10">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div className="space-y-1.5">
+                                                    <h4 className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors tracking-tight uppercase leading-none">{goal.title}</h4>
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white border border-gray-100 rounded shadow-sm">
+                                                            <Calendar className="w-2 h-2 text-gray-400" />
+                                                            <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wider" suppressHydrationWarning={true}>{formatIndoDate(goal.deadline)}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-50 rounded border border-blue-100/50">
+                                                            <Clock className="w-2 h-2 text-blue-500" />
+                                                            <span className="text-[8px] font-black text-blue-600 uppercase tracking-wider" suppressHydrationWarning={true}>{calculateTimeLeft(goal.deadline)}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right shrink-0 mt-1">
+
+                                                    <p className="text-[11px] font-bold text-gray-900 whitespace-nowrap leading-none">
+                                                        Rp {formatJt(goal.currentAmount)}
+                                                        <span className="text-gray-300 mx-0.5">/</span>
+                                                        <span className="text-gray-400">{formatJt(goal.targetAmount)}</span>
+                                                    </p>
+
+                                                </div>
+                                            </div>
+
+                                            <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden p-[1px] mb-2">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${progress}%` }}
+                                                    className={cn("h-full rounded-full shadow relative", goal.color)}
+                                                >
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_infinite] -translate-x-full"></div>
+                                                </motion.div>
+                                            </div>
+
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-1.5">
+                                                    <div className={cn("w-1 h-1 rounded-full shadow-sm", goal.color)}></div>
+                                                    <span className="text-[10px] font-bold text-gray-900 uppercase tracking-widest">{Math.round(progress)}% SAVED</span>
+                                                </div>
+                                                <div className="flex items-center gap-1 text-black">
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest">Need {formatJt(remaining)} more</span>
+                                                    <ChevronRight className="w-2 h-2 group-hover:translate-x-0.5 transition-transform" />
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="h-2.5 bg-gray-50 rounded-full overflow-hidden border border-gray-100 p-[1px]">
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${progress}%` }}
-                                                transition={{ delay: 0.8, duration: 1 }}
-                                                className={cn("h-full rounded-full shadow-sm", budget.color)}
-                                            ></motion.div>
-                                        </div>
-                                    </div>
+                                    </motion.div>
                                 )
                             })}
                         </div>
 
-                        <div className="mt-10 p-5 rounded-[24px] bg-blue-50 border border-blue-100/50">
-                            <div className="flex items-center gap-3 mb-2">
-                                <Target className="w-4 h-4 text-blue-600" />
-                                <h4 className="text-xs font-bold text-gray-900 uppercase tracking-widest">Savings Goal</h4>
+                        {goals.length === 0 && (
+                            <div className="py-14 flex flex-col items-center justify-center text-center">
+                                <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
+                                    <Target className="w-8 h-8 text-gray-300" />
+                                </div>
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No goals set</p>
+                                <button
+                                    onClick={() => setIsGoalModalOpen(true)}
+                                    className="mt-4 text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
+                                >
+                                    Create one now
+                                </button>
                             </div>
-                            <p className="text-[11px] font-bold text-gray-500 mb-4">You're Rp 1.5M away from your Trip to Bali goal!</p>
-                            <div className="h-1.5 bg-white rounded-full overflow-hidden p-[1px]">
-                                <div className="h-full w-4/5 bg-blue-600 rounded-full"></div>
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                 </div>
             </div>
+            {/* Goals Management Modal */}
+            <GoalsManagementModal
+                isOpen={isGoalModalOpen}
+                onClose={() => setIsGoalModalOpen(false)}
+                goals={goals}
+                onUpdateGoals={setGoals}
+            />
         </div>
     )
 }
