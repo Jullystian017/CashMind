@@ -73,7 +73,7 @@ export default function FeaturesPage() {
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl md:text-6xl font-black text-gray-900 mb-6 tracking-tight"
+                        className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight"
                     >
                         One App. <span className="text-blue-600">Infinite Control.</span>
                     </motion.h1>
@@ -108,73 +108,6 @@ export default function FeaturesPage() {
                                 </div>
                             </motion.div>
                         ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Extra Features / Value Prop */}
-            <section className="py-24 bg-gray-900 text-white overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/10 blur-[150px] rounded-full"></div>
-
-                <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                        <div className="space-y-8 text-center lg:text-left">
-                            <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-tight">
-                                Built with Modern <br />
-                                <span className="text-blue-500">Stability & Security</span>
-                            </h2>
-                            <p className="text-gray-400 text-lg">
-                                Bukan sekadar aplikasi biasa, CashMind menggunakan teknologi terkini untuk memastikan pengalaman pengguna yang super smooth.
-                            </p>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
-                                <div className="flex gap-4 items-center bg-white/5 p-4 rounded-2xl border border-white/10">
-                                    <ShieldCheck className="w-8 h-8 text-blue-400" />
-                                    <div className="text-left">
-                                        <h4 className="font-bold">Real-time Sync</h4>
-                                        <p className="text-xs text-gray-500">Data update instan.</p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-4 items-center bg-white/5 p-4 rounded-2xl border border-white/10">
-                                    <Smartphone className="w-8 h-8 text-blue-400" />
-                                    <div className="text-left">
-                                        <h4 className="font-bold">Mobile First</h4>
-                                        <p className="text-xs text-gray-500">Akses di mana saja.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="relative">
-                            <motion.div
-                                initial={{ opacity: 0, x: 50 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                className="bg-gradient-to-br from-blue-600 to-blue-800 p-8 rounded-[3rem] shadow-2xl relative z-20"
-                            >
-                                <div className="space-y-6">
-                                    <div className="flex justify-between items-center bg-white/10 p-4 rounded-2xl">
-                                        <div className="flex gap-3 items-center">
-                                            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">🍱</div>
-                                            <div className="text-sm font-bold">Lunch expense tracked!</div>
-                                        </div>
-                                        <div className="text-xs text-blue-300">-Rp 25.000</div>
-                                    </div>
-                                    <div className="flex justify-between items-center bg-white/10 p-4 rounded-2xl scale-105 border border-white/20 shadow-xl shadow-black/20">
-                                        <div className="flex gap-3 items-center">
-                                            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">🎯</div>
-                                            <div className="text-sm font-bold">Laptop Goal: 85% reached</div>
-                                        </div>
-                                        <div className="text-xs text-blue-300">+6% Today</div>
-                                    </div>
-                                    <div className="flex justify-between items-center bg-white/10 p-4 rounded-2xl">
-                                        <div className="flex gap-3 items-center">
-                                            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">🤖</div>
-                                            <div className="text-sm font-bold text-left">Mindy says: "You're doing great!"</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </div>
                     </div>
                 </div>
             </section>

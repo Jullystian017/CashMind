@@ -2,7 +2,8 @@
 
 import { Search, Bell, Sparkles, Menu, ChevronDown, User } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 
 interface HeaderProps {
     /** Controls whether the AI Assistant button shows as active */
@@ -14,7 +15,13 @@ interface HeaderProps {
 }
 
 export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: HeaderProps) {
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
     const searchRef = useRef<HTMLInputElement>(null)
+
+    // Initial value from URL
+    const [searchValue, setSearchValue] = useState(searchParams.get('q') || "")
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -27,6 +34,18 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
         window.addEventListener('keydown', handleKeyDown)
         return () => window.removeEventListener('keydown', handleKeyDown)
     }, [])
+
+    // Update URL when search changes
+    const handleSearch = (val: string) => {
+        setSearchValue(val)
+        const params = new URLSearchParams(searchParams.toString())
+        if (val) {
+            params.set('q', val)
+        } else {
+            params.delete('q')
+        }
+        router.push(`${pathname}?${params.toString()}`)
+    }
 
     return (
         <header className="h-[88px] bg-white border-b border-gray-100 flex-shrink-0">
@@ -52,6 +71,8 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                 ref={searchRef}
                                 type="text"
                                 placeholder="Search anything..."
+                                value={searchValue}
+                                onChange={(e) => handleSearch(e.target.value)}
                                 suppressHydrationWarning
                                 className="w-full pl-10 pr-16 py-2.5 bg-gray-100 border border-transparent rounded-2xl text-sm font-medium text-gray-700 placeholder:text-gray-400 outline-none focus:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
                             />
