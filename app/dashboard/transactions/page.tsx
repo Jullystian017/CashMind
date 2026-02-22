@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import {
     Search,
     Filter,
@@ -35,6 +35,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
+import { getTransactions, createTransaction, updateTransaction, deleteTransaction } from "@/app/actions/transactions"
 
 // Types
 type TransactionStatus = 'success' | 'pending' | 'failed'
@@ -82,41 +83,35 @@ const categoryConfig: Record<string, { icon: any, color: string }> = {
     "Salary": { icon: TrendingUp, color: "#10b981" },
     "Bonus": { icon: DollarSign, color: "#10b981" },
     "Part-time Job": { icon: Wallet, color: "#10b981" },
+    "Pocket Money": { icon: Wallet, color: "#10b981" },
     "Investment": { icon: TrendingUp, color: "#10b981" },
     "Gift": { icon: HeartPulse, color: "#10b981" }
 }
 
 const expenseCategories = ["Food & Drinks", "Transport", "Shopping", "Entertainment", "Education", "Health", "Home & Bills", "Gadgets", "Travel", "Utilities", "Others"]
-const incomeCategories = ["Salary", "Bonus", "Part-time Job", "Investment", "Gift", "Others"]
-const initialTransactions: Transaction[] = [
-    { id: "1", invoiceId: "INV-2026-001", description: "Spotify Premium", amount: 54990, category: "Entertainment", date: "2026-02-18", type: "expense", status: "success", plan: "Premium Monthly", paymentMethod: "Credit Card" },
-    { id: "2", invoiceId: "INV-2026-002", description: "Freelance Payment", amount: 2500000, category: "Part-time Job", date: "2026-02-17", type: "income", status: "success", plan: "Web Project", paymentMethod: "Bank Transfer" },
-    { id: "3", invoiceId: "INV-2026-003", description: "Netflix Duo", amount: 186000, category: "Entertainment", date: "2026-02-17", type: "expense", status: "pending", plan: "Standard Plan", paymentMethod: "E-Wallet" },
-    { id: "4", invoiceId: "INV-2026-004", description: "Adobe CC", amount: 350000, category: "Education", date: "2026-02-16", type: "expense", status: "failed", plan: "Creative Cloud", paymentMethod: "Credit Card" },
-    { id: "5", invoiceId: "INV-2026-005", description: "Shell V-Power", amount: 150000, category: "Transport", date: "2026-02-15", type: "expense", status: "success", plan: "Fuel", paymentMethod: "Cash" },
-    { id: "6", invoiceId: "INV-2026-006", description: "Starbucks Coffee", amount: 55000, category: "Food & Drinks", date: "2026-02-14", type: "expense", status: "success", plan: "Cafe", paymentMethod: "Credit Card" },
-    { id: "7", invoiceId: "INV-2026-007", description: "Monthly Bonus", amount: 1000000, category: "Bonus", date: "2026-02-14", type: "income", status: "success", plan: "Incentive", paymentMethod: "Bank Transfer" },
-    { id: "8", invoiceId: "INV-2026-008", description: "GrabFood Order", amount: 85000, category: "Food & Drinks", date: "2026-02-13", type: "expense", status: "success", plan: "Dinner", paymentMethod: "E-Wallet" },
-    { id: "9", invoiceId: "INV-2026-009", description: "Gojek Ride", amount: 25000, category: "Transport", date: "2026-02-13", type: "expense", status: "success", plan: "Transport", paymentMethod: "Cash" },
-    { id: "10", invoiceId: "INV-2026-010", description: "Indomaret Grocery", amount: 120000, category: "Shopping", date: "2026-02-12", type: "expense", status: "success", plan: "Daily Needs", paymentMethod: "Credit Card" },
-    { id: "11", invoiceId: "INV-2026-011", description: "Gym Membership", amount: 300000, category: "Health", date: "2026-02-11", type: "expense", status: "success", plan: "Monthly Pass", paymentMethod: "Bank Transfer" },
-    { id: "12", invoiceId: "INV-2026-012", description: "Cloud Hosting", amount: 450000, category: "Others", date: "2026-02-10", type: "expense", status: "success", plan: "SaaS", paymentMethod: "Credit Card" },
-    { id: "13", invoiceId: "INV-2026-013", description: "Dividend Payment", amount: 500000, category: "Investment", date: "2026-02-10", type: "income", status: "success", plan: "Stocks", paymentMethod: "Bank Transfer" },
-    { id: "14", invoiceId: "INV-2026-014", description: "Steam Sale", amount: 250000, category: "Entertainment", date: "2026-02-09", type: "expense", status: "success", plan: "Gaming", paymentMethod: "E-Wallet" },
-    { id: "15", invoiceId: "INV-2026-015", description: "Electricity Bill", amount: 1200000, category: "Utilities", date: "2026-02-08", type: "expense", status: "success", plan: "Postpaid", paymentMethod: "Bank Transfer" },
-    { id: "16", invoiceId: "INV-2026-016", description: "Tiktok Shop", amount: 150000, category: "Shopping", date: "2026-02-07", type: "expense", status: "success", plan: "Lifestyle", paymentMethod: "E-Wallet" },
-    { id: "17", invoiceId: "INV-2026-017", description: "Kopi Kenangan", amount: 32000, category: "Food & Drinks", date: "2026-02-06", type: "expense", status: "success", plan: "Coffee", paymentMethod: "Cash" },
-    { id: "18", invoiceId: "INV-2026-018", description: "Consultation Fee", amount: 3000000, category: "Salary", date: "2026-02-05", type: "income", status: "success", plan: "Professional", paymentMethod: "Bank Transfer" },
-    { id: "19", invoiceId: "INV-2026-019", description: "Pertamax Turbo", amount: 200000, category: "Transport", date: "2026-02-04", type: "expense", status: "success", plan: "Fuel", paymentMethod: "Credit Card" },
-    { id: "20", invoiceId: "INV-2026-020", description: "Disney+ Hotstar", amount: 39000, category: "Entertainment", date: "2026-02-03", type: "expense", status: "success", plan: "Annual Plan", paymentMethod: "E-Wallet" },
-]
+const incomeCategories = ["Salary", "Bonus", "Part-time Job", "Pocket Money", "Investment", "Gift", "Others"]
 
 export default function TransactionsPage() {
     const searchParams = useSearchParams()
     const urlQuery = searchParams.get('q') || ""
 
-    const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions)
+    const [transactions, setTransactions] = useState<Transaction[]>([])
+    const [transactionsLoading, setTransactionsLoading] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState("All")
+    const mounted = useRef(true)
+
+    const fetchTransactions = async () => {
+        const { data, error } = await getTransactions()
+        if (mounted.current) {
+            if (!error && data) setTransactions(data)
+            setTransactionsLoading(false)
+        }
+    }
+    useEffect(() => {
+        mounted.current = true
+        fetchTransactions()
+        return () => { mounted.current = false }
+    }, [])
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
     const [selectedDetail, setSelectedDetail] = useState<Transaction | null>(null)
@@ -216,36 +211,51 @@ export default function TransactionsPage() {
         return parseInt(digits, 10).toLocaleString("id-ID")
     }
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!description || !amount || !category || !date) return
-
-        const transactionData: Transaction = {
-            id: editingTransaction ? editingTransaction.id : Date.now().toString(),
-            invoiceId: editingTransaction ? editingTransaction.invoiceId : `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
-            description,
-            amount: parseInt(amount.replace(/\D/g, ""), 10),
-            category,
-            date,
-            type,
-            status: editingTransaction ? editingTransaction.status : 'success',
-            plan: editingTransaction ? editingTransaction.plan : 'Personal Plan',
-            paymentMethod: editingTransaction ? editingTransaction.paymentMethod : 'Balance',
-            note
-        }
-
+        const amountNum = parseInt(amount.replace(/\D/g, ""), 10)
         if (editingTransaction) {
-            setTransactions(prev => prev.map(t => t.id === editingTransaction.id ? transactionData : t))
+            const { error: err } = await updateTransaction(editingTransaction.id, {
+                description,
+                amount: amountNum,
+                category,
+                date,
+                type,
+                status: editingTransaction.status,
+                plan: editingTransaction.plan,
+                paymentMethod: editingTransaction.paymentMethod,
+                note: note || undefined,
+            })
+            if (!err) {
+                await fetchTransactions()
+                setIsModalOpen(false)
+                resetForm()
+            }
         } else {
-            setTransactions(prev => [transactionData, ...prev])
+            const { data: newT, error: err } = await createTransaction({
+                description,
+                amount: amountNum,
+                category,
+                date,
+                type,
+                status: "success",
+                plan: "Personal Plan",
+                paymentMethod: "Balance",
+                note: note || undefined,
+            })
+            if (!err && newT) {
+                setTransactions(prev => [newT, ...prev])
+                setIsModalOpen(false)
+                resetForm()
+            }
         }
-
-        setIsModalOpen(false)
-        resetForm()
     }
 
-    const handleDelete = (id: string) => {
-        if (confirm("Are you sure you want to delete this transaction?")) {
-            setTransactions(prev => prev.filter(t => t.id !== id))
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this transaction?")) return
+        const { error } = await deleteTransaction(id)
+        if (!error) {
+            await fetchTransactions()
             const newSelection = new Set(selectedIds)
             newSelection.delete(id)
             setSelectedIds(newSelection)
@@ -267,12 +277,16 @@ export default function TransactionsPage() {
         }
     }
 
-    const handleDeleteSelected = () => {
-        if (confirm(`Are you sure you want to delete ${selectedIds.size} transactions?`)) {
-            setTransactions(prev => prev.filter(t => !selectedIds.has(t.id)))
-            setSelectedIds(new Set())
+    const handleDeleteSelected = async () => {
+        if (!confirm(`Are you sure you want to delete ${selectedIds.size} transactions?`)) return
+        for (const id of selectedIds) {
+            await deleteTransaction(id)
         }
+        await fetchTransactions()
+        setSelectedIds(new Set())
     }
+
+
 
     return (
         <div className="space-y-10 pb-32" suppressHydrationWarning>
@@ -283,6 +297,7 @@ export default function TransactionsPage() {
                     <p className="text-gray-500 text-sm mt-2 font-medium">Track your payments and subscription history</p>
                 </div>
                 <div className="flex items-center gap-3">
+
                     <div className="relative">
                         <button
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -672,7 +687,7 @@ export default function TransactionsPage() {
                                             Delete
                                         </button>
                                     </div>
-                                    
+
                                 </div>
                             </motion.div>
                         </div>

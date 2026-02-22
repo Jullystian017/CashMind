@@ -5,8 +5,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "./ui/button"
 import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { CheckCircle2 } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 export function OTPForm() {
     const [otp, setOtp] = useState(["", "", "", "", "", ""])
@@ -19,7 +20,10 @@ export function OTPForm() {
         useRef<HTMLInputElement>(null)
     ]
     const [isSuccess, setIsSuccess] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
     const router = useRouter()
+    const searchParams = useSearchParams()
 
     const handleChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return
@@ -27,6 +31,7 @@ export function OTPForm() {
         const newOtp = [...otp]
         newOtp[index] = value.slice(-1)
         setOtp(newOtp)
+        setError(null)
 
         // Move to next input if value is entered
         if (value && index < 5) {
@@ -40,14 +45,32 @@ export function OTPForm() {
         }
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         const code = otp.join("")
-        if (code.length === 6) {
+        if (code.length !== 6) return
+        setError(null)
+        setLoading(true)
+        try {
+            const supabase = createClient()
+            const email = searchParams.get("email") ?? undefined
+            const { error: err } = await supabase.auth.verifyOtp({
+                type: "email",
+                token: code,
+                email: email || undefined,
+            })
+            if (err) {
+                setError(err.message ?? "Invalid or expired code. Try again or sign in with password.")
+                setLoading(false)
+                return
+            }
             setIsSuccess(true)
-            setTimeout(() => {
-                router.push('/dashboard?onboarding=true')
-            }, 2000)
+            router.push("/dashboard?onboarding=true")
+            router.refresh()
+        } catch {
+            setError("Something went wrong. Please try again.")
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -95,6 +118,11 @@ export function OTPForm() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
+                {error && (
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium">
+                        {error}
+                    </div>
+                )}
                 <div className="flex justify-between gap-2 sm:gap-4">
                     {otp.map((digit, index) => (
                         <input
@@ -114,9 +142,10 @@ export function OTPForm() {
                 <div className="space-y-3">
                     <Button
                         type="submit"
-                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98]"
+                        disabled={loading}
+                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
                     >
-                        Verify
+                        {loading ? "Verifying…" : "Verify"}
                     </Button>
                     <Button
                         type="button"

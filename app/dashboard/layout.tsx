@@ -10,6 +10,7 @@ import { OnboardingWizard } from "@/components/onboarding-wizard"
 import { AIAssistantPanel } from "@/components/ai-assistant-panel"
 import { Button } from "@/components/ui/button"
 import { Sparkles, ChevronRight } from "lucide-react"
+import { getProfile } from "@/app/actions/profile"
 
 const ONBOARDING_COMPLETED_KEY = "cashmind_onboarding_completed"
 
@@ -62,13 +63,19 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     }, [pathname])
 
     useEffect(() => {
-        setOnboardingCompleted(typeof window !== "undefined" ? localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true" : null)
-    }, [])
+        async function checkOnboarding() {
+            const { data: profile } = await getProfile()
+            const isCompleted = profile?.onboarding_completed ?? false
+            const isForced = searchParams.get('onboarding') === 'true'
 
-    useEffect(() => {
-        if (searchParams.get('onboarding') === 'true') {
-            setIsOnboardingOpen(true)
+            setOnboardingCompleted(isCompleted)
+
+            if (!isCompleted || isForced) {
+                setIsOnboardingOpen(true)
+            }
         }
+
+        checkOnboarding()
     }, [searchParams])
 
     const handleCloseOnboarding = (completed?: boolean) => {

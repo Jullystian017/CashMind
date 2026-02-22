@@ -1,10 +1,22 @@
 "use client"
 
+import { useState, useEffect, useRef } from "react"
 import { User, Mail, Calendar, Trophy, Target, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { getProfile } from "@/app/actions/profile"
+import type { Profile } from "@/app/actions/profile"
 
 export default function ProfilePage() {
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const mounted = useRef(true)
+  useEffect(() => {
+    mounted.current = true
+    getProfile().then(({ data }) => {
+      if (mounted.current && data) setProfile(data)
+    })
+    return () => { mounted.current = false }
+  }, [])
   const memberSince = "January 2026"
   const stats = [
     { label: "Challenges completed", value: "12", icon: Trophy },
@@ -29,10 +41,10 @@ export default function ProfilePage() {
               <User className="w-12 h-12 text-blue-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-bold text-gray-900">Jullystian</h3>
+              <h3 className="text-xl font-bold text-gray-900">{profile?.display_name ?? profile?.email?.split("@")[0] ?? "User"}</h3>
               <p className="text-gray-500 text-sm flex items-center gap-2 mt-1">
                 <Mail className="w-4 h-4 text-gray-400" />
-                jullystian@gmail.com
+                {profile?.email ?? "—"}
               </p>
               <p className="text-gray-400 text-xs flex items-center gap-2 mt-2">
                 <Calendar className="w-3.5 h-3.5" />

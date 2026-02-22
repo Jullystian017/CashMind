@@ -1,6 +1,7 @@
     "use client"
 
 import { useState } from "react"
+import { upsertGoal, deleteGoal } from "@/app/actions/goals"
 
 /** Format raw digit string → "1.000.000" (id-ID style) */
 const fmtThousands = (raw: string) => {
@@ -24,9 +25,10 @@ interface GoalsManagementModalProps {
     onClose: () => void;
     goals: Goal[];
     onUpdateGoals: (goals: Goal[]) => void;
+    onGoalsMutated?: () => void;
 }
 
-export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals }: GoalsManagementModalProps) {
+export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, onGoalsMutated }: GoalsManagementModalProps) {
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [formData, setFormData] = useState<Omit<Goal, 'id'>>({
@@ -67,26 +69,27 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals }: 
         }
     }
 
-    const handleSave = () => {
-        const payload = {
-            ...formData,
-            targetAmount: parseDisplay(targetDisplay),
-            currentAmount: parseDisplay(currentDisplay),
-        }
-        if (editingId) {
-            onUpdateGoals(goals.map(g => g.id === editingId ? { ...g, ...payload } : g))
-            setEditingId(null)
-        } else {
-            onUpdateGoals([...goals, { ...payload, id: Math.random().toString(36).substr(2, 9) }])
-            setIsAdding(false)
-        }
+    const handleSave = async () => {
+        const targetAmount = parseDisplay(targetDisplay)
+        const currentAmount = parseDisplay(currentDisplay)
+        const payload = { ...formData, targetAmount, currentAmount }
+        const { error } = await upsertGoal(
+            editingId ? { id: editingId, ...payload } : { ...payload }
+        )
+        if (error) return
+        setEditingId(null)
+        setIsAdding(false)
         setFormData({ title: "", targetAmount: 0, currentAmount: 0, deadline: "", color: "bg-blue-600" })
         setTargetDisplay("")
         setCurrentDisplay("")
+        onGoalsMutated?.()
     }
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
+        const { error } = await deleteGoal(id)
+        if (error) return
         onUpdateGoals(goals.filter(g => g.id !== id))
+        onGoalsMutated?.()
     }
 
     const startEdit = (goal: Goal) => {

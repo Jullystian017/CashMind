@@ -13,8 +13,13 @@ import {
     ChevronLeft,
     Sparkles,
     CheckCircle2,
-    X
+    X,
+    Loader2
 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { createTransaction } from "@/app/actions/transactions"
+import { upsertGoal } from "@/app/actions/goals"
+import { updateProfile } from "@/app/actions/profile"
 
 const steps = [
     { title: "Financial Baseline", icon: Wallet },
@@ -34,6 +39,7 @@ interface OnboardingWizardProps {
 }
 
 export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
+    const router = useRouter()
     const [currentStep, setCurrentStep] = useState(0)
     const [formData, setFormData] = useState({
         income: "",
@@ -42,8 +48,56 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
         targetAmount: "",
         categories: [] as string[]
     })
+    const [loading, setLoading] = useState(false)
+    const [saveError, setSaveError] = useState<string | null>(null)
 
-    const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length))
+    const nextStep = async () => {
+        if (currentStep === 2) {
+            // Finalize Profile - Save to DB
+            setLoading(true)
+            setSaveError(null)
+            try {
+                // 1. Create Income Transaction
+                if (formData.income) {
+                    await createTransaction({
+                        description: "Initial Balance (Onboarding)",
+                        amount: parseInt(formData.income, 10),
+                        category: "Pocket Money",
+                        date: new Date().toISOString().split('T')[0],
+                        type: "income",
+                        status: "success",
+                        plan: formData.incomeType === "monthly" ? "Monthly" : "Daily",
+                        paymentMethod: "Cash",
+                        note: `Onboarding income: ${formData.incomeType}`
+                    })
+                }
+
+                // 2. Create Goal
+                if (formData.targetName && formData.targetAmount) {
+                    await upsertGoal({
+                        title: formData.targetName,
+                        targetAmount: parseInt(formData.targetAmount, 10),
+                        currentAmount: 0,
+                        deadline: "",
+                        color: "bg-blue-600"
+                    })
+                }
+
+                // 3. Update Profile status
+                await updateProfile({ onboarding_completed: true })
+
+                setCurrentStep(3)
+                router.refresh()
+            } catch (err) {
+                console.error("Failed to save onboarding data:", err)
+                setSaveError("Failed to save your profile. Please try again.")
+            } finally {
+                setLoading(false)
+            }
+        } else {
+            setCurrentStep((prev) => Math.min(prev + 1, steps.length))
+        }
+    }
     const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0))
 
     const toggleCategory = (cat: string) => {
@@ -280,12 +334,24 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                 )}
                                 <Button
                                     onClick={nextStep}
+                                    disabled={loading}
                                     className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-lg shadow-blue-200 gap-2"
                                 >
-                                    {currentStep === 2 ? "Finalize Profile" : "Continue"}
-                                    <ChevronRight className="w-5 h-5" />
+                                    {loading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <>
+                                            {currentStep === 2 ? "Finalize Profile" : "Continue"}
+                                            <ChevronRight className="w-5 h-5" />
+                                        </>
+                                    )}
                                 </Button>
                             </div>
+                        )}
+                        {saveError && (
+                            <p className="mt-4 text-center text-sm font-bold text-rose-500">
+                                {saveError}
+                            </p>
                         )}
                     </div>
                 </motion.div>

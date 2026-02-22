@@ -3,8 +3,19 @@
 import { Search, Bell, Sparkles, Menu, ChevronDown, User, AlertTriangle, CheckCircle, CreditCard, Settings, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRef, useEffect, useState } from "react"
+
+function useMounted() {
+    const mounted = useRef(true)
+    useEffect(() => {
+        mounted.current = true
+        return () => { mounted.current = false }
+    }, [])
+    return mounted
+}
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
+import { createClient } from "@/lib/supabase/client"
+import type { User as AuthUser } from "@supabase/supabase-js"
 
 type Notification = {
   id: string
@@ -42,6 +53,26 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
     const [notifOpen, setNotifOpen] = useState(false)
     const [profileOpen, setProfileOpen] = useState(false)
     const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
+    const [user, setUser] = useState<AuthUser | null>(null)
+    const mounted = useMounted()
+
+    useEffect(() => {
+        const supabase = createClient()
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (mounted.current) setUser(session?.user ?? null)
+        })
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (mounted.current) setUser(session?.user ?? null)
+        })
+        return () => subscription.unsubscribe()
+    }, [])
+
+    const handleLogout = async () => {
+        setProfileOpen(false)
+        await createClient().auth.signOut()
+        router.push("/")
+        router.refresh()
+    }
 
     const unreadCount = notifications.filter((n) => !n.read).length
 
@@ -261,8 +292,10 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                 <User className="w-4 h-4" />
                             </div>
                             <div className="hidden sm:flex flex-col items-start leading-none">
-                                <span className="text-xs font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">Jullystian</span>
-                                <span className="text-[10px] text-gray-400 font-medium mt-0.5">jullystian@gmail.com</span>
+                                <span className="text-xs font-semibold text-gray-700 group-hover:text-gray-900 transition-colors truncate max-w-[120px]">
+                                    {user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}
+                                </span>
+                                <span className="text-[10px] text-gray-400 font-medium mt-0.5 truncate max-w-[120px]">{user?.email ?? ""}</span>
                             </div>
                             <ChevronDown className={cn("w-3 h-3 text-gray-400 hidden sm:block transition-transform", profileOpen && "rotate-180 text-blue-600")} suppressHydrationWarning />
                         </button>
@@ -281,8 +314,8 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                                 <User className="w-5 h-5 text-blue-600" />
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="text-sm font-bold text-gray-900 truncate">Jullystian</p>
-                                                <p className="text-xs text-gray-500 truncate">jullystian@gmail.com</p>
+                                                <p className="text-sm font-bold text-gray-900 truncate">{user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}</p>
+                                                <p className="text-xs text-gray-500 truncate">{user?.email ?? ""}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -304,7 +337,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                     </div>
                                     <div className="p-2 border-t border-gray-100">
                                         <button
-                                            onClick={() => { setProfileOpen(false); router.push("/"); }}
+                                            onClick={handleLogout}
                                             className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                                         >
                                             <LogOut className="w-4 h-4" />

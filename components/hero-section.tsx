@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { Zap, Github, Square, Chrome, Monitor, CircleDot, ArrowUpRight, ChevronRight, ArrowRight } from "lucide-react"
+import { useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
+import Link from "next/link"
 
 const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -38,6 +41,23 @@ const marqueeVariants = {
 }
 
 export function HeroSection() {
+    const [user, setUser] = useState<any>(null)
+    const supabase = createClient()
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            setUser(user)
+        }
+        getUser()
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null)
+        })
+
+        return () => subscription.unsubscribe()
+    }, [])
+
     const containerRef = useRef(null)
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -101,47 +121,49 @@ export function HeroSection() {
                     </motion.p>
 
                     <motion.div variants={itemVariants} className="flex justify-center mb-12 md:mb-16 font-inter">
-                        <motion.button
-                            initial="initial"
-                            whileHover="hover"
-                            className="group relative flex items-center gap-4 bg-blue-50/80 hover:bg-blue-100/50 transition-all rounded-full p-1.5 pl-6 md:pl-8 pr-1.5 border border-blue-100 shadow-sm overflow-hidden"
-                        >
-                            <div className="relative h-6 md:h-7 overflow-hidden pointer-events-none">
-                                <motion.div
-                                    variants={{
-                                        initial: { y: 0 },
-                                        hover: { y: "-50%" }
-                                    }}
-                                    transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                                    className="flex flex-col"
-                                >
-                                    <span className="text-base md:text-lg font-bold text-blue-600 tracking-tight h-6 md:h-7 flex items-center">
-                                        Get Started Free
-                                    </span>
-                                    <span className="text-base md:text-lg font-bold text-blue-600 tracking-tight h-6 md:h-7 flex items-center">
-                                        Get Started Free
-                                    </span>
-                                </motion.div>
-                            </div>
-                            <motion.div
-                                variants={{
-                                    initial: { scale: 1 },
-                                    hover: { scale: 1.05 }
-                                }}
-                                className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-200 z-10"
+                        <Link href={user ? "/dashboard" : "/register"}>
+                            <motion.button
+                                initial="initial"
+                                whileHover="hover"
+                                className="group relative flex items-center gap-4 bg-blue-50/80 hover:bg-blue-100/50 transition-all rounded-full p-1.5 pl-6 md:pl-8 pr-1.5 border border-blue-100 shadow-sm overflow-hidden"
                             >
+                                <div className="relative h-6 md:h-7 overflow-hidden pointer-events-none">
+                                    <motion.div
+                                        variants={{
+                                            initial: { y: 0 },
+                                            hover: { y: "-50%" }
+                                        }}
+                                        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                                        className="flex flex-col"
+                                    >
+                                        <span className="text-base md:text-lg font-bold text-blue-600 tracking-tight h-6 md:h-7 flex items-center">
+                                            {user ? "Go to Dashboard" : "Get Started Free"}
+                                        </span>
+                                        <span className="text-base md:text-lg font-bold text-blue-600 tracking-tight h-6 md:h-7 flex items-center">
+                                            {user ? "Go to Dashboard" : "Get Started Free"}
+                                        </span>
+                                    </motion.div>
+                                </div>
                                 <motion.div
                                     variants={{
-                                        initial: { rotate: -45 },
-                                        hover: { rotate: 0 }
+                                        initial: { scale: 1 },
+                                        hover: { scale: 1.05 }
                                     }}
-                                    transition={{ duration: 0.3 }}
-                                    className="flex items-center justify-center"
+                                    className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-200 z-10"
                                 >
-                                    <ArrowRight className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+                                    <motion.div
+                                        variants={{
+                                            initial: { rotate: -45 },
+                                            hover: { rotate: 0 }
+                                        }}
+                                        transition={{ duration: 0.3 }}
+                                        className="flex items-center justify-center"
+                                    >
+                                        <ArrowRight className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+                                    </motion.div>
                                 </motion.div>
-                            </motion.div>
-                        </motion.button>
+                            </motion.button>
+                        </Link>
                     </motion.div>
 
                     {/* Dashboard Preview With Scroll Animation */}

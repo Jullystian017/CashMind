@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus,
   AlertTriangle,
@@ -14,6 +14,7 @@ import {
   Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getSubscriptions, createSubscription, deleteSubscription } from "@/app/actions/subscriptions";
 
 type Subscription = {
   id: string;
@@ -25,13 +26,6 @@ type Subscription = {
   icon: "music" | "tv" | "gym" | "adobe";
   paymentMethod?: string;
 };
-
-const initialSubscriptions: Subscription[] = [
-  { id: "1", name: "Spotify Family", price: 86000, billing: "Monthly", nextDate: "2026-10-05", bgColor: "bg-green-500", icon: "music" },
-  { id: "2", name: "Netflix Premium", price: 186000, billing: "Monthly", nextDate: "2026-10-12", bgColor: "bg-red-600", icon: "tv" },
-  { id: "3", name: "Gold's Gym Membership", price: 450000, billing: "Monthly", nextDate: "2026-10-15", bgColor: "bg-slate-800", icon: "gym" },
-  { id: "4", name: "Adobe Creative Cloud", price: 128000, billing: "Annual (Monthly pay)", nextDate: "2026-10-20", bgColor: "bg-red-500", icon: "adobe" },
-];
 
 const formatRp = (val: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 })
@@ -61,10 +55,21 @@ function formatDateStr(dateStr: string): string {
 }
 
 export default function SubscriptionsPage() {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>(initialSubscriptions);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  const mounted = useRef(true);
+  const fetchSubscriptions = async () => {
+    const { data } = await getSubscriptions();
+    if (mounted.current && data) setSubscriptions(data);
+  };
+  useEffect(() => {
+    mounted.current = true;
+    fetchSubscriptions();
+    return () => { mounted.current = false };
+  }, []);
 
   const totalRecurring = subscriptions.reduce((acc, s) => acc + s.price, 0);
 
@@ -91,9 +96,12 @@ export default function SubscriptionsPage() {
     setTimeout(() => setToast(null), 2500);
   };
 
-  const handleDeleteSubscription = (id: string) => {
-    setSubscriptions((prev) => prev.filter((s) => s.id !== id));
-    setSelectedSubscription(null);
+  const handleDeleteSubscription = async (id: string) => {
+    const { error } = await deleteSubscription(id);
+    if (!error) {
+      await fetchSubscriptions();
+      setSelectedSubscription(null);
+    }
   };
 
   const showDetail = (sub: Subscription) => setSelectedSubscription(sub);
@@ -301,8 +309,8 @@ export default function SubscriptionsPage() {
         {isAddModalOpen && (
           <AddSubscriptionModal
             onClose={() => setIsAddModalOpen(false)}
-            onAdd={(sub) => {
-              setSubscriptions((prev) => [sub, ...prev]);
+            onAdded={() => {
+              fetchSubscriptions();
               setIsAddModalOpen(false);
               setToast("Subscription added!");
               setTimeout(() => setToast(null), 2000);
@@ -365,27 +373,34 @@ function TimelineItem({ date, name, price, dotColor, onClick }: { date: string; 
   );
 }
 
-function AddSubscriptionModal({ onClose, onAdd }: { onClose: () => void; onAdd: (sub: Subscription) => void }) {
+function AddSubscriptionModal({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [billing, setBilling] = useState("Monthly");
   const [icon, setIcon] = useState<Subscription["icon"]>("music");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseInt(price.replace(/\D/g, ""), 10) || 0;
     if (!name || amount <= 0) return;
+    setLoading(true);
     const next = new Date();
     next.setMonth(next.getMonth() + 1);
-    onAdd({
-      id: Date.now().toString(),
+    const bgColor = icon === "music" ? "bg-green-500" : icon === "tv" ? "bg-red-600" : icon === "gym" ? "bg-slate-800" : "bg-red-500";
+    const { error } = await createSubscription({
       name,
       price: amount,
       billing,
       nextDate: next.toISOString().slice(0, 10),
-      bgColor: icon === "music" ? "bg-green-500" : icon === "tv" ? "bg-red-600" : icon === "gym" ? "bg-slate-800" : "bg-red-500",
+      bgColor,
       icon,
     });
+    setLoading(false);
+    if (!error) {
+      onAdded();
+      onClose();
+    }
   };
 
   const formatThousands = (raw: string) => {
@@ -477,10 +492,10 @@ function AddSubscriptionModal({ onClose, onAdd }: { onClose: () => void; onAdd: 
           </div>
           <button
             type="submit"
-            disabled={!name || !price}
+            disabled={!name || !price || loading}
             className="w-full py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
-            Add Subscription
+            {loading ? "Adding…" : "Add Subscription"}
           </button>
         </form>
       </motion.div>

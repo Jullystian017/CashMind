@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -8,8 +8,10 @@ import {
     Wallet, UtensilsCrossed, Car, Gamepad2, ShoppingBag,
     GraduationCap, HeartPulse, Zap, Home, Smartphone, Plane,
     Plus, Pencil, ChevronRight, AlertTriangle, CheckCircle2,
-    X, ReceiptText, ChevronDown, Calendar as CalendarIcon
+    X, ReceiptText, ChevronDown, Calendar as CalendarIcon, Loader2
 } from "lucide-react"
+import { getBudgets, upsertBudget, deleteBudget } from "@/app/actions/budgets"
+import { getCategorySpending } from "@/app/actions/transactions"
 
 /* ─── Types ─── */
 interface BudgetCategory {
@@ -110,7 +112,8 @@ const getStatusBadge = (pct: number) => {
 
 /* ─── Page ─── */
 export default function BudgetsPage() {
-    const [budgets, setBudgets] = useState<BudgetCategory[]>(initialBudgets)
+    const [budgets, setBudgets] = useState<BudgetCategory[]>([])
+    const [loading, setLoading] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState<BudgetCategory | null>(null)
     const [editingBudget, setEditingBudget] = useState<BudgetCategory | null>(null)
     // display-formatted strings (e.g. "2.000.000")
@@ -120,9 +123,70 @@ export default function BudgetsPage() {
     const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
 
-    const months = ["January 2026", "February 2026", "March 2026"]
+    // month format: "YYYY-MM"
+    const [currentMonthKey, setCurrentMonthKey] = useState(() => {
+        const now = new Date()
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    })
 
-    useEffect(() => { setMounted(true) }, [])
+    const displayMonth = useMemo(() => {
+        const [year, month] = currentMonthKey.split("-").map(Number)
+        const date = new Date(year, month - 1, 1)
+        return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    }, [currentMonthKey])
+
+    const months = useMemo(() => {
+        const options = []
+        const now = new Date()
+        for (let i = -6; i <= 6; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth() + i, 1)
+            options.push({
+                key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+                label: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+            })
+        }
+        return options
+    }, [])
+
+    const fetchData = async () => {
+        setLoading(true)
+        const [budgetsRes, spendingRes] = await Promise.all([
+            getBudgets(currentMonthKey),
+            getCategorySpending(currentMonthKey)
+        ])
+
+        if (budgetsRes.data) {
+            const spending = spendingRes.data || {}
+
+            // Map Budget Row to BudgetCategory type
+            const mapped: BudgetCategory[] = budgetsRes.data.map((b: any) => {
+                const config = availableCategories.find(c => c.name === b.category) || availableCategories[availableCategories.length - 1]
+                return {
+                    id: b.id,
+                    name: b.category,
+                    icon: config.icon,
+                    color: config.color,
+                    limit: b.limit,
+                    spent: spending[b.category] || 0,
+                    transactions: [] // We'll fetch these when selected
+                }
+            })
+            setBudgets(mapped)
+        }
+        setLoading(false)
+    }
+
+    useEffect(() => {
+        setMounted(true)
+        fetchData()
+    }, [currentMonthKey])
+
+    useEffect(() => {
+        if (selectedCategory) {
+            // Optionally fetch transactions for the selected category
+            // For now we'll just show the category detail
+        }
+    }, [selectedCategory])
 
     // Global stats
     const totalBudget = budgets.reduce((a, b) => a + b.limit, 0)
@@ -130,13 +194,24 @@ export default function BudgetsPage() {
     const totalRemaining = totalBudget - totalSpent
     const globalPct = getPercent(totalSpent, totalBudget)
 
-    const handleSaveEdit = () => {
+    const handleSaveEdit = async () => {
         if (!editingBudget) return
         const val = parseFormatted(editDisplayValue)
         if (!val || val <= 0) return
-        setBudgets(prev => prev.map(b => b.id === editingBudget.id ? { ...b, limit: val } : b))
-        setEditingBudget(null)
-        setEditDisplayValue("")
+
+        const { error } = await upsertBudget({
+            category: editingBudget.name,
+            limit: val,
+            monthYear: currentMonthKey
+        })
+
+        if (!error) {
+            fetchData()
+            setEditingBudget(null)
+            setEditDisplayValue("")
+        } else {
+            alert(error)
+        }
     }
 
     return (
@@ -157,7 +232,7 @@ export default function BudgetsPage() {
                                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-[10px] @md:text-xs font-bold text-gray-500 hover:bg-white hover:border-blue-200 hover:text-blue-600 transition-all shadow-sm"
                                 >
                                     <CalendarIcon className="w-3 h-3" />
-                                    {selectedMonth}
+                                    {displayMonth}
                                     <ChevronDown className={cn("w-3 h-3 transition-transform duration-200", isMonthPickerOpen && "rotate-180")} />
                                 </button>
 
@@ -173,19 +248,19 @@ export default function BudgetsPage() {
                                             >
                                                 {months.map((m) => (
                                                     <button
-                                                        key={m}
+                                                        key={m.key}
                                                         onClick={() => {
-                                                            setSelectedMonth(m)
+                                                            setCurrentMonthKey(m.key)
                                                             setIsMonthPickerOpen(false)
                                                         }}
                                                         suppressHydrationWarning={true}
                                                         className={cn(
                                                             "w-full px-4 py-2.5 text-left text-sm transition-colors flex items-center justify-between",
-                                                            selectedMonth === m ? "bg-blue-50 text-blue-600 font-bold" : "text-gray-600 hover:bg-gray-50 font-medium"
+                                                            currentMonthKey === m.key ? "bg-blue-50 text-blue-600 font-bold" : "text-gray-600 hover:bg-gray-50 font-medium"
                                                         )}
                                                     >
-                                                        {m}
-                                                        {selectedMonth === m && <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />}
+                                                        {m.label}
+                                                        {currentMonthKey === m.key && <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />}
                                                     </button>
                                                 ))}
                                             </motion.div>
@@ -260,85 +335,91 @@ export default function BudgetsPage() {
                ════════════════════════════════════════════════════ */}
             <div>
                 <h3 className="text-lg font-bold text-gray-900 tracking-tight mb-4">Category Budgets</h3>
-                <div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3 gap-4">
-                    {budgets.map((cat, i) => {
-                        const pct = getPercent(cat.spent, cat.limit)
-                        const status = getStatusBadge(pct)
-                        const isOver = pct >= 100
-                        const remaining = cat.limit - cat.spent
-                        const StatusIcon = status.icon
+                {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3 gap-4">
+                        {budgets.map((cat, i) => {
+                            const pct = getPercent(cat.spent, cat.limit)
+                            const status = getStatusBadge(pct)
+                            const isOver = pct >= 100
+                            const remaining = cat.limit - cat.spent
+                            const StatusIcon = status.icon
 
-                        return (
-                            <motion.div
-                                key={cat.id}
-                                initial={{ opacity: 0, y: 16 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.06 }}
-                                className={cn(
-                                    "bg-white rounded-3xl border shadow-sm p-5 transition-all cursor-pointer group hover:shadow-md",
-                                    isOver ? "border-rose-100 hover:border-rose-200" : "border-gray-100 hover:border-gray-200"
-                                )}
-                                onClick={() => setSelectedCategory(selectedCategory?.id === cat.id ? null : cat)}
-                            >
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div
-                                            className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
-                                            style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
-                                        >
-                                            <cat.icon className="w-5 h-5" />
+                            return (
+                                <motion.div
+                                    key={cat.id}
+                                    initial={{ opacity: 0, y: 16 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.06 }}
+                                    className={cn(
+                                        "bg-white rounded-3xl border shadow-sm p-5 transition-all cursor-pointer group hover:shadow-md",
+                                        isOver ? "border-rose-100 hover:border-rose-200" : "border-gray-100 hover:border-gray-200"
+                                    )}
+                                    onClick={() => setSelectedCategory(selectedCategory?.id === cat.id ? null : cat)}
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div
+                                                className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+                                                style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
+                                            >
+                                                <cat.icon className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-bold text-gray-900">{cat.name}</h4>
+                                                <p className="text-[10px] font-semibold text-gray-400">
+                                                    {formatRp(cat.spent)} <span className="text-gray-300">/</span> {formatRp(cat.limit)}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 className="text-sm font-bold text-gray-900">{cat.name}</h4>
-                                            <p className="text-[10px] font-semibold text-gray-400">
-                                                {formatRp(cat.spent)} <span className="text-gray-300">/</span> {formatRp(cat.limit)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className={cn("flex items-center gap-1 px-2.5 py-1 rounded-full border text-[9px] font-bold", status.color)}>
-                                        <StatusIcon className="w-2.5 h-2.5" />
-                                        {status.label}
-                                    </div>
-                                </div>
-
-                                <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden mb-3">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${Math.min(pct, 100)}%` }}
-                                        transition={{ duration: 0.6, delay: i * 0.06 + 0.2 }}
-                                        className={cn("h-full rounded-full", getBarColor(pct))}
-                                    />
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[11px] font-bold text-gray-900">
-                                        {isOver
-                                            ? <span>Over {formatRp(Math.abs(remaining))}</span>
-                                            : <span>Sisa {formatRp(remaining)}</span>
-                                        }
-                                    </span>
-                                    <div className="flex items-center gap-1">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                setEditingBudget(cat)
-                                                setEditDisplayValue(formatThousands(cat.limit.toString()))
-                                            }}
-                                            suppressHydrationWarning={true}
-                                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                                            title="Edit limit"
-                                        >
-                                            <Pencil className="w-3.5 h-3.5" />
-                                        </button>
-                                        <div className="p-1.5 rounded-lg text-gray-300 group-hover:text-gray-500 transition-colors">
-                                            <ChevronRight className="w-3.5 h-3.5" />
+                                        <div className={cn("flex items-center gap-1 px-2.5 py-1 rounded-full border text-[9px] font-bold", status.color)}>
+                                            <StatusIcon className="w-2.5 h-2.5" />
+                                            {status.label}
                                         </div>
                                     </div>
-                                </div>
-                            </motion.div>
-                        )
-                    })}
-                </div>
+
+                                    <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden mb-3">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${Math.min(pct, 100)}%` }}
+                                            transition={{ duration: 0.6, delay: i * 0.06 + 0.2 }}
+                                            className={cn("h-full rounded-full", getBarColor(pct))}
+                                        />
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[11px] font-bold text-gray-900">
+                                            {isOver
+                                                ? <span>Over {formatRp(Math.abs(remaining))}</span>
+                                                : <span>Sisa {formatRp(remaining)}</span>
+                                            }
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setEditingBudget(cat)
+                                                    setEditDisplayValue(formatThousands(cat.limit.toString()))
+                                                }}
+                                                suppressHydrationWarning={true}
+                                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                                                title="Edit limit"
+                                            >
+                                                <Pencil className="w-3.5 h-3.5" />
+                                            </button>
+                                            <div className="p-1.5 rounded-lg text-gray-300 group-hover:text-gray-500 transition-colors">
+                                                <ChevronRight className="w-3.5 h-3.5" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )
+                        })}
+                    </div>
+                )}
             </div>
 
             {/* ════════════════════════════════════════════════════
@@ -480,8 +561,9 @@ export default function BudgetsPage() {
                     {isAddOpen && (
                         <AddCategoryModal
                             onClose={() => setIsAddOpen(false)}
-                            onAdd={(cat) => {
-                                setBudgets(prev => [...prev, cat])
+                            currentMonth={currentMonthKey}
+                            onAdd={() => {
+                                fetchData()
                                 setIsAddOpen(false)
                             }}
                         />
@@ -515,27 +597,32 @@ const formatThousandsLocal = (raw: string) => {
 
 function AddCategoryModal({
     onClose,
-    onAdd
+    onAdd,
+    currentMonth
 }: {
     onClose: () => void
-    onAdd: (cat: BudgetCategory) => void
+    onAdd: () => void
+    currentMonth: string
 }) {
     const [selectedCat, setSelectedCat] = useState<typeof availableCategories[0] | null>(null)
     const [displayValue, setDisplayValue] = useState("")
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!selectedCat || !displayValue) return
         const val = parseInt(displayValue.replace(/\D/g, ""), 10)
         if (isNaN(val) || val <= 0) return
-        onAdd({
-            id: Date.now().toString(),
-            name: selectedCat.name,
-            icon: selectedCat.icon,
-            color: selectedCat.color,
+
+        const { error } = await upsertBudget({
+            category: selectedCat.name,
             limit: val,
-            spent: 0,
-            transactions: []
+            monthYear: currentMonth
         })
+
+        if (!error) {
+            onAdd()
+        } else {
+            alert(error)
+        }
     }
 
     return (

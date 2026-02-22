@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import {
@@ -43,6 +43,9 @@ import {
 import { GoalsManagementModal } from "@/components/goals-management-modal"
 import { FinancialCalendarModal } from "@/components/financial-calendar-modal"
 import Link from "next/link"
+import { getGoals } from "@/app/actions/goals"
+import { getDashboardStats, getRecentTransactions, getChartData, getCategorySpending } from "@/app/actions/transactions"
+import { Loader2 } from "lucide-react"
 
 export interface Goal {
     id: string;
@@ -105,7 +108,14 @@ const formatRp = (val: number) =>
         .format(val)
         .replace("Rp", "Rp ")
 
-const recentTransactions = [
+const formatAmountCompact = (val: number) => {
+    if (Math.abs(val) >= 1000000) {
+        return (val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt'
+    }
+    return val.toLocaleString('id-ID')
+}
+
+const recentTransactionsPlaceholder = [
     { description: "Starbucks Coffee", category: "Food & Drinks", date: "2026-02-18", amount: 55000, type: "expense" as const },
     { description: "Freelance Payment", category: "Part-time Job", date: "2026-02-17", amount: 2500000, type: "income" as const },
     { description: "Indomaret Plus", category: "Shopping", date: "2026-02-17", amount: 120000, type: "expense" as const },
@@ -163,15 +173,113 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function DashboardOverview() {
     const [chartView, setChartView] = useState<'weekly' | 'monthly'>('weekly')
-    const chartData = chartView === 'weekly' ? weeklyData : monthlyData
+    const [realChartData, setRealChartData] = useState<any[]>([])
+    const chartData = realChartData.length > 0 ? realChartData : (chartView === 'weekly' ? weeklyData : monthlyData)
     const targetLimit = chartView === 'weekly' ? 700 : 5000
+
+    const [statsData, setStatsData] = useState<any>(null)
+    const [recentTx, setRecentTx] = useState<any[]>([])
+    const [catSpending, setCatSpending] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
 
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
     const [isCalendarOpen, setIsCalendarOpen] = useState(false)
-    const [goals, setGoals] = useState<Goal[]>([
-        { id: '1', title: "Trip to Bali", targetAmount: 5000000, currentAmount: 3500000, deadline: "2026-06-15", color: "bg-blue-600" },
-        { id: '2', title: "New MacBook Pro", targetAmount: 25000000, currentAmount: 8500000, deadline: "2026-12-25", color: "bg-blue-600" }
-    ])
+    const [goals, setGoals] = useState<Goal[]>([])
+    const mounted = useRef(true)
+
+    const fetchGoals = async () => {
+        const { data } = await getGoals()
+        if (mounted.current && data) setGoals(data)
+    }
+
+    const fetchDashboardData = async () => {
+        setLoading(true)
+        const now = new Date()
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
+        const [statsRes, txRes, spendingRes, chartRes] = await Promise.all([
+            getDashboardStats(),
+            getRecentTransactions(7),
+            getCategorySpending(monthKey),
+            getChartData(chartView)
+        ])
+
+        if (mounted.current) {
+            if (statsRes.data) setStatsData(statsRes.data)
+            if (txRes.data) setRecentTx(txRes.data)
+
+            if (spendingRes.data) {
+                const total = Object.values(spendingRes.data).reduce((a: any, b: any) => a + b, 0)
+                const formatted = Object.entries(spendingRes.data).map(([name, value]: [string, any]) => {
+                    const config = categoryConfig[name] || categoryConfig["Others"]
+                    return {
+                        name,
+                        value,
+                        percent: total > 0 ? Math.round((value / total) * 100) : 0,
+                        color: config.color,
+                        icon: config.icon
+                    }
+                }).sort((a, b) => b.value - a.value)
+                setCatSpending(formatted)
+            }
+
+            if (chartRes.data) {
+                // Basic aggregation for chartRes.data
+                // If period is weekly, group by day name
+                // If period is monthly, group by month name
+                // For now, if no data, it falls back to mock
+                if (chartRes.data.length > 0) {
+                    setRealChartData(aggregateChartData(chartRes.data, chartView))
+                }
+            }
+        }
+        setLoading(false)
+    }
+
+    const aggregateChartData = (txs: any[], period: 'weekly' | 'monthly') => {
+        const result: any[] = []
+        if (period === 'weekly') {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+            const grouped: Record<string, { income: number, expense: number }> = {}
+            txs.forEach(tx => {
+                const day = days[new Date(tx.date).getDay()]
+                if (!grouped[day]) grouped[day] = { income: 0, expense: 0 }
+                if (tx.type === 'income') grouped[day].income += tx.amount / 1000
+                else grouped[day].expense += tx.amount / 1000
+            })
+            // Return in correct order starting from 7 days ago
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date()
+                d.setDate(d.getDate() - i)
+                const day = days[d.getDay()]
+                result.push({ name: day, ...(grouped[day] || { income: 0, expense: 0 }) })
+            }
+        } else {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            const grouped: Record<string, { income: number, expense: number }> = {}
+            txs.forEach(tx => {
+                const month = months[new Date(tx.date).getMonth()]
+                if (!grouped[month]) grouped[month] = { income: 0, expense: 0 }
+                if (tx.type === 'income') grouped[month].income += tx.amount / 1000
+                else grouped[month].expense += tx.amount / 1000
+            })
+            // Last 12 months
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date()
+                d.setMonth(d.getMonth() - i)
+                const month = months[d.getMonth()]
+                result.push({ name: month, ...(grouped[month] || { income: 0, expense: 0 }) })
+            }
+        }
+        return result
+    }
+
+    useEffect(() => {
+        mounted.current = true
+        fetchGoals()
+        fetchDashboardData()
+        return () => { mounted.current = false }
+    }, [chartView])
 
     const formatIndoDate = (dateStr: string) => {
         try {
@@ -212,7 +320,7 @@ export default function DashboardOverview() {
         },
         {
             label: "Total Balance",
-            amount: "Rp 24,500,000",
+            amount: statsData ? formatRp(statsData.totalBalance) : "Rp 0",
             subLabel: "Updated just now",
             trend: "+12.5%",
             up: true,
@@ -221,7 +329,7 @@ export default function DashboardOverview() {
         },
         {
             label: "Income",
-            amount: "Rp 8,200,000",
+            amount: statsData ? formatRp(statsData.totalIncome) : "Rp 0",
             subLabel: "Total earned",
             trend: "+8.2%",
             up: true,
@@ -230,7 +338,7 @@ export default function DashboardOverview() {
         },
         {
             label: "Expenses",
-            amount: "Rp 3,450,000",
+            amount: statsData ? formatRp(statsData.totalExpense) : "Rp 0",
             subLabel: "This month",
             trend: "-2.4%",
             up: false,
@@ -239,7 +347,7 @@ export default function DashboardOverview() {
         },
     ]
 
-    const categoriesData = [
+    const categoriesData = catSpending.length > 0 ? catSpending : [
         { name: "Food & Drinks", value: 1530000, percent: 45, color: "#3b82f6", icon: UtensilsCrossed },
         { name: "Entertainment", value: 850000, percent: 25, color: "#a855f7", icon: Gamepad2 },
         { name: "Transport", value: 680000, percent: 20, color: "#f97316", icon: Car },
@@ -488,7 +596,7 @@ export default function DashboardOverview() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[#E5E7EB]">
-                                    {recentTransactions.map((t, i) => {
+                                    {(recentTx.length > 0 ? recentTx : recentTransactionsPlaceholder).map((t, i) => {
                                         const config = categoryConfig[t.category] || categoryConfig["Others"]
                                         const Icon = config.icon
                                         const color = config.color
@@ -535,7 +643,7 @@ export default function DashboardOverview() {
 
                         {/* Mobile Card List */}
                         <div className="md:hidden divide-y divide-[#E5E7EB]">
-                            {recentTransactions.map((t, i) => {
+                            {(recentTx.length > 0 ? recentTx : recentTransactionsPlaceholder).map((t, i) => {
                                 const config = categoryConfig[t.category] || categoryConfig["Others"]
                                 const Icon = config.icon
                                 const color = config.color
@@ -608,7 +716,9 @@ export default function DashboardOverview() {
                             </div>
                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                 <span className="text-[8px] @md:text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">Total Spent</span>
-                                <span className="text-lg @md:text-2xl font-black text-gray-900 tracking-tight">Rp 3.4M</span>
+                                <span className="text-lg @md:text-2xl font-black text-gray-900 tracking-tight">
+                                    {formatAmountCompact(categoriesData.reduce((a, b) => a + b.value, 0))}
+                                </span>
                             </div>
                         </div>
 
@@ -621,7 +731,7 @@ export default function DashboardOverview() {
                                         </div>
                                         <div className="min-w-0">
                                             <span className="text-[11px] font-black text-gray-800 block truncate">{item.name}</span>
-                                            <span className="text-[9px] font-bold text-gray-400 uppercase">Rp {(item.value / 1000).toLocaleString('id-ID')}k</span>
+                                            <span className="text-[9px] font-bold text-gray-400 uppercase">Rp {formatAmountCompact(item.value)}</span>
                                         </div>
                                     </div>
                                     <div className="text-right">
@@ -731,6 +841,7 @@ export default function DashboardOverview() {
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No goals set</p>
                                 <button
                                     onClick={() => setIsGoalModalOpen(true)}
+                                    suppressHydrationWarning={true}
                                     className="mt-4 text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
                                 >
                                     Create one now
@@ -747,6 +858,7 @@ export default function DashboardOverview() {
                 onClose={() => setIsGoalModalOpen(false)}
                 goals={goals}
                 onUpdateGoals={setGoals}
+                onGoalsMutated={fetchGoals}
             />
         </div>
     )

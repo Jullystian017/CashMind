@@ -1,20 +1,78 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
-import { motion } from "framer-motion"
-import { Eye, Chrome } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Eye, EyeOff, Chrome } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 
 export function LoginForm() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
 
-    const handleSubmit = (e: React.FormEvent) => {
+    useEffect(() => {
+        const savedEmail = sessionStorage.getItem("cashmind_temp_email")
+        const savedPassword = sessionStorage.getItem("cashmind_temp_password")
+        const queryEmail = searchParams.get("email")
+
+        if (savedEmail) setEmail(savedEmail)
+        else if (queryEmail) setEmail(queryEmail)
+
+        if (savedPassword) setPassword(savedPassword)
+
+        // Clear session storage after reading once to avoid persistent auto-fill if not intended
+        // and for security and to clean up.
+        // But maybe we keep it until they successfully login?
+        // Let's clear it now.
+        if (savedEmail || savedPassword) {
+            sessionStorage.removeItem("cashmind_temp_email")
+            sessionStorage.removeItem("cashmind_temp_password")
+        }
+    }, [searchParams])
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        router.push('/onboarding')
+        setError(null)
+        setLoading(true)
+        try {
+            const supabase = createClient()
+            const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+            if (err) {
+                setError(err.message ?? "Invalid email or password.")
+                setLoading(false)
+                return
+            }
+            router.push("/dashboard")
+            router.refresh()
+        } catch {
+            setError("Something went wrong. Please try again.")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleGoogleSignIn = async () => {
+        try {
+            const supabase = createClient()
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            })
+            if (error) setError(error.message)
+        } catch {
+            setError("Failed to sign in with Google.")
+        }
     }
 
     return (
@@ -44,13 +102,21 @@ export function LoginForm() {
 
             {/* Form */}
             <form className="space-y-4 text-gray-900" onSubmit={handleSubmit}>
+                {error && (
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium">
+                        {error}
+                    </div>
+                )}
                 <div className="space-y-2">
                     <Label htmlFor="email" className="text-sm font-semibold text-gray-700">Email</Label>
                     <Input
                         id="email"
                         type="email"
                         placeholder="william@company.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="h-12 border-gray-200 rounded-xl focus:ring-blue-500 focus:border-blue-500"
+                        required
                     />
                 </div>
 
@@ -64,18 +130,25 @@ export function LoginForm() {
                     <div className="relative">
                         <Input
                             id="password"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             className="h-12 border-gray-200 rounded-xl pr-10 focus:ring-blue-500 focus:border-blue-500"
+                            required
                         />
-                        <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                            <Eye className="w-5 h-5" />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                     </div>
                 </div>
 
-                <Button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98]">
-                    Sign In
+                <Button type="submit" disabled={loading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70">
+                    {loading ? "Signing in…" : "Sign In"}
                 </Button>
 
                 <div className="relative py-2">
@@ -87,7 +160,12 @@ export function LoginForm() {
                     </div>
                 </div>
 
-                <Button variant="outline" className="w-full h-12 border-gray-200 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 transition-all">
+                <Button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    variant="outline"
+                    className="w-full h-12 border-gray-200 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                >
                     <Chrome className="w-5 h-5 text-gray-600" />
                     Sign in with Google
                 </Button>

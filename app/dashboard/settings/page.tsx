@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { User, Wallet, Bell, Shield, Save, ChevronRight, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getProfile, updateProfile } from "@/app/actions/profile"
 
 const ONBOARDING_COMPLETED_KEY = "cashmind_onboarding_completed"
 
@@ -18,21 +19,42 @@ export default function SettingsPage() {
     const [toast, setToast] = useState<string | null>(null)
     const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null)
     const [profile, setProfile] = useState({
-        name: "Jullystian",
-        email: "jullystian@gmail.com",
+        name: "",
+        email: "",
         age: "20",
         school: "Universitas Indonesia",
         income: "4500000",
         incomeType: "monthly"
     })
 
+    const mounted = useRef(true)
     useEffect(() => {
-        setOnboardingCompleted(typeof window !== "undefined" ? localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true" : null)
+        mounted.current = true
+        getProfile().then(({ data }) => {
+            if (mounted.current && data) {
+                setProfile((p) => ({
+                    ...p,
+                    name: data.display_name ?? "",
+                    email: data.email ?? "",
+                }))
+                setOnboardingCompleted(data.onboarding_completed)
+            }
+        })
+        return () => { mounted.current = false }
     }, [])
+    useEffect(() => {
+        if (onboardingCompleted === null && typeof window !== "undefined") {
+            const local = localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true"
+            setOnboardingCompleted(local)
+        }
+    }, [onboardingCompleted])
 
-    const handleSave = () => {
-        setToast("Settings saved!")
-        setTimeout(() => setToast(null), 2000)
+    const handleSave = async () => {
+        const { error } = await updateProfile({ display_name: profile.name || undefined })
+        if (!error) {
+            setToast("Settings saved!")
+            setTimeout(() => setToast(null), 2000)
+        }
     }
 
     const navItems: { key: SettingsSection; name: string; icon: typeof User }[] = [
