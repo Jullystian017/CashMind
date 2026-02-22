@@ -29,7 +29,12 @@ import {
     UtensilsCrossed,
     Car,
     Gamepad2,
-    ShoppingBag
+    ShoppingBag,
+    GraduationCap,
+    HeartPulse,
+    Home,
+    Smartphone,
+    Plane
 } from "lucide-react"
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -37,6 +42,7 @@ import {
 } from 'recharts'
 import { GoalsManagementModal } from "@/components/goals-management-modal"
 import { FinancialCalendarModal } from "@/components/financial-calendar-modal"
+import Link from "next/link"
 
 export interface Goal {
     id: string;
@@ -70,6 +76,43 @@ const monthlyData = [
     { name: 'Oct', income: 7300, expense: 5300 },
     { name: 'Nov', income: 8400, expense: 6400 },
     { name: 'Dec', income: 9200, expense: 7200 },
+]
+
+// Category config for Recent Transactions (synced with Transactions page)
+const categoryConfig: Record<string, { icon: any; color: string }> = {
+    "Food & Drinks": { icon: UtensilsCrossed, color: "#3b82f6" },
+    "Transport": { icon: Car, color: "#f97316" },
+    "Shopping": { icon: ShoppingBag, color: "#ec4899" },
+    "Entertainment": { icon: Gamepad2, color: "#a855f7" },
+    "Education": { icon: GraduationCap, color: "#0ea5e9" },
+    "Health": { icon: HeartPulse, color: "#10b981" },
+    "Home & Bills": { icon: Home, color: "#6366f1" },
+    "Gadgets": { icon: Smartphone, color: "#14b8a6" },
+    "Travel": { icon: Plane, color: "#f59e0b" },
+    "Utilities": { icon: Zap, color: "#ef4444" },
+    "Others": { icon: MoreHorizontal, color: "#94a3b8" },
+    "Income": { icon: TrendingUp, color: "#10b981" },
+    "Salary": { icon: TrendingUp, color: "#10b981" },
+    "Bonus": { icon: DollarSign, color: "#10b981" },
+    "Part-time Job": { icon: Wallet, color: "#10b981" },
+    "Investment": { icon: TrendingUp, color: "#10b981" },
+    "Gift": { icon: HeartPulse, color: "#10b981" },
+    "Cash": { icon: Wallet, color: "#64748b" },
+}
+
+const formatRp = (val: number) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 })
+        .format(val)
+        .replace("Rp", "Rp ")
+
+const recentTransactions = [
+    { description: "Starbucks Coffee", category: "Food & Drinks", date: "2026-02-18", amount: 55000, type: "expense" as const },
+    { description: "Freelance Payment", category: "Part-time Job", date: "2026-02-17", amount: 2500000, type: "income" as const },
+    { description: "Indomaret Plus", category: "Shopping", date: "2026-02-17", amount: 120000, type: "expense" as const },
+    { description: "Spotify Premium", category: "Entertainment", date: "2026-02-16", amount: 54990, type: "expense" as const },
+    { description: "GrabFood Order", category: "Food & Drinks", date: "2026-02-15", amount: 85000, type: "expense" as const },
+    { description: "ATM Withdrawal", category: "Cash", date: "2026-02-15", amount: 500000, type: "expense" as const },
+    { description: "Shell V-Power", category: "Transport", date: "2026-02-14", amount: 150000, type: "expense" as const },
 ]
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -194,15 +237,6 @@ export default function DashboardOverview() {
             icon: TrendingDown,
             color: "text-blue-600 bg-blue-50"
         },
-    ]
-
-    const transactions = [
-        { date: "Feb 18, 2026", desc: "Starbucks Coffee", cat: "Food & Drinks", amount: "-Rp 55.000", isPositive: false, type: 'food' },
-        { date: "Feb 17, 2026", desc: "Freelance Payment", cat: "Income", amount: "+Rp 2.500.000", isPositive: true, type: 'income' },
-        { date: "Feb 17, 2026", desc: "Indomaret Plus", cat: "Shopping", amount: "-Rp 120.000", isPositive: false, type: 'shopping' },
-        { date: "Feb 16, 2026", desc: "Spotify Premium", cat: "Entertainment", amount: "-Rp 54.990", isPositive: false, type: 'entertainment' },
-        { date: "Feb 15, 2026", desc: "ATM Withdrawal", cat: "Cash", amount: "-Rp 500.000", isPositive: false, type: 'transfer' },
-        { date: "Feb 14, 2026", desc: "Shell V-Power", cat: "Transport", amount: "-Rp 150.000", isPositive: false, type: 'transport' },
     ]
 
     const categoriesData = [
@@ -427,84 +461,110 @@ export default function DashboardOverview() {
                         </div>
                     </motion.div>
 
-                    {/* Transaction List */}
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden pb-6">
-                        <div className="@md:p-8 p-6 border-b border-gray-50 flex items-center justify-between">
+                    {/* Recent Transactions - Table like Transactions page (no Invoice, no Action) */}
+                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="p-6 border-b border-[#E5E7EB] flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-bold tracking-tight text-gray-900">Recent Transactions</h3>
                                 <p className="text-xs text-gray-500 font-semibold tracking-wide">Last activities this week</p>
                             </div>
-                            <button
-                                suppressHydrationWarning={true}
+                            <Link
+                                href="/dashboard/transactions"
                                 className="text-[11px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
                             >
-                                <span className="hidden @sm:inline">View All</span> <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                            </button>
+                                View All <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                            </Link>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <div className="min-w-[600px]">
-                                {/* Table Header */}
-                                <div className="grid grid-cols-[2fr_1.5fr_1.2fr_1fr] px-8 py-4 bg-gray-50/50 border-b border-gray-50">
-                                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Transaction</span>
-                                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Category</span>
-                                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Date</span>
-                                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest text-right">Amount</span>
-                                </div>
-
-                                <div className="divide-y divide-gray-50">
-                                    {transactions.map((tx, i) => {
-                                        // Find matching category style
-                                        const catStyle = categoriesData.find(c => c.name === tx.cat) ||
-                                            (tx.isPositive ? { color: "#10b981", icon: Wallet } : { color: "#94a3b8", icon: MoreHorizontal });
-
-                                        const Icon = catStyle.icon;
-
+                        {/* Desktop Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                                        <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Transaction</th>
+                                        <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Category</th>
+                                        <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Date</th>
+                                        <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#E5E7EB]">
+                                    {recentTransactions.map((t, i) => {
+                                        const config = categoryConfig[t.category] || categoryConfig["Others"]
+                                        const Icon = config.icon
+                                        const color = config.color
+                                        const isIncome = t.type === "income"
                                         return (
-                                            <motion.div
+                                            <motion.tr
                                                 key={i}
-                                                initial={{ opacity: 0, x: -10 }}
+                                                initial={{ opacity: 0, x: -8 }}
                                                 animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.7 + (i * 0.05) }}
-                                                className="grid grid-cols-[2fr_1.5fr_1.2fr_1fr] items-center px-8 py-5 hover:bg-gray-50/80 transition-all group cursor-pointer active:scale-[0.99]"
-                                                onClick={() => {/* Open Detail Modal logic will go here */ }}
+                                                transition={{ delay: 0.5 + i * 0.04 }}
+                                                className="hover:bg-[#F9FAFB] transition-all group"
                                             >
-                                                {/* Column 1: Transaction */}
-                                                <div className="flex items-center gap-4">
-                                                    <div className="min-w-0">
-                                                        <h4 className="text-sm font-semibold text-gray-900 ">{tx.desc}</h4>
-                                                    </div>
-                                                </div>
-
-                                                {/* Column 2: Category */}
-                                                <div className="flex justify-start">
+                                                <td className="px-6 py-5">
+                                                    <p className="text-sm font-normal text-[#1F2937] tracking-tight">{t.description}</p>
+                                                </td>
+                                                <td className="px-6 py-5">
                                                     <span
-                                                        className="text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-widest border border-current/10"
-                                                        style={{ backgroundColor: `${catStyle.color}15`, color: catStyle.color }}
+                                                        className="inline-flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-lg uppercase tracking-widest border border-current/10"
+                                                        style={{ backgroundColor: `${color}15`, color }}
                                                     >
-                                                        {tx.cat}
+                                                        <Icon className="w-3 h-3" />
+                                                        {t.category}
                                                     </span>
-                                                </div>
-
-                                                {/* Column 3: Date */}
-                                                <div className="flex justify-start">
-                                                    <span className="text-[11px] font-bold text-gray-400 tracking-tight">{tx.date}</span>
-                                                </div>
-
-                                                {/* Column 4: Amount */}
-                                                <div className="text-right">
-                                                    <p className={cn(
-                                                        "text-sm font-bold tracking-tight",
-                                                        tx.isPositive ? "text-emerald-600" : "text-rose-600"
-                                                    )}>
-                                                        {tx.amount}
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <p className="text-sm font-normal text-[#6B7280]">
+                                                        {new Date(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                                                     </p>
-                                                </div>
-                                            </motion.div>
-                                        );
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <p className={cn(
+                                                        "text-sm font-normal",
+                                                        isIncome ? "text-emerald-600" : "text-[#1F2937]"
+                                                    )}>
+                                                        {isIncome ? "+" : "-"} {formatRp(t.amount)}
+                                                    </p>
+                                                </td>
+                                            </motion.tr>
+                                        )
                                     })}
-                                </div>
-                            </div>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile Card List */}
+                        <div className="md:hidden divide-y divide-[#E5E7EB]">
+                            {recentTransactions.map((t, i) => {
+                                const config = categoryConfig[t.category] || categoryConfig["Others"]
+                                const Icon = config.icon
+                                const color = config.color
+                                const isIncome = t.type === "income"
+                                return (
+                                    <Link key={i} href="/dashboard/transactions" className="block p-5 hover:bg-[#F9FAFB] transition-all active:scale-[0.99]">
+                                        <div className="flex justify-between items-start gap-3">
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-normal text-[#1F2937] tracking-tight leading-tight">{t.description}</p>
+                                                <p className="text-xs text-[#6B7280] font-normal mt-1">
+                                                    {new Date(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                                                </p>
+                                            </div>
+                                            <div className="shrink-0 flex items-center gap-2">
+                                                <span
+                                                    className="inline-flex items-center gap-1 text-[9px] font-medium px-2 py-0.5 rounded-lg uppercase tracking-widest"
+                                                    style={{ backgroundColor: `${color}15`, color }}
+                                                >
+                                                    <Icon className="w-2.5 h-2.5" />
+                                                    {t.category}
+                                                </span>
+                                                <p className={cn("text-sm font-normal", isIncome ? "text-emerald-600" : "text-[#1F2937]")}>
+                                                    {isIncome ? "+" : "-"} {formatRp(t.amount)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

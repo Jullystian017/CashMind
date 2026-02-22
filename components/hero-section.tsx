@@ -81,7 +81,7 @@ export function HeroSection() {
                     <motion.div variants={itemVariants} className="mb-6 inline-block">
                         <Badge variant="outline" className="bg-white/50 backdrop-blur-sm px-4 py-1.5 rounded-full border-blue-100 flex items-center gap-2 text-gray-600 font-medium">
                             <span className="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">New</span>
-                           AI-Powered Finance Platform
+                            AI-Powered Finance Platform
                         </Badge>
                     </motion.div>
 

@@ -40,7 +40,7 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
                 {/* Advisor Profile */}
                 <div className="flex flex-col items-center text-center mb-8">
                     <div className="relative mb-4">
-                        <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center relative group">
+                        <div className="w-16 h-16 bg-blue-50 rounded-[24px] flex items-center justify-center relative group">
                             <Bot className="w-8 h-8 text-blue-600 group-hover:scale-110 transition-transform" />
                             <div className="absolute -right-1 -bottom-1 w-5 h-5 bg-green-500 border-[3px] border-white rounded-full"></div>
                         </div>
@@ -58,9 +58,9 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
                         <button
                             key={action.name}
                             suppressHydrationWarning
-                            className="w-full flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100/50 hover:border-blue-100 hover:bg-white hover:shadow-md hover:shadow-blue-500/5 transition-all text-left group"
+                            className="w-full flex items-center gap-3 p-4 rounded-[21px] bg-white border border-gray-100/50 hover:border-blue-100 hover:bg-white hover:shadow-md hover:shadow-blue-500/5 transition-all text-left group"
                         >
-                            <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 transition-colors">
+                            <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 transition-colors">
                                 <action.icon className="w-3.5 h-3.5" />
                             </div>
                             <span className="text-xs font-semibold text-gray-600 group-hover:text-gray-900">{action.name}</span>
@@ -70,13 +70,13 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
             </div>
 
             {/* Chat Input Area */}
-            <div className="p-4 border-t border-gray-100 bg-white">
+            <div className="p-5 border-t border-gray-100 bg-white">
                 <div className="relative group">
                     <input
                         type="text"
                         placeholder="Ask Mindy anything..."
                         suppressHydrationWarning
-                        className="w-full bg-gray-50 border-transparent rounded-xl py-3.5 pl-4 pr-12 text-xs font-medium focus:bg-white focus:border-blue-100 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
+                        className="w-full bg-gray-50 border-transparent rounded-[24px] py-4 pl-5 pr-12 text-xs font-medium focus:bg-white focus:border-blue-100 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
                     />
                     <button
                         suppressHydrationWarning

@@ -37,12 +37,12 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
     const isAIPage = pathname === "/dashboard/ai"
 
-    // Automatically collapse sidebar when AI panel is opened
+    // Automatically collapse sidebar when AI page or AI panel is opened
     useEffect(() => {
-        if (isAIPanelOpen && !isSidebarCollapsed) {
+        if ((isAIPage || isAIPanelOpen) && !isSidebarCollapsed) {
             setIsSidebarCollapsed(true)
         }
-    }, [isAIPanelOpen])
+    }, [isAIPage, isAIPanelOpen])
 
     // Automatically close AI panel when sidebar is expanded
     useEffect(() => {
