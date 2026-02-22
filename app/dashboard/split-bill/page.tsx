@@ -53,16 +53,16 @@ export default function SplitBillPage() {
   const router = useRouter() // Inisialisasi router
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-10 bg-[#F8FAFC] min-h-screen">
-      
+    <div className="space-y-8 pb-24" suppressHydrationWarning={true}>
+
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight uppercase">Split Bill</h1>
-          <p className="text-gray-500 text-sm mt-1">Welcome back, Alex. Here's what's happening.</p>
+          <h2 className="text-2xl @md:text-3xl font-bold text-gray-900 tracking-tight">Split Bill</h2>
+          <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Welcome back, Alex. Here's what's happening.</p>
         </div>
-        <Button 
-          className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 h-11 shadow-lg shadow-blue-200" 
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 h-11 shadow-lg shadow-blue-200 w-fit"
           onClick={() => setIsModalOpen(true)}
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -88,11 +88,11 @@ export default function SplitBillPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {ActiveBill.map((bill, index) => (
-            <BillCard 
-              key={index} 
-              bill={bill} 
-              status="ACTIVE" 
-              onClick={() => router.push(`/split-details/${bill.id}`)} // Navigasi yang benar
+            <BillCard
+              key={index}
+              bill={bill}
+              status="ACTIVE"
+              onClick={() => router.push(`/dashboard/split-bill/${bill.id}`)} // Navigasi yang benar
             />
           ))}
         </div>
@@ -109,19 +109,19 @@ export default function SplitBillPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-70">
           {CompleteBill.map((bill, index) => (
-            <BillCard 
-              key={index} 
-              bill={bill} 
-              status="SETTLED" 
-              onClick={() => router.push(`/split-details/${bill.id}`)} 
+            <BillCard
+              key={index}
+              bill={bill}
+              status="SETTLED"
+              onClick={() => router.push(`/dashboard/split-bill/${bill.id}`)}
             />
           ))}
         </div>
       </section>
 
-      <CreateSplitModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <CreateSplitModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   )
@@ -145,8 +145,8 @@ function BillCard({ bill, status, onClick }: { bill: any, status: 'ACTIVE' | 'SE
   const isActive = status === 'ACTIVE'
 
   return (
-    <Card 
-      className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white border-none rounded-[24px] overflow-hidden shadow-sm" 
+    <Card
+      className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer bg-white border-none rounded-[24px] overflow-hidden shadow-sm"
       onClick={onClick}
     >
       <CardHeader className="relative pb-2">
@@ -173,8 +173,8 @@ function BillCard({ bill, status, onClick }: { bill: any, status: 'ACTIVE' | 'SE
           <span className={isActive ? "text-blue-600" : ""}>{Math.round(percentage)}%</span>
         </div>
         <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-          <div 
-            className={`h-full transition-all duration-1000 ease-out ${isActive ? 'bg-blue-600' : 'bg-slate-300'}`} 
+          <div
+            className={`h-full transition-all duration-1000 ease-out ${isActive ? 'bg-blue-600' : 'bg-slate-300'}`}
             style={{ width: `${percentage}%` }}
           />
         </div>
