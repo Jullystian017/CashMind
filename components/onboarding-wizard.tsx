@@ -22,9 +22,15 @@ const steps = [
     { title: "Personalization", icon: Sparkles }
 ]
 
+function formatRupiahInput(raw: string): string {
+    const digits = raw.replace(/\D/g, "")
+    if (!digits) return ""
+    return parseInt(digits, 10).toLocaleString("id-ID")
+}
+
 interface OnboardingWizardProps {
     isOpen: boolean
-    onClose: () => void
+    onClose: (completed?: boolean) => void
 }
 
 export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
@@ -58,7 +64,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    onClick={onClose}
+                    onClick={() => onClose(false)}
                     className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
                 />
 
@@ -69,7 +75,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                     className="w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden relative z-10"
                 >
                     <button
-                        onClick={onClose}
+                        onClick={() => onClose(false)}
                         className="absolute top-6 right-8 text-gray-400 hover:text-gray-900 transition-colors z-20"
                     >
                         <X className="w-6 h-6" />
@@ -127,12 +133,14 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                         <div className="space-y-4">
                                             <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Pocket Money / Income</Label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
                                                 <Input
-                                                    placeholder="0.00"
-                                                    className="pl-8 h-12 rounded-xl text-lg font-bold border-gray-100 focus:ring-blue-500/20"
-                                                    value={formData.income}
-                                                    onChange={(e) => setFormData({ ...formData, income: e.target.value })}
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    placeholder="0"
+                                                    className="pl-12 h-12 rounded-xl text-lg font-bold border-gray-100 focus:ring-blue-500/20"
+                                                    value={formatRupiahInput(formData.income)}
+                                                    onChange={(e) => setFormData({ ...formData, income: e.target.value.replace(/\D/g, "") })}
                                                 />
                                             </div>
                                         </div>
@@ -183,12 +191,14 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                         <div className="space-y-4">
                                             <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Target Amount</Label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
                                                 <Input
-                                                    placeholder="5,000.00"
-                                                    className="pl-8 h-12 rounded-xl text-lg font-bold border-gray-100"
-                                                    value={formData.targetAmount}
-                                                    onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value })}
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    placeholder="0"
+                                                    className="pl-12 h-12 rounded-xl text-lg font-bold border-gray-100"
+                                                    value={formatRupiahInput(formData.targetAmount)}
+                                                    onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value.replace(/\D/g, "") })}
                                                 />
                                             </div>
                                         </div>
@@ -247,7 +257,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                         <p className="text-gray-500 font-medium">CashMind is ready to supercharge your finances.</p>
                                     </div>
                                     <Button
-                                        onClick={onClose}
+                                        onClick={() => onClose(true)}
                                         className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg rounded-2xl shadow-xl shadow-blue-500/20"
                                     >
                                         Start Exploring

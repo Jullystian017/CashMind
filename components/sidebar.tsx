@@ -51,6 +51,7 @@ const menuCategories = [
 ]
 
 const bottomMenuItems = [
+    { name: "Profile", icon: User, href: "/dashboard/profile" },
     { name: "Settings", icon: Settings, href: "/dashboard/settings" },
 ]
 
