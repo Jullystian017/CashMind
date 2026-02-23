@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Calendar } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Calendar, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getCalendarData } from "@/app/actions/transactions"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface DayTransaction {
@@ -22,33 +23,8 @@ interface DayData {
     transactions: DayTransaction[]
 }
 
-// ── Sample Data ───────────────────────────────────────────────────────────────
-const calendarData: Record<number, DayData> = {
-    1: { expense: 45000, income: 0, transactions: [{ id: "t1", name: "Indomaret", category: "Grocery", amount: 45000, isExpense: true, time: "08:12" }] },
-    2: { expense: 120000, income: 0, transactions: [{ id: "t2", name: "GrabFood", category: "Food", amount: 75000, isExpense: true, time: "12:30" }, { id: "t2b", name: "Tokopedia", category: "Shopping", amount: 45000, isExpense: true, time: "19:00" }] },
-    3: { expense: 0, income: 500000, transactions: [{ id: "t3", name: "Freelance Payment", category: "Income", amount: 500000, isExpense: false, time: "09:00" }] },
-    4: { expense: 35000, income: 0, transactions: [{ id: "t4", name: "Kopi Kenangan", category: "Food", amount: 35000, isExpense: true, time: "07:45" }] },
-    5: { expense: 280000, income: 0, transactions: [{ id: "t5", name: "Bensin", category: "Transport", amount: 80000, isExpense: true, time: "06:30" }, { id: "t5b", name: "Makan Siang", category: "Food", amount: 55000, isExpense: true, time: "13:00" }, { id: "t5c", name: "Baju Distro", category: "Shopping", amount: 145000, isExpense: true, time: "16:20" }] },
-    6: { expense: 60000, income: 0, transactions: [{ id: "t6", name: "Netflix", category: "Entertainment", amount: 60000, isExpense: true, time: "00:01" }] },
-    7: { expense: 95000, income: 0, transactions: [{ id: "t7", name: "GrabBike", category: "Transport", amount: 35000, isExpense: true, time: "09:10" }, { id: "t7b", name: "Bakso", category: "Food", amount: 60000, isExpense: true, time: "18:30" }] },
-    9: { expense: 15000, income: 0, transactions: [{ id: "t9", name: "Parkir", category: "Transport", amount: 15000, isExpense: true, time: "14:00" }] },
-    10: { expense: 550000, income: 0, transactions: [{ id: "t10", name: "Kos Bulanan", category: "Rent", amount: 550000, isExpense: true, time: "08:00" }] },
-    11: { expense: 78000, income: 0, transactions: [{ id: "t11", name: "Dinner Fancy", category: "Food", amount: 78000, isExpense: true, time: "19:30" }] },
-    12: { expense: 45000, income: 200000, transactions: [{ id: "t12", name: "Ojek Online", category: "Transport", amount: 45000, isExpense: true, time: "10:00" }, { id: "t12b", name: "Transfer Masuk", category: "Income", amount: 200000, isExpense: false, time: "13:30" }] },
-    13: { expense: 320000, income: 0, transactions: [{ id: "t13", name: "Belanja Bulanan", category: "Grocery", amount: 320000, isExpense: true, time: "10:30" }] },
-    14: { expense: 25000, income: 0, transactions: [{ id: "t14", name: "Snack Alfamart", category: "Grocery", amount: 25000, isExpense: true, time: "15:45" }] },
-    15: { expense: 0, income: 1500000, transactions: [{ id: "t15", name: "Gaji Paruh Waktu", category: "Income", amount: 1500000, isExpense: false, time: "09:00" }] },
-    16: { expense: 190000, income: 0, transactions: [{ id: "t16", name: "Makan + Nongkrong", category: "Food", amount: 190000, isExpense: true, time: "20:00" }] },
-    18: { expense: 67000, income: 0, transactions: [{ id: "t18", name: "Spotify", category: "Entertainment", amount: 37000, isExpense: true, time: "00:01" }, { id: "t18b", name: "YouTube Premium", category: "Entertainment", amount: 30000, isExpense: true, time: "00:02" }] },
-    19: { expense: 420000, income: 0, transactions: [{ id: "t19", name: "Sepatu Nike", category: "Shopping", amount: 420000, isExpense: true, time: "14:00" }] },
-    20: { expense: 85000, income: 0, transactions: [{ id: "t20", name: "GrabFood + Kopi", category: "Food", amount: 85000, isExpense: true, time: "12:15" }] },
-    21: { expense: 50000, income: 75000, transactions: [{ id: "t21", name: "Cetak Foto", category: "Others", amount: 50000, isExpense: true, time: "11:00" }, { id: "t21b", name: "Jual Barang Bekas", category: "Income", amount: 75000, isExpense: false, time: "16:00" }] },
-    23: { expense: 110000, income: 0, transactions: [{ id: "t23", name: "Bensin + Tol", category: "Transport", amount: 110000, isExpense: true, time: "07:00" }] },
-    24: { expense: 38000, income: 0, transactions: [{ id: "t24", name: "Indomie + Telur", category: "Grocery", amount: 38000, isExpense: true, time: "09:30" }] },
-    26: { expense: 730000, income: 0, transactions: [{ id: "t26", name: "Fashion Haul", category: "Shopping", amount: 450000, isExpense: true, time: "13:00" }, { id: "t26b", name: "Dinner Date", category: "Food", amount: 280000, isExpense: true, time: "19:45" }] },
-    27: { expense: 55000, income: 0, transactions: [{ id: "t27", name: "Parkir + Tol", category: "Transport", amount: 55000, isExpense: true, time: "08:30" }] },
-    29: { expense: 42000, income: 0, transactions: [{ id: "t29", name: "Kopi Pagi", category: "Food", amount: 42000, isExpense: true, time: "07:15" }] },
-}
+// calendarData renamed to liveCalendarData and managed via state
+
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatRp(val: number) {
@@ -98,10 +74,26 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
     const [currentMonth, setCurrentMonth] = useState(today.getMonth())
     const [currentYear, setCurrentYear] = useState(today.getFullYear())
     const [selectedDay, setSelectedDay] = useState<number | null>(null)
+    const [calendarData, setCalendarData] = useState<Record<number, DayData>>({})
+    const [isLoading, setIsLoading] = useState(false)
+
     // Mobile: show detail panel as overlay when day selected
     const [showDetail, setShowDetail] = useState(false)
 
     useEffect(() => { setMounted(true) }, [])
+
+    useEffect(() => {
+        if (!isOpen) return
+
+        const fetchData = async () => {
+            setIsLoading(true)
+            const { data, error } = await getCalendarData(currentMonth, currentYear)
+            if (data) setCalendarData(data)
+            setIsLoading(false)
+        }
+
+        fetchData()
+    }, [isOpen, currentMonth, currentYear])
 
     // Close on Escape
     useEffect(() => {
@@ -283,7 +275,12 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                             </div>
 
                             {/* ── Body ── */}
-                            <div className="flex flex-col sm:flex-row flex-1 overflow-hidden">
+                            <div className="flex flex-col sm:flex-row flex-1 overflow-hidden relative">
+                                {isLoading && (
+                                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-50 flex items-center justify-center">
+                                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                                    </div>
+                                )}
 
                                 {/* Calendar panel */}
                                 <div className="flex-1 p-4 sm:p-6 overflow-y-auto">

@@ -205,6 +205,16 @@ export default function TransactionsPage() {
         }).format(val).replace('Rp', 'Rp ')
     }
 
+    const formatAmountCompact = (val: number) => {
+        if (Math.abs(val) >= 1000000) {
+            return (val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt'
+        }
+        if (Math.abs(val) >= 1000) {
+            return (val / 1000).toLocaleString('id-ID', { maximumFractionDigits: 0 }) + 'k'
+        }
+        return val.toLocaleString('id-ID')
+    }
+
     const formatThousands = (raw: string) => {
         const digits = raw.replace(/\D/g, "")
         if (!digits) return ""
@@ -417,8 +427,7 @@ export default function TransactionsPage() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                                <th className="px-8 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Invoice</th>
-                                <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Transaction</th>
+                                <th className="px-8 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Transaction</th>
                                 <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Category</th>
                                 <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Date</th>
                                 <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Amount</th>
@@ -429,9 +438,6 @@ export default function TransactionsPage() {
                             {paginatedTransactions.map((t) => (
                                 <tr key={t.id} className="hover:bg-[#F9FAFB] transition-all group">
                                     <td className="px-8 py-5">
-                                        <p className="text-sm font-normal text-[#1F2937] tracking-tight">{t.invoiceId}</p>
-                                    </td>
-                                    <td className="px-6 py-5">
                                         <p className="text-sm font-normal text-[#1F2937] tracking-tight">{t.description}</p>
                                     </td>
                                     <td className="px-6 py-5">
@@ -481,7 +487,6 @@ export default function TransactionsPage() {
                         <div key={t.id} className="p-6 space-y-4 hover:bg-[#F9FAFB] transition-all" onClick={() => setSelectedDetail(t)}>
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-[10px] font-normal text-[#6B7280] uppercase tracking-widest mb-1">{t.invoiceId}</p>
                                     <p className="text-lg font-normal text-[#1F2937] tracking-tight leading-none">{t.description}</p>
                                 </div>
                                 <div className="flex justify-start">
@@ -592,23 +597,9 @@ export default function TransactionsPage() {
                                     style={{ background: `linear-gradient(135deg, ${catColor}08 0%, ${catColor}03 100%)` }}
                                 >
                                     <div className="flex justify-between items-start">
-                                        <div className="flex items-center gap-3">
-                                            <div
-                                                className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm"
-                                                style={{ backgroundColor: `${catColor}18`, color: catColor }}
-                                            >
-                                                <CatIcon className="w-6 h-6" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">{selectedDetail.invoiceId}</p>
-                                                <h3 className="text-xl font-black text-gray-900 tracking-tight leading-tight">{selectedDetail.description}</h3>
-                                                <span
-                                                    className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider"
-                                                    style={{ backgroundColor: `${catColor}18`, color: catColor }}
-                                                >
-                                                    {selectedDetail.category}
-                                                </span>
-                                            </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-xl font-black text-gray-900 tracking-tight leading-tight">{selectedDetail.description}</h3>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Transaction Details</p>
                                         </div>
                                         <button
                                             onClick={() => setSelectedDetail(null)}
@@ -617,25 +608,26 @@ export default function TransactionsPage() {
                                             <X className="w-5 h-5 text-gray-400" />
                                         </button>
                                     </div>
+
                                     {/* Amount hero */}
-                                    <div className="mt-6 flex items-baseline gap-2">
+                                    <div className="mt-8 flex items-baseline gap-2">
                                         <span className={cn(
-                                            "text-2xl font-black tracking-tight",
+                                            "text-3xl font-black tracking-tight",
                                             isIncome ? "text-emerald-600" : "text-rose-600"
                                         )}>
                                             {isIncome ? "+" : "-"} {formatRp(selectedDetail.amount)}
                                         </span>
                                         <span className={cn(
-                                            "text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-md",
+                                            "text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg",
                                             isIncome ? "bg-emerald-500/15 text-emerald-600" : "bg-rose-500/15 text-rose-600"
                                         )}>
-                                            {selectedDetail.type}
+                                            {selectedDetail.category}
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Details grid - fields from Add Transaction */}
-                                <div className="px-6 py-5 space-y-4">
+                                <div className="px-6 py-5 space-y-6">
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Transaction Details</p>
                                     <div className="grid grid-cols-2 gap-4">
                                         {[
@@ -693,164 +685,170 @@ export default function TransactionsPage() {
                         </div>
                     )
                 })()}
-            </AnimatePresence>
+            </AnimatePresence >
 
 
             {/* Transaction Modal */}
             <AnimatePresence>
-                {isModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => { setIsModalOpen(false); resetForm(); }}
-                            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="bg-white rounded-[20px] shadow-2xl w-full max-w-lg p-6 @md:p-8 relative z-10 max-h-[90vh] overflow-y-auto no-scrollbar"
-                        >
-                            <div className="flex items-center justify-between mb-8">
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900">{editingTransaction ? "Edit Transaction" : "New Transaction"}</h3>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-1">Fill in the details below</p>
-                                </div>
-                                <button
-                                    onClick={() => { setIsModalOpen(false); resetForm(); }}
-                                    className="p-2.5 rounded-2xl hover:bg-gray-100 text-gray-400 transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            {/* Type Toggle */}
-                            <div className="bg-gray-50 p-1 rounded-2xl flex gap-1 mb-8">
-                                <button
-                                    onClick={() => setType('expense')}
-                                    className={cn(
-                                        "flex-1 py-3 rounded-xl text-sm font-bold transition-all",
-                                        type === 'expense' ? "bg-white text-rose-600 shadow-sm" : "text-gray-400 hover:text-gray-600"
-                                    )}
-                                >
-                                    Expense
-                                </button>
-                                <button
-                                    onClick={() => setType('income')}
-                                    className={cn(
-                                        "flex-1 py-3 rounded-xl text-sm font-bold transition-all",
-                                        type === 'income' ? "bg-white text-emerald-600 shadow-sm" : "text-gray-400 hover:text-gray-600"
-                                    )}
-                                >
-                                    Income
-                                </button>
-                            </div>
-
-                            <div className="space-y-6">
-                                {/* Description */}
-                                <div>
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Description</label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. Lunch with friends"
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
-                                    />
-                                </div>
-
-                                {/* Amount & Date Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Amount (Rp)</label>
-                                        <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400 italic">Rp</span>
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                placeholder="0"
-                                                value={formatThousands(amount)}
-                                                onChange={(e) => setAmount(e.target.value)}
-                                                className="w-full pl-11 pr-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-lg font-black text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Date</label>
-                                        <div className="relative">
-                                            <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                                            <input
-                                                type="date"
-                                                value={date}
-                                                onChange={(e) => setDate(e.target.value)}
-                                                className="w-full pl-11 pr-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Category Selection */}
-                                <div>
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-3 px-1">Select Category</label>
-                                    <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-                                        {(type === 'expense' ? expenseCategories : incomeCategories).map((c: string) => {
-                                            const config = categoryConfig[c] || categoryConfig["Others"]
-                                            const CatIcon = config.icon
-                                            const color = config.color
-                                            const isSelected = category === c
-                                            return (
-                                                <button
-                                                    key={c}
-                                                    onClick={() => setCategory(c)}
-                                                    className={cn(
-                                                        "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
-                                                        isSelected
-                                                            ? "text-white shadow-lg scale-105"
-                                                            : "bg-gray-50 border-gray-100 text-gray-400 hover:bg-gray-100"
-                                                    )}
-                                                    style={isSelected ? { backgroundColor: color, borderColor: color, boxShadow: `0 10px 15px -3px ${color}33` } : {}}
-                                                >
-                                                    <CatIcon className="w-5 h-5" />
-                                                    <span className={cn("text-[8px] font-bold truncate w-full text-center", isSelected ? "text-white" : "text-gray-500")}>
-                                                        {c.split(' ')[0]}
-                                                    </span>
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Note */}
-                                <div>
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Note (Optional)</label>
-                                    <textarea
-                                        rows={2}
-                                        placeholder="Add a small detail..."
-                                        value={note}
-                                        onChange={(e) => setNote(e.target.value)}
-                                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-medium text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all resize-none"
-                                    />
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={handleSave}
-                                disabled={!description || !amount}
-                                className={cn(
-                                    "w-full mt-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl",
-                                    (!description || !amount)
-                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
-                                        : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/10 hover:-translate-y-0.5"
-                                )}
+                {
+                    isModalOpen && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => { setIsModalOpen(false); resetForm(); }}
+                                className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="bg-white rounded-[20px] shadow-2xl w-full max-w-lg p-6 @md:p-8 relative z-10 max-h-[90vh] overflow-y-auto no-scrollbar"
                             >
-                                {editingTransaction ? "Update Transaction" : "Save Transaction"}
-                            </button>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+                                {/* Header */}
+                                <div className="flex items-center justify-between p-6 border-b border-gray-50">
+                                    <div>
+                                        <h2 className="text-xl font-black text-gray-900 tracking-tight leading-none">
+                                            {editingTransaction ? 'Edit Transaction' : 'Add Transaction'}
+                                        </h2>
+                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">Set details below</p>
+                                    </div>
+                                    <button
+                                        onClick={() => { setIsModalOpen(false); resetForm(); }}
+                                        className="p-2 hover:bg-gray-100 rounded-xl transition-all"
+                                    >
+                                        <X className="w-5 h-5 text-gray-400" />
+                                    </button>
+                                </div>
+
+                                {/* Tab Switcher - Simple & Clean */}
+                                <div className="px-6 pt-6">
+                                    <div className="flex bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+                                        <button
+                                            onClick={() => setType('expense')}
+                                            className={cn(
+                                                "flex-1 py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                                type === 'expense' ? "bg-white text-rose-600 shadow-sm border border-rose-100/50" : "text-gray-400 hover:text-gray-600"
+                                            )}
+                                        >
+                                            Expense
+                                        </button>
+                                        <button
+                                            onClick={() => setType('income')}
+                                            className={cn(
+                                                "flex-1 py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                                type === 'income' ? "bg-white text-emerald-600 shadow-sm border border-emerald-100/50" : "text-gray-400 hover:text-gray-600"
+                                            )}
+                                        >
+                                            Income
+                                        </button>
+                                    </div>
+                                </div>
+                                {/* Description */}
+                                <div className="space-y-6 px-6 py-5"> {/* Added px-6 py-5 for consistent padding */}
+                                    <div>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Description</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Lunch with friends"
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
+                                        />
+                                    </div>
+
+                                    {/* Amount & Date Grid */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Amount (Rp)</label>
+                                            <div className="relative">
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400 italic">Rp</span>
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    placeholder="0"
+                                                    value={formatThousands(amount)}
+                                                    onChange={(e) => setAmount(e.target.value)}
+                                                    className="w-full pl-11 pr-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-lg font-black text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Date</label>
+                                            <div className="relative">
+                                                <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                                <input
+                                                    type="date"
+                                                    value={date}
+                                                    onChange={(e) => setDate(e.target.value)}
+                                                    className="w-full pl-11 pr-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Category Selection */}
+                                    <div>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-3 px-1">Select Category</label>
+                                        <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                                            {(type === 'expense' ? expenseCategories : incomeCategories).map((c: string) => {
+                                                const config = categoryConfig[c] || categoryConfig["Others"]
+                                                const CatIcon = config.icon
+                                                const color = config.color
+                                                const isSelected = category === c
+                                                return (
+                                                    <button
+                                                        key={c}
+                                                        onClick={() => setCategory(c)}
+                                                        className={cn(
+                                                            "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
+                                                            isSelected
+                                                                ? "text-white shadow-lg scale-105"
+                                                                : "bg-gray-50 border-gray-100 text-gray-400 hover:bg-gray-100"
+                                                        )}
+                                                        style={isSelected ? { backgroundColor: color, borderColor: color, boxShadow: `0 10px 15px -3px ${color}33` } : {}}
+                                                    >
+                                                        <CatIcon className="w-5 h-5" />
+                                                        <span className={cn("text-[8px] font-bold truncate w-full text-center", isSelected ? "text-white" : "text-gray-500")}>
+                                                            {c.split(' ')[0]}
+                                                        </span>
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* Note */}
+                                    <div>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Note (Optional)</label>
+                                        <textarea
+                                            rows={2}
+                                            placeholder="Add a small detail..."
+                                            value={note}
+                                            onChange={(e) => setNote(e.target.value)}
+                                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-medium text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all resize-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleSave}
+                                    disabled={!description || !amount}
+                                    className={cn(
+                                        "w-full mt-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl",
+                                        (!description || !amount)
+                                            ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
+                                            : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/10 hover:-translate-y-0.5"
+                                    )}
+                                >
+                                    {editingTransaction ? "Update Transaction" : "Save Transaction"}
+                                </button>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
         </div >
     )
 }

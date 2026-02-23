@@ -17,6 +17,7 @@ export type TransactionRow = {
   plan: string;
   payment_method: string;
   note: string | null;
+  goal_id: string | null;
 };
 
 function generateInvoiceId() {
@@ -38,6 +39,7 @@ function rowToTransaction(r: TransactionRow) {
     plan: r.plan,
     paymentMethod: r.payment_method,
     note: r.note ?? undefined,
+    goalId: r.goal_id ?? undefined,
   };
 }
 
@@ -72,6 +74,7 @@ export async function createTransaction(input: {
   plan: string;
   paymentMethod: string;
   note?: string;
+  goalId?: string;
 }): Promise<{ data: ReturnType<typeof rowToTransaction> | null; error: string | null }> {
   const supabase = await createClient();
   const {
@@ -93,6 +96,7 @@ export async function createTransaction(input: {
       plan: input.plan ?? "",
       payment_method: input.paymentMethod ?? "",
       note: input.note ?? null,
+      goal_id: input.goalId ?? null,
     })
     .select()
     .single();
@@ -114,6 +118,7 @@ export async function updateTransaction(
     plan: string;
     paymentMethod: string;
     note: string;
+    goalId: string;
   }>
 ): Promise<{ error: string | null }> {
   const supabase = await createClient();
@@ -133,6 +138,7 @@ export async function updateTransaction(
   if (input?.plan !== undefined) updates.plan = input.plan;
   if (input?.paymentMethod !== undefined) updates.payment_method = input.paymentMethod;
   if (input?.note !== undefined) updates.note = input.note;
+  if (input?.goalId !== undefined) updates.goal_id = input.goalId;
 
   const { error } = await supabase
     .from("transactions")
@@ -242,16 +248,16 @@ export async function getCategorySpending(monthYear: string) {
   if (!user) return { data: null, error: "Not authenticated" };
 
   const [year, month] = monthYear.split("-").map(Number);
-  const firstDay = new Date(year, month - 1, 1).toISOString();
-  const lastDay = new Date(year, month, 0).toISOString();
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0, 23, 59, 59, 999);
 
   const { data, error } = await supabase
     .from("transactions")
     .select("category, amount")
     .eq("user_id", user.id)
     .eq("type", "expense")
-    .gte("date", firstDay)
-    .lte("date", lastDay);
+    .gte("date", firstDay.toISOString())
+    .lte("date", lastDay.toISOString());
 
   if (error) return { data: null, error: error.message };
 
@@ -318,3 +324,88 @@ export async function getRecentTransactions(limit = 7) {
   return { data: data?.map(rowToTransaction) ?? [], error: error?.message ?? null };
 }
 
+
+export async function getCalendarData(month: number, year: number): Promise<{
+  data: Record<number, { expense: number; income: number; transactions: any[] }> | null;
+  error: string | null;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { data: null, error: "Not authenticated" };
+
+  // Adjust month (JS 0-indexed vs SQL/logic)
+  // Input month is 0-11
+  const start = new Date(year, month, 1).toISOString();
+  const end = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("user_id", user.id)
+    .gte("date", start)
+    .lte("date", end)
+    .order("date", { ascending: true });
+
+  if (error) return { data: null, error: error.message };
+
+  const calendarData: Record<number, { expense: number; income: number; transactions: any[] }> = {};
+
+  data.forEach((r: TransactionRow) => {
+    const day = new Date(r.date).getDate();
+    if (!calendarData[day]) {
+      calendarData[day] = { expense: 0, income: 0, transactions: [] };
+    }
+
+    const tx = rowToTransaction(r);
+    const amount = Number(tx.amount);
+
+    if (tx.type === "expense") {
+      calendarData[day].expense += amount;
+    } else {
+      calendarData[day].income += amount;
+    }
+
+    calendarData[day].transactions.push({
+      id: tx.id,
+      name: tx.description,
+      category: tx.category,
+      amount: amount,
+      isExpense: tx.type === "expense",
+      time: new Date(r.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+    });
+  });
+
+  return { data: calendarData, error: null };
+}
+
+export async function getTransactionsByCategory(
+  category: string,
+  monthYear: string
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { data: null, error: "Not authenticated" };
+
+  const [year, month] = monthYear.split("-").map(Number);
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0, 23, 59, 59, 999);
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("category", category)
+    .gte("date", firstDay.toISOString())
+    .lte("date", lastDay.toISOString())
+    .order("date", { ascending: false });
+
+  if (error) return { data: null, error: error.message };
+
+  return { data: (data as TransactionRow[]).map(rowToTransaction), error: null };
+}

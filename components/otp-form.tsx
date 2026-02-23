@@ -53,11 +53,18 @@ export function OTPForm() {
         setLoading(true)
         try {
             const supabase = createClient()
-            const email = searchParams.get("email") ?? undefined
+            const email = searchParams.get("email")
+
+            if (!email) {
+                setError("Email is required to verify OTP. Please try logging in again.")
+                setLoading(false)
+                return
+            }
+
             const { error: err } = await supabase.auth.verifyOtp({
                 type: "email",
                 token: code,
-                email: email || undefined,
+                email: email,
             })
             if (err) {
                 setError(err.message ?? "Invalid or expired code. Try again or sign in with password.")

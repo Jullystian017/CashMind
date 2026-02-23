@@ -11,7 +11,7 @@ import {
     X, ReceiptText, ChevronDown, Calendar as CalendarIcon, Loader2
 } from "lucide-react"
 import { getBudgets, upsertBudget, deleteBudget } from "@/app/actions/budgets"
-import { getCategorySpending } from "@/app/actions/transactions"
+import { getCategorySpending, getTransactionsByCategory } from "@/app/actions/transactions"
 
 /* ─── Types ─── */
 interface BudgetCategory {
@@ -122,6 +122,7 @@ export default function BudgetsPage() {
     const [selectedMonth, setSelectedMonth] = useState("February 2026")
     const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
+    const [txLoading, setTxLoading] = useState(false)
 
     // month format: "YYYY-MM"
     const [currentMonthKey, setCurrentMonthKey] = useState(() => {
@@ -183,10 +184,23 @@ export default function BudgetsPage() {
 
     useEffect(() => {
         if (selectedCategory) {
-            // Optionally fetch transactions for the selected category
-            // For now we'll just show the category detail
+            const fetchTx = async () => {
+                setTxLoading(true)
+                const res = await getTransactionsByCategory(selectedCategory.name, currentMonthKey)
+                if (res.data) {
+                    const txs = res.data.map(tx => ({
+                        desc: tx.description,
+                        amount: tx.amount,
+                        date: new Date(tx.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
+                    }))
+                    setBudgets(prev => prev.map(b => b.id === selectedCategory.id ? { ...b, transactions: txs } : b))
+                    setSelectedCategory(prev => prev ? { ...prev, transactions: txs } : null)
+                }
+                setTxLoading(false)
+            }
+            fetchTx()
         }
-    }, [selectedCategory])
+    }, [selectedCategory?.id, currentMonthKey])
 
     // Global stats
     const totalBudget = budgets.reduce((a, b) => a + b.limit, 0)
@@ -455,9 +469,14 @@ export default function BudgetsPage() {
                             </button>
                         </div>
 
-                        <div className="divide-y divide-gray-50">
-                            {selectedCategory.transactions.length === 0 ? (
-                                <p className="px-8 py-8 text-center text-sm text-gray-400 font-medium">No transactions this month.</p>
+                        <div className="divide-y divide-gray-50 max-h-[400px] overflow-y-auto no-scrollbar">
+                            {txLoading ? (
+                                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                                    <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Fetching transactions...</p>
+                                </div>
+                            ) : selectedCategory.transactions.length === 0 ? (
+                                <p className="px-8 py-12 text-center text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">No transactions this month.</p>
                             ) : selectedCategory.transactions.map((tx, i) => (
                                 <div key={i} className="flex items-center justify-between px-6 @md:px-8 py-4 hover:bg-gray-50/50 transition-colors">
                                     <div className="flex items-center gap-3">
@@ -465,11 +484,11 @@ export default function BudgetsPage() {
                                             <ReceiptText className="w-3.5 h-3.5 text-gray-400" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-gray-800">{tx.desc}</p>
-                                            <p className="text-[10px] font-medium text-gray-400">{tx.date}</p>
+                                            <p className="text-sm font-bold text-gray-900">{tx.desc}</p>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{tx.date}</p>
                                         </div>
                                     </div>
-                                    <p className="text-sm font-bold text-rose-600">-{formatRp(tx.amount)}</p>
+                                    <p className="text-sm font-black text-rose-600">-{formatRp(tx.amount)}</p>
                                 </div>
                             ))}
                         </div>

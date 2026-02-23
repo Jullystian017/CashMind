@@ -101,6 +101,7 @@ const categoryConfig: Record<string, { icon: any; color: string }> = {
     "Investment": { icon: TrendingUp, color: "#10b981" },
     "Gift": { icon: HeartPulse, color: "#10b981" },
     "Cash": { icon: Wallet, color: "#64748b" },
+    "Savings Allocation": { icon: Target, color: "#10b981" },
 }
 
 const formatRp = (val: number) =>
@@ -111,6 +112,9 @@ const formatRp = (val: number) =>
 const formatAmountCompact = (val: number) => {
     if (Math.abs(val) >= 1000000) {
         return (val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt'
+    }
+    if (Math.abs(val) >= 1000) {
+        return (val / 1000).toLocaleString('id-ID', { maximumFractionDigits: 0 }) + 'k'
     }
     return val.toLocaleString('id-ID')
 }

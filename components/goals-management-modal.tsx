@@ -1,7 +1,7 @@
-    "use client"
+"use client"
 
-import { useState } from "react"
-import { upsertGoal, deleteGoal } from "@/app/actions/goals"
+import { useState, useEffect } from "react"
+import { upsertGoal, deleteGoal, allocateToGoal } from "@/app/actions/goals"
 
 /** Format raw digit string → "1.000.000" (id-ID style) */
 const fmtThousands = (raw: string) => {
@@ -13,8 +13,19 @@ const parseDisplay = (display: string) => {
     const n = parseInt(display.replace(/\D/g, ""), 10)
     return isNaN(n) ? 0 : n
 }
+
+const formatCompact = (val: number) => {
+    if (val >= 1000000) {
+        return `Rp ${(val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt`
+    }
+    if (val >= 1000) {
+        return `Rp ${(val / 1000).toLocaleString('id-ID', { maximumFractionDigits: 0 })}k`
+    }
+    return `Rp ${val.toLocaleString('id-ID')}`
+}
+
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Plus, Target, Calendar, Trash2, Edit2, ChevronRight, Wallet, Save, Clock } from "lucide-react"
+import { X, Plus, Target, Calendar, Trash2, Edit2, ChevronRight, Wallet, Save, Clock, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -38,9 +49,21 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
         deadline: "",
         color: "bg-blue-600"
     })
-    // display-formatted strings for the two amount inputs
     const [targetDisplay, setTargetDisplay] = useState("")
-    const [currentDisplay, setCurrentDisplay] = useState("")
+
+    // Allocation state
+    const [allocatingId, setAllocatingId] = useState<string | null>(null)
+    const [allocationDisplay, setAllocationDisplay] = useState("")
+    const [isAllocating, setIsAllocating] = useState(false)
+    const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+    // Clear error message after some time
+    useEffect(() => {
+        if (errorMsg) {
+            const timer = setTimeout(() => setErrorMsg(null), 3000)
+            return () => clearTimeout(timer)
+        }
+    }, [errorMsg])
 
     const formatIndoDate = (dateStr: string) => {
         try {
@@ -71,23 +94,49 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
 
     const handleSave = async () => {
         const targetAmount = parseDisplay(targetDisplay)
-        const currentAmount = parseDisplay(currentDisplay)
-        const payload = { ...formData, targetAmount, currentAmount }
+        const payload = { ...formData, targetAmount, currentAmount: editingId ? formData.currentAmount : 0 }
         const { error } = await upsertGoal(
             editingId ? { id: editingId, ...payload } : { ...payload }
         )
-        if (error) return
+        if (error) {
+            setErrorMsg(error)
+            return
+        }
         setEditingId(null)
         setIsAdding(false)
         setFormData({ title: "", targetAmount: 0, currentAmount: 0, deadline: "", color: "bg-blue-600" })
         setTargetDisplay("")
-        setCurrentDisplay("")
+        onGoalsMutated?.()
+    }
+
+    const handleAllocate = async (goal: Goal) => {
+        const amount = parseDisplay(allocationDisplay)
+        if (amount <= 0) return
+
+        setIsAllocating(true)
+        const { error } = await allocateToGoal({
+            goalId: goal.id,
+            amount: amount,
+            title: goal.title
+        })
+        setIsAllocating(false)
+
+        if (error) {
+            setErrorMsg(error)
+            return
+        }
+
+        setAllocatingId(null)
+        setAllocationDisplay("")
         onGoalsMutated?.()
     }
 
     const handleDelete = async (id: string) => {
         const { error } = await deleteGoal(id)
-        if (error) return
+        if (error) {
+            setErrorMsg(error)
+            return
+        }
         onUpdateGoals(goals.filter(g => g.id !== id))
         onGoalsMutated?.()
     }
@@ -102,7 +151,6 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
             color: goal.color
         })
         setTargetDisplay(fmtThousands(goal.targetAmount.toString()))
-        setCurrentDisplay(fmtThousands(goal.currentAmount.toString()))
         setIsAdding(true)
     }
 
@@ -124,6 +172,25 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="relative w-full max-w-2xl bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]"
                     >
+                        {/* Error Alert */}
+                        <AnimatePresence>
+                            {errorMsg && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -50 }}
+                                    className="absolute top-4 left-1/2 -translate-x-1/2 z-[110] w-[90%] md:w-auto"
+                                >
+                                    <div className="bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-center gap-3 shadow-xl">
+                                        <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
+                                            <AlertCircle className="w-5 h-5 text-rose-600" />
+                                        </div>
+                                        <p className="text-xs font-bold text-rose-900">{errorMsg}</p>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
                         {/* Header */}
                         <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
                             <div>
@@ -182,20 +249,6 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                                     value={targetDisplay}
                                                     onChange={(e) => setTargetDisplay(fmtThousands(e.target.value))}
                                                     placeholder="5.000.000"
-                                                    className="w-full pl-9 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all text-sm font-medium"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Current Amount (Rp)</label>
-                                            <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">Rp</span>
-                                                <input
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    value={currentDisplay}
-                                                    onChange={(e) => setCurrentDisplay(fmtThousands(e.target.value))}
-                                                    placeholder="1.500.000"
                                                     className="w-full pl-9 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all text-sm font-medium"
                                                 />
                                             </div>
@@ -270,18 +323,60 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                                         <div className="space-y-3">
                                                             <div className="flex justify-between items-end">
                                                                 <p className="text-xs font-bold text-gray-900">
-                                                                    Rp {(goal.currentAmount / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt
-                                                                    <span className="text-gray-400 font-medium"> / Rp {(goal.targetAmount / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt</span>
+                                                                    {formatCompact(goal.currentAmount)}
+                                                                    <span className="text-gray-400 font-medium"> / {formatCompact(goal.targetAmount)}</span>
                                                                 </p>
                                                                 <span className="text-xs font-black text-blue-600">{Math.round(progress)}%</span>
                                                             </div>
-                                                            <div className="h-2 bg-gray-50 rounded-full overflow-hidden p-[1px] border border-gray-100">
+                                                            <div className="h-2 bg-gray-50 rounded-full overflow-hidden p-[1px] border border-gray-100 mb-4">
                                                                 <motion.div
                                                                     initial={{ width: 0 }}
                                                                     animate={{ width: `${progress}%` }}
                                                                     className={cn("h-full rounded-full shadow-sm", goal.color)}
                                                                 />
                                                             </div>
+
+                                                            {allocatingId === goal.id ? (
+                                                                <motion.div
+                                                                    initial={{ opacity: 0, height: 0 }}
+                                                                    animate={{ opacity: 1, height: "auto" }}
+                                                                    className="flex gap-2 items-center bg-blue-50/50 p-3 rounded-xl border border-blue-100"
+                                                                >
+                                                                    <div className="relative flex-1">
+                                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-400">Rp</span>
+                                                                        <input
+                                                                            autoFocus
+                                                                            type="text"
+                                                                            inputMode="numeric"
+                                                                            value={allocationDisplay}
+                                                                            onChange={(e) => setAllocationDisplay(fmtThousands(e.target.value))}
+                                                                            placeholder="Nominal nabung..."
+                                                                            className="w-full pl-8 pr-3 py-2 bg-white border border-blue-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/10 outline-none transition-all"
+                                                                        />
+                                                                    </div>
+                                                                    <Button
+                                                                        disabled={isAllocating}
+                                                                        onClick={() => handleAllocate(goal)}
+                                                                        className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 text-xs font-bold rounded-lg shrink-0"
+                                                                    >
+                                                                        {isAllocating ? 'Saving...' : 'Nabung'}
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        onClick={() => setAllocatingId(null)}
+                                                                        className="h-9 w-9 p-0 rounded-lg text-gray-400"
+                                                                    >
+                                                                        <X className="w-4 h-4" />
+                                                                    </Button>
+                                                                </motion.div>
+                                                            ) : (
+                                                                <Button
+                                                                    onClick={() => setAllocatingId(goal.id)}
+                                                                    className="w-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100 rounded-xl h-10 text-[10px] font-black uppercase tracking-widest transition-all"
+                                                                >
+                                                                    <Plus className="w-3 h-3 mr-2" /> Allocate From Balance
+                                                                </Button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 )
