@@ -7,36 +7,27 @@ export type TransactionType = "income" | "expense";
 
 export type TransactionRow = {
   id: string;
-  invoice_id: string;
   description: string;
   amount: number;
   category: string;
   date: string;
   type: TransactionType;
   status: TransactionStatus;
-  plan: string;
   payment_method: string;
   note: string | null;
   goal_id: string | null;
 };
 
-function generateInvoiceId() {
-  const date = new Date().toISOString().split("T")[0].replace(/-/g, "");
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `INV-${date}-${random}`;
-}
 
 function rowToTransaction(r: TransactionRow) {
   return {
     id: r.id,
-    invoiceId: r.invoice_id,
     description: r.description,
     amount: Number(r.amount),
     category: r.category,
     date: r.date,
     type: r.type,
     status: r.status,
-    plan: r.plan,
     paymentMethod: r.payment_method,
     note: r.note ?? undefined,
     goalId: r.goal_id ?? undefined,
@@ -64,14 +55,12 @@ export async function getTransactions(): Promise<{
 }
 
 export async function createTransaction(input: {
-  invoiceId?: string;
   description: string;
   amount: number;
   category: string;
   date: string;
   type: TransactionType;
   status: TransactionStatus;
-  plan: string;
   paymentMethod: string;
   note?: string;
   goalId?: string;
@@ -86,14 +75,12 @@ export async function createTransaction(input: {
     .from("transactions")
     .insert({
       user_id: user.id,
-      invoice_id: input.invoiceId || generateInvoiceId(),
       description: input.description ?? "",
       amount: input.amount,
       category: input.category ?? "",
       date: input.date,
       type: input.type,
       status: input.status,
-      plan: input.plan ?? "",
       payment_method: input.paymentMethod ?? "",
       note: input.note ?? null,
       goal_id: input.goalId ?? null,
@@ -108,14 +95,12 @@ export async function createTransaction(input: {
 export async function updateTransaction(
   id: string,
   input: Partial<{
-    invoiceId: string;
     description: string;
     amount: number;
     category: string;
     date: string;
     type: TransactionType;
     status: TransactionStatus;
-    plan: string;
     paymentMethod: string;
     note: string;
     goalId: string;
@@ -128,14 +113,12 @@ export async function updateTransaction(
   if (!user) return { error: "Not authenticated" };
 
   const updates: Record<string, unknown> = {};
-  if (input?.invoiceId !== undefined) updates.invoice_id = input.invoiceId;
   if (input?.description !== undefined) updates.description = input.description;
   if (input?.amount !== undefined) updates.amount = input.amount;
   if (input?.category !== undefined) updates.category = input.category;
   if (input?.date !== undefined) updates.date = input.date;
   if (input?.type !== undefined) updates.type = input.type;
   if (input?.status !== undefined) updates.status = input.status;
-  if (input?.plan !== undefined) updates.plan = input.plan;
   if (input?.paymentMethod !== undefined) updates.payment_method = input.paymentMethod;
   if (input?.note !== undefined) updates.note = input.note;
   if (input?.goalId !== undefined) updates.goal_id = input.goalId;
@@ -160,35 +143,6 @@ export async function deleteTransaction(id: string): Promise<{ error: string | n
   return { error: error?.message ?? null };
 }
 
-export async function backfillInvoiceIds(): Promise<{ count: number; error: string | null }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { count: 0, error: "Not authenticated" };
-
-  // Get all transactions without invoice_id or empty
-  const { data: txs, error } = await supabase
-    .from("transactions")
-    .select("id, invoice_id")
-    .eq("user_id", user.id)
-    .or("invoice_id.eq.,invoice_id.is.null");
-
-  if (error) return { count: 0, error: error.message };
-  if (!txs || txs.length === 0) return { count: 0, error: null };
-
-  let updatedCount = 0;
-  for (const tx of txs) {
-    const { error: updateError } = await supabase
-      .from("transactions")
-      .update({ invoice_id: generateInvoiceId() })
-      .eq("id", tx.id);
-
-    if (!updateError) updatedCount++;
-  }
-
-  return { count: updatedCount, error: null };
-}
 
 export async function getDashboardStats() {
   const supabase = await createClient();

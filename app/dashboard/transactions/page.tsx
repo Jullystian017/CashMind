@@ -43,14 +43,12 @@ type TransactionType = 'income' | 'expense'
 
 interface Transaction {
     id: string
-    invoiceId: string
     description: string
     amount: number
     category: string
     date: string // ISO format YYYY-MM-DD
     type: TransactionType
     status: TransactionStatus
-    plan: string
     paymentMethod: string
     note?: string
 }
@@ -177,9 +175,7 @@ export default function TransactionsPage() {
         return transactions.filter(t => {
             const query = searchQuery.toLowerCase()
             const matchesSearch =
-                t.description.toLowerCase().includes(query) ||
-                t.invoiceId.toLowerCase().includes(query) ||
-                t.plan.toLowerCase().includes(query)
+                t.description.toLowerCase().includes(query)
 
             const matchesCategory = filterCategory === "All Categories" || t.category === filterCategory
 
@@ -232,7 +228,6 @@ export default function TransactionsPage() {
                 date,
                 type,
                 status: editingTransaction.status,
-                plan: editingTransaction.plan,
                 paymentMethod: editingTransaction.paymentMethod,
                 note: note || undefined,
             })
@@ -249,7 +244,6 @@ export default function TransactionsPage() {
                 date,
                 type,
                 status: "success",
-                plan: "Personal Plan",
                 paymentMethod: "Balance",
                 note: note || undefined,
             })
@@ -633,7 +627,6 @@ export default function TransactionsPage() {
                                         {[
                                             { label: "Date", value: new Date(selectedDetail.date).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }), icon: CalendarIcon },
                                             { label: "Payment Method", value: selectedDetail.paymentMethod, icon: Wallet },
-                                            { label: "Plan", value: selectedDetail.plan, icon: DollarSign },
                                             { label: "Status", value: selectedDetail.status.charAt(0).toUpperCase() + selectedDetail.status.slice(1), statusKey: selectedDetail.status, icon: Check }
                                         ].map((item, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-gray-50/80 border border-gray-100">
