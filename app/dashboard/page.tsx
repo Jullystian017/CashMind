@@ -711,12 +711,12 @@ export default function DashboardOverview() {
                                 <h3 className="text-lg font-bold text-gray-900 leading-none">Top Categories</h3>
                                 <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">Monthly spending</p>
                             </div>
-                            <button
-                                suppressHydrationWarning={true}
+                            <Link
+                                href="/dashboard/transactions"
                                 className="text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
                             >
                                 Details <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                            </button>
+                            </Link>
                         </div>
 
                         <div className="relative flex justify-center py-2">
@@ -749,7 +749,11 @@ export default function DashboardOverview() {
 
                         <div className="mt-8 space-y-3">
                             {categoriesData.map((item) => (
-                                <div key={item.name} className="flex items-center justify-between p-2 rounded-2xl hover:bg-gray-50 transition-colors group cursor-pointer">
+                                <Link
+                                    key={item.name}
+                                    href={`/dashboard/transactions?category=${encodeURIComponent(item.name)}`}
+                                    className="flex items-center justify-between p-2 rounded-2xl hover:bg-gray-50 transition-colors group cursor-pointer"
+                                >
                                     <div className="flex items-center gap-3">
                                         <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border border-white group-hover:scale-110 transition-transform")} style={{ backgroundColor: `${item.color}15`, color: item.color }}>
                                             <item.icon className="w-4 h-4" />
@@ -765,7 +769,7 @@ export default function DashboardOverview() {
                                             <div className="h-full rounded-full" style={{ width: `${item.percent}%`, backgroundColor: item.color }}></div>
                                         </div>
                                     </div>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </div>

@@ -105,16 +105,26 @@ export default function TransactionsPage() {
             setTransactionsLoading(false)
         }
     }
+
+    const [isFilterOpen, setIsFilterOpen] = useState(false)
+    const [filterCategory, setFilterCategory] = useState("All Categories")
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
+    const [selectedDetail, setSelectedDetail] = useState<Transaction | null>(null)
+
+    // Handle Category from URL
+    useEffect(() => {
+        const catParam = searchParams.get('category')
+        if (catParam && (categoryConfig[catParam] || catParam === "Others")) {
+            setFilterCategory(catParam)
+        }
+    }, [searchParams])
+
     useEffect(() => {
         mounted.current = true
         fetchTransactions()
         return () => { mounted.current = false }
     }, [])
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
-    const [selectedDetail, setSelectedDetail] = useState<Transaction | null>(null)
-    const [filterCategory, setFilterCategory] = useState("All Categories")
-    const [isFilterOpen, setIsFilterOpen] = useState(false)
 
     // Selection State
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
