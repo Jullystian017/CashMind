@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion, AnimatePresence } from "framer-motion"
-import { X, TrendingUp, Target, Zap, ShieldCheck, Info, ChevronRight, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { X, TrendingUp, Target, Zap, ShieldCheck, Lightbulb, Sparkles, HelpCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { FinancialScoreData } from "@/app/actions/financial-score"
 
@@ -17,117 +17,135 @@ export function FinancialScoreModal({ isOpen, onClose, data }: FinancialScoreMod
 
     const items = [
         {
-            label: "Savings & Income",
+            label: "Savings",
             score: data.breakdown.savings,
             max: 40,
             icon: TrendingUp,
             color: "text-emerald-500",
             bg: "bg-emerald-50",
-            description: "Measures your income-to-expense ratio. Aim for a 20%+ savings rate."
+            border: "border-emerald-100",
+            description: "Based on your income-to-expense ratio. Target 20%+"
         },
         {
-            label: "Budget Discipline",
+            label: "Budget",
             score: data.breakdown.budget,
             max: 20,
             icon: ShieldCheck,
             color: "text-blue-500",
             bg: "bg-blue-50",
-            description: "How well you stick to your category limits. Overspending reduces this score."
+            border: "border-blue-100",
+            description: "How well you stay within your monthly budget limits."
         },
         {
-            label: "Goal Progress",
+            label: "Goals",
             score: data.breakdown.goals,
             max: 20,
             icon: Target,
             color: "text-indigo-500",
             bg: "bg-indigo-50",
-            description: "Progress towards your active savings goals. Consistency is key."
+            border: "border-indigo-100",
+            description: "Your progress towards funding your active savings goals."
         },
         {
-            label: "Activity & Growth",
+            label: "Activity",
             score: data.breakdown.activity,
             max: 20,
             icon: Zap,
             color: "text-amber-500",
             bg: "bg-amber-50",
-            description: "Based on your challenge participation and XP level. Stay active!"
+            border: "border-amber-100",
+            description: "Points earned from challenges and regular app usage."
         }
     ]
 
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
+                        className="fixed inset-0 bg-gray-900/60 backdrop-blur-xl"
                     />
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl overflow-hidden"
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden border border-white/20"
                     >
-                        {/* Header */}
-                        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white relative">
+                        {/* Compact Header */}
+                        <div className="bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-8 text-white relative">
                             <button
                                 onClick={onClose}
-                                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+                                className="absolute top-5 right-5 p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all active:scale-95 group z-20"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-4 h-4" />
                             </button>
 
-                            <div className="flex flex-col items-center text-center">
-                                <span className="text-xs font-bold uppercase tracking-[0.2em] text-blue-100/80 mb-2">Detailed Breakdown</span>
+                            <div className="flex items-center gap-6 relative z-10">
                                 <div className="relative">
-                                    <h2 className="text-6xl font-black tracking-tighter">{data.score}</h2>
-                                    <span className="absolute -top-1 -right-8 text-xl font-bold text-blue-200/50">/100</span>
+                                    <svg className="w-20 h-20 transform -rotate-90">
+                                        <circle cx="40" cy="40" r="36" stroke="white" strokeWidth="6" fill="transparent" opacity="0.1" />
+                                        <motion.circle
+                                            cx="40" cy="40" r="36" stroke="white" strokeWidth="6" fill="transparent"
+                                            strokeDasharray={226.2}
+                                            initial={{ strokeDashoffset: 226.2 }}
+                                            animate={{ strokeDashoffset: 226.2 - (226.2 * data.score) / 100 }}
+                                            transition={{ duration: 1, ease: "easeOut" }}
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="text-2xl font-black">{data.score}</span>
+                                    </div>
                                 </div>
-                                <div className="mt-4 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10 flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                                    <span className="text-sm font-bold uppercase tracking-wider">{data.status} Status</span>
+
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <ShieldCheck className="w-4 h-4 text-blue-200" />
+                                        <span className="text-xl font-black tracking-tight">{data.status}</span>
+                                    </div>
+                                    <p className="text-xs text-blue-100/80 font-medium">
+                                        Calculated from month-to-date data.
+                                    </p>
                                 </div>
                             </div>
-
-                            {/* Decorative background circle */}
-                            <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
                         </div>
 
-                        {/* Content */}
-                        <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                            <div className="grid grid-cols-1 gap-4">
+                        {/* Breakdown Grid - Informative but Compact */}
+                        <div className="p-6 space-y-4 bg-gray-50/50 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                            <div className="grid grid-cols-1 gap-3">
                                 {items.map((item, i) => (
                                     <motion.div
                                         key={item.label}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: i * 0.1 }}
-                                        className="group p-5 rounded-3xl border border-gray-100 hover:border-blue-100 hover:bg-blue-50/30 transition-all"
+                                        transition={{ delay: 0.1 + i * 0.05 }}
+                                        className={cn(
+                                            "p-4 rounded-[24px] border bg-white shadow-sm hover:shadow-md transition-all",
+                                            item.border
+                                        )}
                                     >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm", item.bg, item.color)}>
-                                                    <item.icon className="w-5 h-5" />
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", item.bg, item.color)}>
+                                                    <item.icon className="w-4.5 h-4.5" />
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-sm font-bold text-gray-900">{item.label}</h3>
-                                                    <p className="text-[10px] font-medium text-gray-400 mt-0.5">{item.description}</p>
-                                                </div>
+                                                <h3 className="text-sm font-bold text-gray-900">{item.label}</h3>
                                             </div>
-                                            <div className="text-right">
-                                                <span className="text-lg font-black text-gray-900 leading-none">{item.score}</span>
-                                                <span className="text-[10px] font-bold text-gray-400 block uppercase">out of {item.max}</span>
-                                            </div>
+                                            <span className="text-sm font-black text-gray-900">{item.score}<span className="text-[10px] text-gray-400 font-bold">/{item.max}</span></span>
                                         </div>
 
-                                        <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <p className="text-[11px] text-gray-500 font-medium leading-normal mb-3 pl-12">
+                                            {item.description}
+                                        </p>
+
+                                        <div className="relative h-1.5 bg-gray-100 rounded-full overflow-hidden ml-12">
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${(item.score / item.max) * 100}%` }}
-                                                transition={{ duration: 1, delay: 0.5 + (i * 0.1) }}
                                                 className={cn("absolute h-full rounded-full bg-current", item.color)}
                                             />
                                         </div>
@@ -135,27 +153,26 @@ export function FinancialScoreModal({ isOpen, onClose, data }: FinancialScoreMod
                                 ))}
                             </div>
 
-                            {/* Insights Section */}
-                            <div className="p-5 rounded-3xl bg-blue-600 text-white flex items-start gap-4 shadow-xl shadow-blue-500/20">
-                                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0 backdrop-blur-md">
-                                    <Info className="w-5 h-5 text-white" />
-                                </div>
-                                <div className="space-y-1">
-                                    <h4 className="text-sm font-bold tracking-tight">Financial Pro-Tip</h4>
-                                    <p className="text-xs text-blue-100 leading-relaxed font-medium">
-                                        Your score is influenced by your spending habits this month. Try setting stricter budget limits for discretionary categories like 'Entertainment'.
+                            {/* Tip Card */}
+                            <div className="p-4 rounded-[24px] bg-white border border-blue-100 flex items-start gap-3 relative shadow-sm overflow-hidden">
+                                <Lightbulb className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                                <div>
+                                    <h4 className="text-[11px] font-black text-gray-900 uppercase tracking-widest mb-0.5">Scoring Logic</h4>
+                                    <p className="text-[11px] text-gray-600 leading-normal font-medium">
+                                        Your score reflects current month habits. Maintain higher <span className="text-emerald-600 font-bold">Savings</span> to boost it quickly!
                                     </p>
                                 </div>
+                                <Sparkles className="absolute top-2 right-2 w-4 h-4 text-blue-100" />
                             </div>
                         </div>
 
-                        {/* Footer */}
-                        <div className="p-6 bg-gray-50 border-t border-gray-100">
+                        {/* Action */}
+                        <div className="px-6 pb-6 pt-2 bg-white flex">
                             <button
                                 onClick={onClose}
-                                className="w-full py-4 rounded-2xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-all active:scale-[0.98]"
+                                className="w-full py-4 rounded-2xl bg-[#0f172a] text-white text-xs font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-gray-200"
                             >
-                                Close Breakdown
+                                Back to Dashboard
                             </button>
                         </div>
                     </motion.div>

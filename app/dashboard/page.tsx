@@ -42,6 +42,7 @@ import {
 } from 'recharts'
 import { GoalsManagementModal } from "@/components/goals-management-modal"
 import { FinancialCalendarModal } from "@/components/financial-calendar-modal"
+import { FinancialScoreModal } from "@/components/financial-score-modal"
 import Link from "next/link"
 import { getGoals } from "@/app/actions/goals"
 import { getDashboardStats, getRecentTransactions, getChartData, getCategorySpending } from "@/app/actions/transactions"
@@ -190,6 +191,7 @@ export default function DashboardOverview() {
 
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
     const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+    const [isScoreModalOpen, setIsScoreModalOpen] = useState(false)
     const [goals, setGoals] = useState<Goal[]>([])
     const mounted = useRef(true)
 
@@ -372,6 +374,9 @@ export default function DashboardOverview() {
             {/* Financial Calendar Modal */}
             <FinancialCalendarModal isOpen={isCalendarOpen} onClose={() => setIsCalendarOpen(false)} />
 
+            {/* Financial Score Modal */}
+            <FinancialScoreModal isOpen={isScoreModalOpen} onClose={() => setIsScoreModalOpen(false)} data={financialScore} />
+
             {/* Header Section */}
             <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
                 <div>
@@ -443,7 +448,11 @@ export default function DashboardOverview() {
                                         {stat.subLabel}
                                     </span>
                                     {isSpecial ? (
-                                        <div className="flex items-center gap-1 text-[9px] @md:text-[10px] font-bold cursor-pointer transition-all hover:translate-x-0.5 text-white/80 hover:text-white" suppressHydrationWarning={true}>
+                                        <div
+                                            onClick={(e) => { e.stopPropagation(); setIsScoreModalOpen(true); }}
+                                            className="flex items-center gap-1 text-[9px] @md:text-[10px] font-bold cursor-pointer transition-all hover:translate-x-0.5 text-white/80 hover:text-white"
+                                            suppressHydrationWarning={true}
+                                        >
                                             View Details <ChevronRight className="w-2.5 h-2.5" />
                                         </div>
                                     ) : (
