@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label"
 import { User, Wallet, Bell, Shield, Save, ChevronRight, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getProfile, updateProfile } from "@/app/actions/profile"
+import { updateUserPassword } from "@/app/actions/auth"
+import { Eye, EyeOff } from "lucide-react"
 
 const ONBOARDING_COMPLETED_KEY = "cashmind_onboarding_completed"
 
@@ -26,6 +28,14 @@ export default function SettingsPage() {
         income: "4500000",
         incomeType: "monthly"
     })
+
+    // Password state
+    const [passwords, setPasswords] = useState({
+        new: "",
+        confirm: ""
+    })
+    const [showPassword, setShowPassword] = useState(false)
+    const [passwordLoading, setPasswordLoading] = useState(false)
 
     const mounted = useRef(true)
     useEffect(() => {
@@ -53,6 +63,39 @@ export default function SettingsPage() {
         const { error } = await updateProfile({ display_name: profile.name || undefined })
         if (!error) {
             setToast("Settings saved!")
+            setTimeout(() => setToast(null), 2000)
+        }
+    }
+
+    const handleUpdatePassword = async () => {
+        if (!passwords.new || !passwords.confirm) {
+            setToast("Please fill in all fields")
+            setTimeout(() => setToast(null), 2000)
+            return
+        }
+
+        if (passwords.new !== passwords.confirm) {
+            setToast("Passwords do not match!")
+            setTimeout(() => setToast(null), 2000)
+            return
+        }
+
+        if (passwords.new.length < 6) {
+            setToast("Password must be at least 6 characters")
+            setTimeout(() => setToast(null), 2000)
+            return
+        }
+
+        setPasswordLoading(true)
+        const { error } = await updateUserPassword(passwords.new)
+        setPasswordLoading(false)
+
+        if (error) {
+            setToast(`Error: ${error}`)
+            setTimeout(() => setToast(null), 2000)
+        } else {
+            setToast("Password updated successfully!")
+            setPasswords({ new: "", confirm: "" })
             setTimeout(() => setToast(null), 2000)
         }
     }
@@ -263,18 +306,45 @@ export default function SettingsPage() {
                             >
                                 <h3 className="text-lg font-bold text-gray-900 mb-2">Security</h3>
                                 <p className="text-sm text-gray-500 mb-6">Password and security options.</p>
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Current password</Label>
-                                        <Input type="password" placeholder="••••••••" className="h-12 rounded-xl border-gray-100" />
-                                    </div>
+                                <div className="space-y-4 text-gray-900">
                                     <div className="space-y-2">
                                         <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">New password</Label>
-                                        <Input type="password" placeholder="••••••••" className="h-12 rounded-xl border-gray-100" />
+                                        <div className="relative">
+                                            <Input
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="••••••••"
+                                                className="h-12 rounded-xl border-gray-100 pr-10"
+                                                value={passwords.new}
+                                                onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                            >
+                                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Confirm new password</Label>
+                                        <Input
+                                            type="password"
+                                            placeholder="••••••••"
+                                            className="h-12 rounded-xl border-gray-100"
+                                            value={passwords.confirm}
+                                            onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                                        />
                                     </div>
                                 </div>
-                                <div className="pt-6 flex justify-end">
-                                    <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 h-11 rounded-xl">Update password</Button>
+                                <div className="pt-8 flex justify-end">
+                                    <Button
+                                        onClick={handleUpdatePassword}
+                                        disabled={passwordLoading}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 px-8 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
+                                    >
+                                        {passwordLoading ? "Updating…" : "Update password"}
+                                    </Button>
                                 </div>
                             </motion.div>
                         )}
