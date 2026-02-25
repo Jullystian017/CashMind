@@ -1,6 +1,7 @@
 "use client"
 
-import { Search, Bell, Sparkles, Menu, ChevronDown, User, AlertTriangle, CheckCircle, CreditCard, Settings, LogOut } from "lucide-react"
+import { Search, Bell, Sparkles, Menu, ChevronDown, User, AlertTriangle, CheckCircle, CreditCard, Settings, LogOut, Loader2, Target, Trophy, ArrowRight } from "lucide-react"
+import { globalSearch, type SearchResult } from "@/app/actions/search"
 import { cn } from "@/lib/utils"
 import { useRef, useEffect, useState } from "react"
 
@@ -18,12 +19,12 @@ import { createClient } from "@/lib/supabase/client"
 import type { User as AuthUser } from "@supabase/supabase-js"
 
 type Notification = {
-  id: string
-  type: "alert" | "success" | "info"
-  title: string
-  message: string
-  time: string
-  read: boolean
+    id: string
+    type: "alert" | "success" | "info"
+    title: string
+    message: string
+    time: string
+    read: boolean
 }
 
 interface HeaderProps {
@@ -36,9 +37,9 @@ interface HeaderProps {
 }
 
 const mockNotifications: Notification[] = [
-  { id: "1", type: "alert", title: "Netflix renewal soon", message: "Insufficient balance in Dana for Rp 186.000", time: "2h ago", read: false },
-  { id: "2", type: "success", title: "Challenge completed", message: "Reduce Food Spending 20% – +120 XP earned", time: "5h ago", read: false },
-  { id: "3", type: "info", title: "Spotify billing", message: "Payment due Oct 5th – Rp 86.000", time: "1d ago", read: true },
+    { id: "1", type: "alert", title: "Netflix renewal soon", message: "Insufficient balance in Dana for Rp 186.000", time: "2h ago", read: false },
+    { id: "2", type: "success", title: "Challenge completed", message: "Reduce Food Spending 20% – +120 XP earned", time: "5h ago", read: false },
+    { id: "3", type: "info", title: "Spotify billing", message: "Payment due Oct 5th – Rp 86.000", time: "1d ago", read: true },
 ]
 
 export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: HeaderProps) {
@@ -50,11 +51,38 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
     const profileRef = useRef<HTMLDivElement>(null)
 
     const [searchValue, setSearchValue] = useState(searchParams.get('q') || "")
+    const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+    const [isSearching, setIsSearching] = useState(false)
+    const [showResults, setShowResults] = useState(false)
+    const [selectedIndex, setSelectedIndex] = useState(-1)
+
     const [notifOpen, setNotifOpen] = useState(false)
     const [profileOpen, setProfileOpen] = useState(false)
     const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
     const [user, setUser] = useState<AuthUser | null>(null)
     const mounted = useMounted()
+
+    // Real-time search with debounce
+    useEffect(() => {
+        if (!searchValue || searchValue.length < 2) {
+            setSearchResults([])
+            setShowResults(false)
+            return
+        }
+
+        const timer = setTimeout(async () => {
+            setIsSearching(true)
+            setShowResults(true)
+            const { data, error } = await globalSearch(searchValue)
+            if (!error && data) {
+                setSearchResults(data)
+                setSelectedIndex(-1)
+            }
+            setIsSearching(false)
+        }, 300)
+
+        return () => clearTimeout(timer)
+    }, [searchValue])
 
     useEffect(() => {
         const supabase = createClient()
@@ -88,26 +116,44 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
         const handleClickOutside = (e: MouseEvent) => {
             if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false)
             if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false)
+            if (searchRef.current?.parentElement && !searchRef.current.parentElement.contains(e.target as Node)) setShowResults(false)
         }
-        if (notifOpen || profileOpen) document.addEventListener("click", handleClickOutside)
+        if (notifOpen || profileOpen || showResults) document.addEventListener("click", handleClickOutside)
         return () => document.removeEventListener("click", handleClickOutside)
-    }, [notifOpen, profileOpen])
+    }, [notifOpen, profileOpen, showResults])
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault()
                 searchRef.current?.focus()
-                searchRef.current?.select()
+                setShowResults(true)
+            }
+            if (showResults) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault()
+                    setSelectedIndex(prev => (prev < searchResults.length - 1 ? prev + 1 : prev))
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault()
+                    setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev))
+                } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                    e.preventDefault()
+                    const result = searchResults[selectedIndex]
+                    handleResultClick(result)
+                } else if (e.key === 'Escape') {
+                    setShowResults(false)
+                }
             }
         }
         window.addEventListener('keydown', handleKeyDown)
         return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [])
+    }, [showResults, searchResults, selectedIndex])
 
     // Update URL when search changes
-    const handleSearch = (val: string) => {
+    const handleSearchInput = (val: string) => {
         setSearchValue(val)
+
+        // Sync with URL query parameter
         const params = new URLSearchParams(searchParams.toString())
         if (val) {
             params.set('q', val)
@@ -115,6 +161,11 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
             params.delete('q')
         }
         router.push(`${pathname}?${params.toString()}`)
+    }
+
+    const handleResultClick = (result: SearchResult) => {
+        setShowResults(false)
+        router.push(result.link)
     }
 
     return (
@@ -134,22 +185,110 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                     </button>
 
                     {/* Search bar */}
-                    <div className="flex-1 max-w-sm hidden sm:block">
+                    <div className="flex-1 max-w-md hidden sm:block relative">
                         <div className="relative group">
                             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
                             <input
                                 ref={searchRef}
                                 type="text"
-                                placeholder="Search anything..."
+                                placeholder="Search transactions, goals..."
                                 value={searchValue}
-                                onChange={(e) => handleSearch(e.target.value)}
+                                onChange={(e) => handleSearchInput(e.target.value)}
+                                onFocus={() => searchValue.length >= 2 && setShowResults(true)}
                                 suppressHydrationWarning
                                 className="w-full pl-10 pr-16 py-2.5 bg-gray-100 border border-transparent rounded-2xl text-sm font-medium text-gray-700 placeholder:text-gray-400 outline-none focus:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
                             />
-                            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 bg-white border border-gray-200 rounded-md text-[10px] font-semibold text-gray-400 shadow-sm pointer-events-none">
-                                ⌘K
-                            </kbd>
+                            {isSearching ? (
+                                <Loader2 className="absolute right-12 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500 animate-spin" />
+                            ) : (
+                                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 bg-white border border-gray-200 rounded-md text-[10px] font-semibold text-gray-400 shadow-sm pointer-events-none">
+                                    ⌘K
+                                </kbd>
+                            )}
                         </div>
+
+                        {/* Search Results Dropdown */}
+                        <AnimatePresence>
+                            {showResults && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 4, scale: 0.98 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 4, scale: 0.98 }}
+                                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl z-50 overflow-hidden max-h-[480px] flex flex-col"
+                                >
+                                    <div className="p-3 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Results for "{searchValue}"</span>
+                                        {searchResults.length > 0 && <span className="text-[10px] font-medium text-gray-400">{searchResults.length} found</span>}
+                                    </div>
+
+                                    <div className="overflow-y-auto py-2">
+                                        {searchResults.length === 0 && !isSearching ? (
+                                            <div className="py-8 px-4 text-center">
+                                                <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                    <Search className="w-6 h-6 text-gray-300" />
+                                                </div>
+                                                <p className="text-sm font-medium text-gray-500">No results found</p>
+                                                <p className="text-xs text-gray-400 mt-1">Try another keyword</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-1">
+                                                {searchResults.map((res, index) => {
+                                                    const Icon = res.type === 'transaction' ? CreditCard : res.type === 'goal' ? Target : Trophy;
+                                                    const isSelected = selectedIndex === index;
+                                                    return (
+                                                        <button
+                                                            key={`${res.type}-${res.id}`}
+                                                            onClick={() => handleResultClick(res)}
+                                                            onMouseEnter={() => setSelectedIndex(index)}
+                                                            className={cn(
+                                                                "w-full flex items-center gap-4 px-4 py-3 text-left transition-colors",
+                                                                isSelected ? "bg-blue-50" : "hover:bg-gray-50"
+                                                            )}
+                                                        >
+                                                            <div className={cn(
+                                                                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                                                                res.type === 'transaction' ? "bg-amber-50 text-amber-600" :
+                                                                    res.type === 'goal' ? "bg-emerald-50 text-emerald-600" : "bg-purple-50 text-purple-600"
+                                                            )}>
+                                                                <Icon className="w-5 h-5" />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center justify-between gap-2">
+                                                                    <p className="text-sm font-bold text-gray-900 truncate">{res.title}</p>
+                                                                    {res.amount !== undefined && (
+                                                                        <span className="text-xs font-black text-gray-900 shrink-0">
+                                                                            Rp {new Intl.NumberFormat('id-ID').format(res.amount)}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center justify-between mt-0.5">
+                                                                    <p className="text-xs text-gray-500 truncate capitalize">{res.type} • {res.subtitle}</p>
+                                                                    {isSelected && <ArrowRight className="w-3 h-3 text-blue-500" />}
+                                                                </div>
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="p-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between px-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex gap-1">
+                                                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-bold text-gray-400">↑</kbd>
+                                                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-bold text-gray-400">↓</kbd>
+                                            </div>
+                                            <span className="text-[10px] text-gray-400 font-medium">to navigate</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-bold text-gray-400">Enter</kbd>
+                                            <span className="text-[10px] text-gray-400 font-medium">to select</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
 
