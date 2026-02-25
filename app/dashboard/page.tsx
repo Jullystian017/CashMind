@@ -335,8 +335,9 @@ export default function DashboardOverview() {
             label: "Total Balance",
             amount: statsData ? formatRp(statsData.totalBalance) : "Rp 0",
             subLabel: "Updated just now",
-            trend: "+12.5%",
-            up: true,
+            trend: statsData?.trends?.balance?.isNew ? "New" : statsData?.trends?.balance?.value ?? "0.0%",
+            sentiment: statsData?.trends?.balance?.isPositive ? "good" : "bad",
+            isUp: statsData?.trends?.balance?.isNew || statsData?.trends?.balance?.isPositive,
             icon: Wallet,
             color: "text-blue-600 bg-blue-50"
         },
@@ -344,8 +345,9 @@ export default function DashboardOverview() {
             label: "Income",
             amount: statsData ? formatRp(statsData.totalIncome) : "Rp 0",
             subLabel: "Total earned",
-            trend: "+8.2%",
-            up: true,
+            trend: statsData?.trends?.income?.isNew ? "New" : statsData?.trends?.income?.value ?? "0.0%",
+            sentiment: statsData?.trends?.income?.isPositive ? "good" : "bad",
+            isUp: statsData?.trends?.income?.isNew || statsData?.trends?.income?.isPositive,
             icon: TrendingUp,
             color: "text-blue-600 bg-blue-50"
         },
@@ -353,8 +355,9 @@ export default function DashboardOverview() {
             label: "Expenses",
             amount: statsData ? formatRp(statsData.totalExpense) : "Rp 0",
             subLabel: "This month",
-            trend: "-2.4%",
-            up: false,
+            trend: statsData?.trends?.expense?.isNew ? "New" : statsData?.trends?.expense?.value ?? "0.0%",
+            sentiment: statsData?.trends?.expense?.isNew ? "neutral" : (statsData?.trends?.expense?.isPositive ? "bad" : "good"),
+            isUp: statsData?.trends?.expense?.isPositive,
             icon: TrendingDown,
             color: "text-blue-600 bg-blue-50"
         },
@@ -458,9 +461,11 @@ export default function DashboardOverview() {
                                     ) : (
                                         <div className={cn(
                                             "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight transition-colors w-fit shrink-0",
-                                            stat.up ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
+                                            stat.sentiment === "good" ? "text-emerald-600 bg-emerald-50" :
+                                                stat.sentiment === "bad" ? "text-rose-600 bg-rose-50" :
+                                                    "text-blue-600 bg-blue-50"
                                         )}>
-                                            {stat.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
+                                            {stat.isUp ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
                                             {stat.trend}
                                         </div>
                                     )}

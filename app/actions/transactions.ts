@@ -153,43 +153,98 @@ export async function getDashboardStats() {
   if (!user) return { data: null, error: "Not authenticated" };
 
   const now = new Date();
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const firstDayCurrent = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const { data: txs, error } = await supabase
+  // Previous Month Same period (MTD comparison)
+  const firstDayPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const sameDayPrev = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+  // 1. Current Month Transactions
+  const { data: currentTxs } = await supabase
     .from("transactions")
-    .select("amount, type")
+    .select("amount, type, date")
     .eq("user_id", user.id)
-    .gte("date", firstDay);
+    .gte("date", firstDayCurrent.toISOString());
 
-  if (error) return { data: null, error: error.message };
-
-  let totalIncome = 0;
-  let totalExpense = 0;
-
-  txs?.forEach((tx) => {
-    if (tx.type === "income") totalIncome += tx.amount;
-    else totalExpense += tx.amount;
-  });
-
-  // Also get total balance (all time)
-  const { data: allTxs, error: allErr } = await supabase
+  // 2. Previous Month Transactions (for same period)
+  const { data: prevTxs } = await supabase
     .from("transactions")
-    .select("amount, type")
+    .select("amount, type, date")
+    .eq("user_id", user.id)
+    .gte("date", firstDayPrev.toISOString())
+    .lte("date", sameDayPrev.toISOString());
+
+  // 3. All Transactions for Total Balance
+  const { data: allTxs } = await supabase
+    .from("transactions")
+    .select("amount, type, date")
     .eq("user_id", user.id);
 
-  let totalBalance = 0;
-  allTxs?.forEach((tx) => {
-    if (tx.type === "income") totalBalance += tx.amount;
-    else totalBalance -= tx.amount;
+  // --- CURRENT PERIOD CALCS ---
+  let totalIncome = 0;
+  let totalExpense = 0;
+  currentTxs?.forEach((tx) => {
+    if (tx.type === "income") totalIncome += Number(tx.amount);
+    else totalExpense += Number(tx.amount);
   });
+
+  // --- PREVIOUS PERIOD CALCS ---
+  let prevIncome = 0;
+  let prevExpense = 0;
+  prevTxs?.forEach((tx) => {
+    if (tx.type === "income") prevIncome += Number(tx.amount);
+    else prevExpense += Number(tx.amount);
+  });
+
+  // --- BALANCE CALCS ---
+  let totalBalance = 0;
+  let prevBalance = 0; // Balance as of same day last month
+
+  allTxs?.forEach((tx) => {
+    const txDate = new Date(tx.date);
+    const amt = Number(tx.amount);
+    const isIncome = tx.type === "income";
+
+    if (isIncome) totalBalance += amt;
+    else totalBalance -= amt;
+
+    if (txDate <= sameDayPrev) {
+      if (isIncome) prevBalance += amt;
+      else prevBalance -= amt;
+    }
+  });
+
+  // --- TREND CALCS ---
+  const calcTrend = (curr: number, prev: number) => {
+    if (prev === 0) return {
+      value: curr > 0 ? "New" : "0.0%",
+      isPositive: curr > 0,
+      isNew: curr > 0
+    };
+    const diff = ((curr - prev) / prev) * 100;
+    return {
+      value: Math.abs(diff).toFixed(1) + "%",
+      isPositive: diff >= 0,
+      isNew: false
+    };
+  };
+
+  const incomeTrend = calcTrend(totalIncome, prevIncome);
+  const expenseTrend = calcTrend(totalExpense, prevExpense);
+  const balanceTrend = calcTrend(totalBalance, prevBalance);
 
   return {
     data: {
       totalBalance,
       totalIncome,
       totalExpense,
+      trends: {
+        income: incomeTrend,
+        expense: expenseTrend,
+        balance: balanceTrend
+      }
     },
-    error: allErr?.message ?? null,
+    error: null,
   };
 }
 
