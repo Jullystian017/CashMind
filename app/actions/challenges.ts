@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/app/actions/notifications";
 
 // ─── Types ───
 export type ChallengeTemplate = {
@@ -194,6 +195,14 @@ export async function getUserChallenges(): Promise<{
                         failure_reason: "over_spending",
                         spent: realSpent,
                     }).eq("id", uc.id);
+
+                    await createNotification({
+                        userId: user.id,
+                        type: "alert",
+                        title: "Challenge Failed",
+                        message: `You exceeded the limit for "${template.title}". Challenge failed.`
+                    });
+
                     failed.push({ ...base, spent: realSpent });
                     continue;
                 }
@@ -263,6 +272,15 @@ export async function acceptChallenge(templateId: string): Promise<{ error: stri
         ends_at: endsAt.toISOString(),
     });
 
+    if (!error) {
+        await createNotification({
+            userId: user.id,
+            type: "info",
+            title: "New Challenge Accepted!",
+            message: `You've started "${template.title}". Good luck!`
+        });
+    }
+
     return { error: error?.message ?? null };
 }
 
@@ -302,6 +320,13 @@ export async function completeChallenge(challengeId: string): Promise<{ error: s
 
     // Auto-award badges
     const badgesEarned = await checkAndAwardBadges(user.id, template.difficulty);
+
+    await createNotification({
+        userId: user.id,
+        type: "success",
+        title: "Challenge Completed! 🎉",
+        message: `Great job! You finished "${template.title}" and earned ${template.xp_reward} XP.`
+    });
 
     return { error: null, badgesEarned };
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/app/actions/notifications";
 
 export type GoalRow = {
   id: string;
@@ -161,6 +162,22 @@ export async function allocateToGoal(input: {
         .update({ current_amount: Number(currentGoal.current_amount) + input.amount })
         .eq("id", input.goalId);
     }
+  }
+
+  // 4. Check if goal reached and notify
+  const { data: updatedGoal } = await supabase
+    .from("goals")
+    .select("title, current_amount, target_amount")
+    .eq("id", input.goalId)
+    .single();
+
+  if (updatedGoal && Number(updatedGoal.current_amount) >= Number(updatedGoal.target_amount)) {
+    await createNotification({
+      userId: user.id,
+      type: "success",
+      title: "Goal Reached! 💰",
+      message: `Congratulations! You've reached your target for "${updatedGoal.title}".`
+    });
   }
 
   return { error: null };

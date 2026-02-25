@@ -45,6 +45,7 @@ import { FinancialCalendarModal } from "@/components/financial-calendar-modal"
 import Link from "next/link"
 import { getGoals } from "@/app/actions/goals"
 import { getDashboardStats, getRecentTransactions, getChartData, getCategorySpending } from "@/app/actions/transactions"
+import { getFinancialScore, type FinancialScoreData } from "@/app/actions/financial-score"
 import { Loader2 } from "lucide-react"
 
 export interface Goal {
@@ -184,6 +185,7 @@ export default function DashboardOverview() {
     const [statsData, setStatsData] = useState<any>(null)
     const [recentTx, setRecentTx] = useState<any[]>([])
     const [catSpending, setCatSpending] = useState<any[]>([])
+    const [financialScore, setFinancialScore] = useState<FinancialScoreData | null>(null)
     const [loading, setLoading] = useState(true)
 
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
@@ -201,11 +203,12 @@ export default function DashboardOverview() {
         const now = new Date()
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
-        const [statsRes, txRes, spendingRes, chartRes] = await Promise.all([
+        const [statsRes, txRes, spendingRes, chartRes, scoreRes] = await Promise.all([
             getDashboardStats(),
             getRecentTransactions(7),
             getCategorySpending(monthKey),
-            getChartData(chartView)
+            getChartData(chartView),
+            getFinancialScore()
         ])
 
         if (mounted.current) {
@@ -235,6 +238,10 @@ export default function DashboardOverview() {
                 if (chartRes.data.length > 0) {
                     setRealChartData(aggregateChartData(chartRes.data, chartView))
                 }
+            }
+
+            if (scoreRes.data) {
+                setFinancialScore(scoreRes.data)
             }
         }
         setLoading(false)
@@ -315,10 +322,10 @@ export default function DashboardOverview() {
     const stats = [
         {
             label: "Financial Score",
-            amount: "85/100",
-            subLabel: "Status: Excellent",
-            trend: "+2.4%",
-            up: true,
+            amount: financialScore ? `${financialScore.score}/100` : "0/100",
+            subLabel: financialScore ? `Status: ${financialScore.status}` : "Status: Beginner",
+            trend: financialScore ? financialScore.trend : "+0.0%",
+            up: financialScore ? financialScore.isUp : true,
             icon: Zap,
             color: "text-blue-600 bg-blue-50"
         },

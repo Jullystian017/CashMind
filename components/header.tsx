@@ -2,6 +2,7 @@
 
 import { Search, Bell, Sparkles, Menu, ChevronDown, User, AlertTriangle, CheckCircle, CreditCard, Settings, LogOut, Loader2, Target, Trophy, ArrowRight } from "lucide-react"
 import { globalSearch, type SearchResult } from "@/app/actions/search"
+import { getNotifications, markAsRead, markAllAsRead, type Notification } from "@/app/actions/notifications"
 import { cn } from "@/lib/utils"
 import { useRef, useEffect, useState } from "react"
 
@@ -18,14 +19,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import type { User as AuthUser } from "@supabase/supabase-js"
 
-type Notification = {
-    id: string
-    type: "alert" | "success" | "info"
-    title: string
-    message: string
-    time: string
-    read: boolean
-}
 
 interface HeaderProps {
     /** Controls whether the AI Assistant button shows as active */
@@ -36,11 +29,7 @@ interface HeaderProps {
     onMobileMenuOpen: () => void
 }
 
-const mockNotifications: Notification[] = [
-    { id: "1", type: "alert", title: "Netflix renewal soon", message: "Insufficient balance in Dana for Rp 186.000", time: "2h ago", read: false },
-    { id: "2", type: "success", title: "Challenge completed", message: "Reduce Food Spending 20% – +120 XP earned", time: "5h ago", read: false },
-    { id: "3", type: "info", title: "Spotify billing", message: "Payment due Oct 5th – Rp 86.000", time: "1d ago", read: true },
-]
+// No mock notifications needed anymore
 
 export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: HeaderProps) {
     const router = useRouter()
@@ -58,7 +47,8 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
 
     const [notifOpen, setNotifOpen] = useState(false)
     const [profileOpen, setProfileOpen] = useState(false)
-    const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
+    const [notifications, setNotifications] = useState<Notification[]>([])
+    const [notificationsLoading, setNotificationsLoading] = useState(false)
     const [user, setUser] = useState<AuthUser | null>(null)
     const mounted = useMounted()
 
@@ -84,13 +74,29 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
         return () => clearTimeout(timer)
     }, [searchValue])
 
+    const fetchNotifications = async () => {
+        if (!mounted.current) return
+        setNotificationsLoading(true)
+        const { data, error } = await getNotifications()
+        if (mounted.current && !error && data) {
+            setNotifications(data)
+        }
+        setNotificationsLoading(false)
+    }
+
     useEffect(() => {
         const supabase = createClient()
         supabase.auth.getSession().then(({ data: { session } }) => {
-            if (mounted.current) setUser(session?.user ?? null)
+            if (mounted.current) {
+                setUser(session?.user ?? null)
+                if (session?.user) fetchNotifications()
+            }
         })
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (mounted.current) setUser(session?.user ?? null)
+            if (mounted.current) {
+                setUser(session?.user ?? null)
+                if (session?.user) fetchNotifications()
+            }
         })
         return () => subscription.unsubscribe()
     }, [])
@@ -102,15 +108,24 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
         router.refresh()
     }
 
-    const unreadCount = notifications.filter((n) => !n.read).length
+    const unreadCount = notifications.filter((n) => !n.is_read).length
 
-    const markAsRead = (id: string) => {
-        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
+    const handleMarkAsRead = async (id: string) => {
+        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
+        await markAsRead(id)
     }
 
-    const markAllRead = () => {
-        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    const handleMarkAllRead = async () => {
+        setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })))
+        await markAllAsRead()
     }
+
+    // Refresh notifications when panel opens
+    useEffect(() => {
+        if (notifOpen) {
+            fetchNotifications()
+        }
+    }, [notifOpen])
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -355,7 +370,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                         <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
                                         {unreadCount > 0 && (
                                             <button
-                                                onClick={markAllRead}
+                                                onClick={handleMarkAllRead}
                                                 className="text-xs font-medium text-blue-600 hover:text-blue-700"
                                             >
                                                 Mark all read
@@ -363,16 +378,20 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                         )}
                                     </div>
                                     <div className="max-h-[320px] overflow-y-auto">
-                                        {notifications.length === 0 ? (
+                                        {notificationsLoading && notifications.length === 0 ? (
+                                            <div className="p-8 flex items-center justify-center">
+                                                <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                                            </div>
+                                        ) : notifications.length === 0 ? (
                                             <div className="p-8 text-center text-sm text-gray-500">No notifications</div>
                                         ) : (
                                             notifications.map((n) => (
                                                 <div
                                                     key={n.id}
-                                                    onClick={() => markAsRead(n.id)}
+                                                    onClick={() => handleMarkAsRead(n.id)}
                                                     className={cn(
                                                         "flex gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0",
-                                                        !n.read && "bg-blue-50/50"
+                                                        !n.is_read && "bg-blue-50/50"
                                                     )}
                                                 >
                                                     <div
@@ -388,11 +407,13 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                                         {n.type === "info" && <CreditCard className="w-4 h-4" />}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <p className={cn("text-sm font-medium", !n.read && "font-semibold text-gray-900")}>{n.title}</p>
+                                                        <p className={cn("text-sm font-medium", !n.is_read && "font-semibold text-gray-900")}>{n.title}</p>
                                                         <p className="text-xs text-gray-500 truncate">{n.message}</p>
-                                                        <p className="text-[10px] text-gray-400 mt-0.5">{n.time}</p>
+                                                        <p className="text-[10px] text-gray-400 mt-0.5">
+                                                            {new Date(n.created_at).toLocaleDateString()}
+                                                        </p>
                                                     </div>
-                                                    {!n.read && (
+                                                    {!n.is_read && (
                                                         <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-2" />
                                                     )}
                                                 </div>
