@@ -179,15 +179,15 @@ export async function getUserChallenges(): Promise<{
             const daysLeft = Math.max(0, Math.ceil((endsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
             const consumedPercent = template.limit_amount > 0
                 ? Math.min(100, Math.round((realSpent / template.limit_amount) * 100))
-                : 0;
+                : (realSpent > 0 ? 100 : 0);
             const remaining = Math.max(0, template.limit_amount - realSpent);
 
             // Check if time expired
             if (daysLeft === 0 && endsAt < now) {
                 // Auto-check: did they pass?
-                if (template.limit_amount > 0 && realSpent <= template.limit_amount) {
+                if (realSpent <= template.limit_amount) {
                     // They passed! Could auto-complete, but let user decide
-                } else if (template.limit_amount > 0 && realSpent > template.limit_amount) {
+                } else if (realSpent > template.limit_amount) {
                     // Failed due to over spending
                     await supabase.from("user_challenges").update({
                         status: "failed",
@@ -287,8 +287,8 @@ export async function completeChallenge(challengeId: string): Promise<{ error: s
 
     const template = (uc as any).challenge_templates as ChallengeTemplate;
 
-    // Check if spending is within limit (if limit > 0)
-    if (template.limit_amount > 0 && uc.spent > template.limit_amount) {
+    // Check if spending is within limit
+    if (uc.spent > template.limit_amount) {
         return { error: "You exceeded the spending limit! Challenge cannot be completed." };
     }
 
