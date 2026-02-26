@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { chatWithMindy } from "@/lib/gemini"
+import { getFinancialContext, buildContextPrompt } from "@/app/actions/ai-context"
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -23,16 +24,27 @@ export async function POST(req: NextRequest) {
             )
         }
 
+        // Hybrid approach: fetch real financial data first
+        let financialContext = ""
+        try {
+            const { data } = await getFinancialContext()
+            if (data) {
+                financialContext = await buildContextPrompt(data)
+            }
+        } catch {
+            // If context fetch fails, continue without it
+        }
+
         // Try with one retry on rate limit
         try {
-            const reply = await chatWithMindy(messages)
+            const reply = await chatWithMindy(messages, financialContext)
             return NextResponse.json({ reply })
         } catch (firstError: any) {
             if (firstError.message?.includes("429") || firstError.message?.includes("Too Many Requests")) {
                 console.log("Rate limited, retrying in 5s...")
                 await delay(5000)
                 try {
-                    const reply = await chatWithMindy(messages)
+                    const reply = await chatWithMindy(messages, financialContext)
                     return NextResponse.json({ reply })
                 } catch {
                     return NextResponse.json(
@@ -59,4 +71,3 @@ export async function POST(req: NextRequest) {
         )
     }
 }
-
