@@ -2,6 +2,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { HeroSection } from "@/components/homepage/hero-section";
 import { BrandMarquee } from "@/components/homepage/brand-marquee";
+import { AboutSection } from "@/components/homepage/about-section";
 import { Features } from "@/components/homepage/features";
 import { HowItWorks } from "@/components/homepage/how-it-works";
 import { Pricing } from "@/components/homepage/pricing";
@@ -16,6 +17,7 @@ export default function Home() {
 
       <HeroSection />
       <BrandMarquee />
+      <AboutSection />
       <Features />
       <HowItWorks />
       <Pricing />
