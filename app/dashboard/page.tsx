@@ -58,30 +58,7 @@ export interface Goal {
     color: string;
 }
 
-const weeklyData = [
-    { name: 'Mon', income: 850, expense: 550 },
-    { name: 'Tue', income: 720, expense: 420 },
-    { name: 'Wed', income: 980, expense: 780 },
-    { name: 'Thu', income: 620, expense: 320 },
-    { name: 'Fri', income: 810, expense: 610 },
-    { name: 'Sat', income: 790, expense: 490 },
-    { name: 'Sun', income: 950, expense: 850 },
-]
 
-const monthlyData = [
-    { name: 'Jan', income: 6500, expense: 4500 },
-    { name: 'Feb', income: 7200, expense: 5200 },
-    { name: 'Mar', income: 5800, expense: 3800 },
-    { name: 'Apr', income: 8100, expense: 6100 },
-    { name: 'May', income: 6900, expense: 4900 },
-    { name: 'Jun', income: 7500, expense: 5500 },
-    { name: 'Jul', income: 6200, expense: 4200 },
-    { name: 'Aug', income: 7800, expense: 5800 },
-    { name: 'Sep', income: 6600, expense: 4600 },
-    { name: 'Oct', income: 7300, expense: 5300 },
-    { name: 'Nov', income: 8400, expense: 6400 },
-    { name: 'Dec', income: 9200, expense: 7200 },
-]
 
 // Category config for Recent Transactions (synced with Transactions page)
 const categoryConfig: Record<string, { icon: any; color: string }> = {
@@ -121,15 +98,7 @@ const formatAmountCompact = (val: number) => {
     return val.toLocaleString('id-ID')
 }
 
-const recentTransactionsPlaceholder = [
-    { description: "Starbucks Coffee", category: "Food & Drinks", date: "2026-02-18", amount: 55000, type: "expense" as const },
-    { description: "Freelance Payment", category: "Part-time Job", date: "2026-02-17", amount: 2500000, type: "income" as const },
-    { description: "Indomaret Plus", category: "Shopping", date: "2026-02-17", amount: 120000, type: "expense" as const },
-    { description: "Spotify Premium", category: "Entertainment", date: "2026-02-16", amount: 54990, type: "expense" as const },
-    { description: "GrabFood Order", category: "Food & Drinks", date: "2026-02-15", amount: 85000, type: "expense" as const },
-    { description: "ATM Withdrawal", category: "Cash", date: "2026-02-15", amount: 500000, type: "expense" as const },
-    { description: "Shell V-Power", category: "Transport", date: "2026-02-14", amount: 150000, type: "expense" as const },
-]
+
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -180,7 +149,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function DashboardOverview() {
     const [chartView, setChartView] = useState<'weekly' | 'monthly'>('weekly')
     const [realChartData, setRealChartData] = useState<any[]>([])
-    const chartData = realChartData.length > 0 ? realChartData : (chartView === 'weekly' ? weeklyData : monthlyData)
+    const chartData = realChartData
     const targetLimit = chartView === 'weekly' ? 700 : 5000
 
     const [statsData, setStatsData] = useState<any>(null)
@@ -363,13 +332,7 @@ export default function DashboardOverview() {
         },
     ]
 
-    const categoriesData = catSpending.length > 0 ? catSpending : [
-        { name: "Food & Drinks", value: 1530000, percent: 45, color: "#3b82f6", icon: UtensilsCrossed },
-        { name: "Entertainment", value: 850000, percent: 25, color: "#a855f7", icon: Gamepad2 },
-        { name: "Transport", value: 680000, percent: 20, color: "#f97316", icon: Car },
-        { name: "Shopping", value: 300000, percent: 8, color: "#ec4899", icon: ShoppingBag },
-        { name: "Others", value: 70000, percent: 2, color: "#94a3b8", icon: MoreHorizontal },
-    ]
+    const categoriesData = catSpending
 
 
     return (
@@ -517,81 +480,93 @@ export default function DashboardOverview() {
                             </div>
                         </div>
 
-                        <div className="h-[280px] w-full mt-4">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#2563eb" stopOpacity={0.8} />
-                                            <stop offset="100%" stopColor="#2563eb" stopOpacity={0.3} />
-                                        </linearGradient>
-                                        <linearGradient id="warningGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#ef4444" stopOpacity={0.8} />
-                                            <stop offset="100%" stopColor="#ef4444" stopOpacity={0.3} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis
-                                        dataKey="name"
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
-                                        dy={10}
-                                    />
-                                    <YAxis
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
-                                    />
-                                    <Tooltip
-                                        cursor={{ fill: '#f8fafc' }}
-                                        content={<CustomTooltip />}
-                                    />
-                                    <ReferenceLine
-                                        y={targetLimit}
-                                        stroke="#10b981"
-                                        strokeDasharray="4 4"
-                                        label={{
-                                            position: 'right',
-                                            value: 'Budget Limit',
-                                            fill: '#10b981',
-                                            fontSize: 9,
-                                            fontWeight: 700,
-                                            dx: -35
-                                        }}
-                                    />
-                                    <Bar
-                                        dataKey="expense"
-                                        radius={[6, 6, 0, 0]}
-                                        barSize={chartView === 'weekly' ? 32 : 24}
-                                    >
-                                        {chartData.map((entry, index) => (
-                                            <Cell
-                                                key={`cell-${index}`}
-                                                fill={entry.expense > targetLimit ? "url(#warningGradient)" : "url(#barGradient)"}
+                        {chartData.length > 0 ? (
+                            <>
+                                <div className="h-[280px] w-full mt-4">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={chartData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
+                                            <defs>
+                                                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stopColor="#2563eb" stopOpacity={0.8} />
+                                                    <stop offset="100%" stopColor="#2563eb" stopOpacity={0.3} />
+                                                </linearGradient>
+                                                <linearGradient id="warningGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.8} />
+                                                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0.3} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis
+                                                dataKey="name"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
+                                                dy={10}
                                             />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
+                                            />
+                                            <Tooltip
+                                                cursor={{ fill: '#f8fafc' }}
+                                                content={<CustomTooltip />}
+                                            />
+                                            <ReferenceLine
+                                                y={targetLimit}
+                                                stroke="#10b981"
+                                                strokeDasharray="4 4"
+                                                label={{
+                                                    position: 'right',
+                                                    value: 'Budget Limit',
+                                                    fill: '#10b981',
+                                                    fontSize: 9,
+                                                    fontWeight: 700,
+                                                    dx: -35
+                                                }}
+                                            />
+                                            <Bar
+                                                dataKey="expense"
+                                                radius={[6, 6, 0, 0]}
+                                                barSize={chartView === 'weekly' ? 32 : 24}
+                                            >
+                                                {chartData.map((entry, index) => (
+                                                    <Cell
+                                                        key={`cell-${index}`}
+                                                        fill={entry.expense > targetLimit ? "url(#warningGradient)" : "url(#barGradient)"}
+                                                    />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
 
-                        {/* AI Insight Text */}
-                        <div className="mt-8 pt-6 border-t border-gray-50">
-                            <div className="flex items-start gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/30">
-                                <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
-                                    <Zap className="w-4 h-4 text-white" />
+                                {/* AI Insight Text */}
+                                <div className="mt-8 pt-6 border-t border-gray-50">
+                                    <div className="flex items-start gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/30">
+                                        <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
+                                            <Zap className="w-4 h-4 text-white" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-bold text-blue-900 leading-tight">Mindy's Logic Insight</p>
+                                            <p className="text-[10px] font-medium text-blue-700/80 mt-1 leading-relaxed">
+                                                {chartView === 'weekly'
+                                                    ? "Your spending increased by 18% compared to last week. Try to reduce your 'Entertainment' expenses to stay within your budget limit."
+                                                    : "You've exceeded your budget cap in 4 out of 12 months this year. However, your Income-to-Savings ratio remains healthy at 24%."}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-[11px] font-bold text-blue-900 leading-tight">Mindy's Logic Insight</p>
-                                    <p className="text-[10px] font-medium text-blue-700/80 mt-1 leading-relaxed">
-                                        {chartView === 'weekly'
-                                            ? "Your spending increased by 18% compared to last week. Try to reduce your 'Entertainment' expenses to stay within your budget limit."
-                                            : "You've exceeded your budget cap in 4 out of 12 months this year. However, your Income-to-Savings ratio remains healthy at 24%."}
-                                    </p>
+                            </>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-[280px] mt-4 text-center">
+                                <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
+                                    <BarChart3 className="w-6 h-6 text-gray-300" />
                                 </div>
+                                <p className="text-sm font-semibold text-gray-400">No spending data yet</p>
+                                <p className="text-xs text-gray-400 mt-1">Add transactions to see your spending analytics.</p>
                             </div>
-                        </div>
+                        )}
                     </motion.div>
 
                     {/* Recent Transactions - Table like Transactions page (no Invoice, no Action) */}
@@ -611,64 +586,74 @@ export default function DashboardOverview() {
 
                         {/* Desktop Table */}
                         <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                                        <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Transaction</th>
-                                        <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Category</th>
-                                        <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Date</th>
-                                        <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[#E5E7EB]">
-                                    {(recentTx.length > 0 ? recentTx : recentTransactionsPlaceholder).map((t, i) => {
-                                        const config = categoryConfig[t.category] || categoryConfig["Others"]
-                                        const Icon = config.icon
-                                        const color = config.color
-                                        const isIncome = t.type === "income"
-                                        return (
-                                            <motion.tr
-                                                key={i}
-                                                initial={{ opacity: 0, x: -8 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.5 + i * 0.04 }}
-                                                className="hover:bg-[#F9FAFB] transition-all group"
-                                            >
-                                                <td className="px-6 py-5">
-                                                    <p className="text-sm font-normal text-[#1F2937] tracking-tight">{t.description}</p>
-                                                </td>
-                                                <td className="px-6 py-5">
-                                                    <span
-                                                        className="inline-flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-lg uppercase tracking-widest border border-current/10"
-                                                        style={{ backgroundColor: `${color}15`, color }}
-                                                    >
-                                                        <Icon className="w-3 h-3" />
-                                                        {t.category}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-5">
-                                                    <p className="text-sm font-normal text-[#6B7280]">
-                                                        {new Date(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
-                                                    </p>
-                                                </td>
-                                                <td className="px-6 py-5">
-                                                    <p className={cn(
-                                                        "text-sm font-normal",
-                                                        isIncome ? "text-emerald-600" : "text-[#1F2937]"
-                                                    )}>
-                                                        {isIncome ? "+" : "-"} {formatRp(t.amount)}
-                                                    </p>
-                                                </td>
-                                            </motion.tr>
-                                        )
-                                    })}
-                                </tbody>
-                            </table>
+                            {recentTx.length > 0 ? (
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
+                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Transaction</th>
+                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Category</th>
+                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Date</th>
+                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[#E5E7EB]">
+                                        {recentTx.map((t: any, i: number) => {
+                                            const config = categoryConfig[t.category] || categoryConfig["Others"]
+                                            const Icon = config.icon
+                                            const color = config.color
+                                            const isIncome = t.type === "income"
+                                            return (
+                                                <motion.tr
+                                                    key={i}
+                                                    initial={{ opacity: 0, x: -8 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: 0.5 + i * 0.04 }}
+                                                    className="hover:bg-[#F9FAFB] transition-all group"
+                                                >
+                                                    <td className="px-6 py-5">
+                                                        <p className="text-sm font-normal text-[#1F2937] tracking-tight">{t.description}</p>
+                                                    </td>
+                                                    <td className="px-6 py-5">
+                                                        <span
+                                                            className="inline-flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-lg uppercase tracking-widest border border-current/10"
+                                                            style={{ backgroundColor: `${color}15`, color }}
+                                                        >
+                                                            <Icon className="w-3 h-3" />
+                                                            {t.category}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-5">
+                                                        <p className="text-sm font-normal text-[#6B7280]">
+                                                            {new Date(t.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                                                        </p>
+                                                    </td>
+                                                    <td className="px-6 py-5">
+                                                        <p className={cn(
+                                                            "text-sm font-normal",
+                                                            isIncome ? "text-emerald-600" : "text-[#1F2937]"
+                                                        )}>
+                                                            {isIncome ? "+" : "-"} {formatRp(t.amount)}
+                                                        </p>
+                                                    </td>
+                                                </motion.tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-16 text-center">
+                                    <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
+                                        <CreditCard className="w-6 h-6 text-gray-300" />
+                                    </div>
+                                    <p className="text-sm font-semibold text-gray-400">No transactions yet</p>
+                                    <p className="text-xs text-gray-400 mt-1">Start adding transactions to see them here.</p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Mobile Card List */}
                         <div className="md:hidden divide-y divide-[#E5E7EB]">
-                            {(recentTx.length > 0 ? recentTx : recentTransactionsPlaceholder).map((t, i) => {
+                            {recentTx.length > 0 ? recentTx.map((t: any, i: number) => {
                                 const config = categoryConfig[t.category] || categoryConfig["Others"]
                                 const Icon = config.icon
                                 const color = config.color
@@ -697,7 +682,15 @@ export default function DashboardOverview() {
                                         </div>
                                     </Link>
                                 )
-                            })}
+                            }) : (
+                                <div className="flex flex-col items-center justify-center py-12 text-center">
+                                    <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
+                                        <CreditCard className="w-5 h-5 text-gray-300" />
+                                    </div>
+                                    <p className="text-sm font-semibold text-gray-400">No transactions yet</p>
+                                    <p className="text-xs text-gray-400 mt-1">Start adding transactions to see them here.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -719,33 +712,44 @@ export default function DashboardOverview() {
                             </Link>
                         </div>
 
-                        <div className="relative flex justify-center py-2">
-                            <div className="w-32 h-32 @md:w-48 @md:h-48">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={categoriesData}
-                                            innerRadius={"68%"}
-                                            outerRadius="100%"
-                                            paddingAngle={4}
-                                            dataKey="value"
-                                            startAngle={90}
-                                            endAngle={450}
-                                        >
-                                            {categoriesData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                                            ))}
-                                        </Pie>
-                                    </PieChart>
-                                </ResponsiveContainer>
+                        {categoriesData.length > 0 ? (
+                            <div className="relative flex justify-center py-2">
+                                <div className="w-32 h-32 @md:w-48 @md:h-48">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={categoriesData}
+                                                innerRadius={"68%"}
+                                                outerRadius="100%"
+                                                paddingAngle={4}
+                                                dataKey="value"
+                                                startAngle={90}
+                                                endAngle={450}
+                                            >
+                                                {categoriesData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                                                ))}
+                                            </Pie>
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                    <span className="text-[8px] @md:text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">Total Spent</span>
+                                    <span className="text-lg @md:text-2xl font-black text-gray-900 tracking-tight">
+                                        {formatAmountCompact(categoriesData.reduce((a, b) => a + b.value, 0))}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span className="text-[8px] @md:text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">Total Spent</span>
-                                <span className="text-lg @md:text-2xl font-black text-gray-900 tracking-tight">
-                                    {formatAmountCompact(categoriesData.reduce((a, b) => a + b.value, 0))}
-                                </span>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-8 text-center">
+                                <div className="w-32 h-32 @md:w-48 @md:h-48 rounded-full border-[12px] border-gray-100 flex items-center justify-center">
+                                    <div className="text-center">
+                                        <span className="text-[8px] @md:text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none block mb-1">Total Spent</span>
+                                        <span className="text-lg @md:text-2xl font-black text-gray-900 tracking-tight">Rp 0</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="mt-8 space-y-3">
                             {categoriesData.map((item) => (
