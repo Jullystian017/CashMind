@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { SectionBadge } from "@/components/ui/section-badge";
 
 export const CTA = () => {
     return (
@@ -11,6 +12,7 @@ export const CTA = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="bg-blue-600 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl shadow-blue-500/20">
                     <div className="relative z-10 max-w-2xl mx-auto">
+                        <SectionBadge label="Get Started" className="bg-blue-500/20 border-blue-400/30 text-white" />
                         <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-8">
                             Start your journey to <br /> financial freedom today.
                         </h2>

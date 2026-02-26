@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { SectionBadge } from "@/components/ui/section-badge";
 
 const steps = [
     {
@@ -27,7 +28,7 @@ export const HowItWorks = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     <div>
-                        <h2 className="text-blue-600 font-bold text-sm uppercase tracking-widest mb-3">How it works</h2>
+                        <SectionBadge label="Process" />
                         <h3 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight mb-8">
                             Take control of your money <br /> in three simple steps.
                         </h3>

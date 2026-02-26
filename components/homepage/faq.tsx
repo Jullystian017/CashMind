@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
+import { SectionBadge } from "@/components/ui/section-badge";
 
 const faqs = [
     {
@@ -30,7 +31,7 @@ export const FAQ = () => {
         <section id="faq" className="py-24 bg-white px-4">
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-16">
-                    <h2 className="text-blue-600 font-bold text-sm uppercase tracking-widest mb-3">FAQ</h2>
+                    <SectionBadge label="FAQ" />
                     <h3 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
                         Common Questions
                     </h3>

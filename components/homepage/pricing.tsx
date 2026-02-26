@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
+import { SectionBadge } from "@/components/ui/section-badge";
 
 const plans = [
     {
@@ -36,7 +37,7 @@ export const Pricing = () => {
         <section id="pricing" className="py-24 bg-white px-4">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <h2 className="text-blue-600 font-bold text-sm uppercase tracking-widest mb-3">Pricing</h2>
+                    <SectionBadge label="Pricing" />
                     <h3 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
                         Transparent pricing for <br className="hidden md:block" /> everyone at every stage.
                     </h3>
@@ -51,8 +52,8 @@ export const Pricing = () => {
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
                             className={`p-10 rounded-[2.5rem] border ${plan.popular
-                                    ? "border-blue-600 bg-blue-50/10 shadow-xl shadow-blue-500/5 relative"
-                                    : "border-gray-100 bg-white"
+                                ? "border-blue-600 bg-blue-50/10 shadow-xl shadow-blue-500/5 relative"
+                                : "border-gray-100 bg-white"
                                 }`}
                         >
                             {plan.popular && (
@@ -84,8 +85,8 @@ export const Pricing = () => {
                             </div>
 
                             <button className={`w-full py-4 rounded-full font-bold transition-all ${plan.popular
-                                    ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200"
-                                    : "bg-gray-50 text-gray-900 hover:bg-gray-100"
+                                ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200"
+                                : "bg-gray-50 text-gray-900 hover:bg-gray-100"
                                 }`}>
                                 {plan.buttonText}
                             </button>

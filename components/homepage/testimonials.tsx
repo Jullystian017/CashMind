@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { SectionBadge } from "@/components/ui/section-badge";
 
 const testimonials = [
     {
@@ -33,7 +34,7 @@ export const Testimonials = () => {
         <section id="testimonials" className="py-24 bg-gray-50/50 px-4">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <h2 className="text-blue-600 font-bold text-sm uppercase tracking-widest mb-3">Testimonials</h2>
+                    <SectionBadge label="Testimonials" />
                     <h3 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
                         Loved by thousands of <br className="hidden md:block" /> builders and creators.
                     </h3>

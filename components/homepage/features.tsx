@@ -10,6 +10,7 @@ import {
     Clock,
     Smartphone
 } from "lucide-react";
+import { SectionBadge } from "@/components/ui/section-badge";
 
 const features = [
     {
@@ -55,7 +56,7 @@ export const Features = () => {
         <section id="features" className="py-24 bg-white px-4">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <h2 className="text-blue-600 font-bold text-sm uppercase tracking-widest mb-3">Features</h2>
+                    <SectionBadge label="Features" />
                     <h3 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
                         Everything you need to <br className="hidden md:block" /> scale your finances.
                     </h3>
