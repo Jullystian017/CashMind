@@ -9,10 +9,16 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 export function Navbar() {
+  const [scrolled, setScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
   const supabase = createClient()
 
   useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener("scroll", handleScroll)
+
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
@@ -23,7 +29,10 @@ export function Navbar() {
       setUser(session?.user ?? null)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      subscription.unsubscribe()
+    }
   }, [])
 
   return (
@@ -31,7 +40,10 @@ export function Navbar() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 dark:bg-gray-950/80 dark:border-gray-800"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+          ? "bg-white/40 backdrop-blur-xl border-b border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)]"
+          : "bg-transparent border-b border-transparent"
+        }`}
     >
       <nav className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex items-center justify-between">
         {/* Logo Section */}
@@ -77,6 +89,7 @@ export function Navbar() {
                 whileHover="hover"
                 className="group relative flex items-center bg-blue-600 hover:bg-blue-700 transition-all rounded-full px-8 h-10 shadow-lg shadow-blue-200 overflow-hidden gap-2"
               >
+                <LayoutDashboard className="w-4 h-4 text-white" />
                 <div className="relative h-5 overflow-hidden pointer-events-none">
                   <motion.div
                     variants={{
@@ -94,7 +107,6 @@ export function Navbar() {
                     </span>
                   </motion.div>
                 </div>
-                <LayoutDashboard className="w-4 h-4 text-white" />
               </motion.button>
             </Link>
           ) : (
