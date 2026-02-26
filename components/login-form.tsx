@@ -81,7 +81,7 @@ export function LoginForm() {
             <Link href="/" className="flex items-center gap-2 mb-8 group w-fit">
                 <div className="relative w-8 h-8 transition-transform group-hover:scale-105">
                     <Image
-                        src="/cashmind-logo.png"
+                        src="/cashmind-logo2.png"
                         alt="CashMind Logo"
                         fill
                         className="object-contain"
