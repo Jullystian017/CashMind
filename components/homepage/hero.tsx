@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Zap, ArrowRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
+import { type User, type AuthChangeEvent, type Session } from "@supabase/supabase-js"
 
 const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -13,7 +14,7 @@ const itemVariants = {
 }
 
 export function Hero() {
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<User | null>(null)
     const supabase = createClient()
 
     useEffect(() => {
@@ -23,7 +24,7 @@ export function Hero() {
         }
         getUser()
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
             setUser(session?.user ?? null)
         })
 

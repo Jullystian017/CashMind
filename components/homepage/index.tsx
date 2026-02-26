@@ -19,7 +19,7 @@ const containerVariants = {
 }
 
 export default function Homepage() {
-    const containerRef = useRef(null)
+    const containerRef = useRef<HTMLElement>(null)
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start start", "end start"]
