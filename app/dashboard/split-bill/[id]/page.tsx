@@ -1,206 +1,278 @@
 "use client"
 
-import * as React from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import {
-    ChevronLeft,
-    Share2,
+    ArrowLeft,
     CheckCircle2,
-    Info,
-    Download,
-    MoreHorizontal,
-    History
+    Circle,
+    Trash2,
+    Loader2,
+    Users,
+    Receipt,
+    Shield,
+    Clock,
+    ChevronRight
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import {
+    getSplitBillDetail,
+    toggleParticipantPaid,
+    settleBill,
+    deleteSplitBill,
+    type SplitBillDetail
+} from "@/app/actions/split-bill"
 
-export default function SplitDetailsPage() {
+export default function SplitBillDetailPage() {
     const router = useRouter()
     const params = useParams()
+    const billId = params.id as string
 
-    // Menangkap ID dari URL (Contoh: dinner-mcd)
-    const id = params.id as string
-    const displayTitle = id ? id.replace(/-/g, ' ') : "Split Details"
+    const [bill, setBill] = useState<SplitBillDetail | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [settling, setSettling] = useState(false)
+    const [deleting, setDeleting] = useState(false)
+    const [togglingId, setTogglingId] = useState<string | null>(null)
 
-    // Data ini nantinya bisa kamu ambil dari database berdasarkan 'id'
-    const participants = [
-        { name: "Andi", email: "andi@example.com", amount: "Rp 60.000", status: "Unpaid" },
-        { name: "Budi", email: "budi@example.com", amount: "Rp 60.000", status: "Paid" },
-        { name: "Citra", email: "citra@example.com", amount: "Rp 60.000", status: "Unpaid" },
-        { name: "You (Owner)", email: "alex@example.com", amount: "Rp 60.000", status: "Paid", isOwner: true },
-    ]
+    const fetchDetail = async () => {
+        setLoading(true)
+        const { data, error } = await getSplitBillDetail(billId)
+        if (data) setBill(data)
+        setLoading(false)
+    }
+
+    useEffect(() => {
+        if (billId) fetchDetail()
+    }, [billId])
+
+    const formatRp = (val: number) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        }).format(val).replace('Rp', 'Rp ')
+    }
+
+    const handleTogglePaid = async (participantId: string) => {
+        setTogglingId(participantId)
+        await toggleParticipantPaid(participantId)
+        await fetchDetail()
+        setTogglingId(null)
+    }
+
+    const handleSettle = async () => {
+        if (!confirm("Mark all participants as settled?")) return
+        setSettling(true)
+        await settleBill(billId)
+        await fetchDetail()
+        setSettling(false)
+    }
+
+    const handleDelete = async () => {
+        if (!confirm("Delete this split bill? This cannot be undone.")) return
+        setDeleting(true)
+        await deleteSplitBill(billId)
+        router.push("/dashboard/split-bill")
+    }
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-32 gap-3 text-gray-400">
+                <Loader2 className="w-7 h-7 animate-spin" />
+                <p className="text-xs font-medium">Loading details...</p>
+            </div>
+        )
+    }
+
+    if (!bill) {
+        return (
+            <div className="text-center py-32">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Split bill not found</h3>
+                <p className="text-sm text-gray-400 mb-6">It may have been deleted.</p>
+                <Button onClick={() => router.push("/dashboard/split-bill")} variant="outline" className="rounded-xl">
+                    <ArrowLeft className="w-4 h-4 mr-2" /> Go Back
+                </Button>
+            </div>
+        )
+    }
+
+    const paidCount = bill.participants.filter(p => p.is_paid).length
+    const totalParticipants = bill.participants.length
+    const progress = totalParticipants > 0 ? (paidCount / totalParticipants) * 100 : 0
+    const isActive = bill.status === "active"
+    const totalCollected = bill.participants.filter(p => p.is_paid).reduce((s, p) => s + p.amount, 0)
+    const totalPending = bill.participants.filter(p => !p.is_paid).reduce((s, p) => s + p.amount, 0)
 
     return (
-        <div className="space-y-8 pb-24" suppressHydrationWarning={true}>
-            {/* --- TOP NAVIGATION --- */}
-            <div className="flex flex-col gap-6">
-                <button
-                    onClick={() => router.back()}
-                    className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-blue-600 transition-all tracking-[0.2em] group w-fit"
-                >
-                    <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    BACK TO DASHBOARD
-                </button>
+        <div className="space-y-8 pb-24 max-w-3xl" suppressHydrationWarning={true}>
+            {/* Back */}
+            <button
+                onClick={() => router.push("/dashboard/split-bill")}
+                className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors"
+            >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Split Bills
+            </button>
 
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <Badge className="bg-blue-600 hover:bg-blue-600 text-[9px] font-black px-2 rounded-md uppercase">Active</Badge>
-                            <span className="text-[11px] font-bold text-slate-400">ID: {id}</span>
-                        </div>
-                        <h1 className="text-4xl font-black text-slate-900 capitalize tracking-tight">
-                            {displayTitle}
-                        </h1>
-                        <p className="text-sm text-slate-400 font-medium mt-2">
-                            Created on Feb 21, 2026 • Last updated 2 hours ago
-                        </p>
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-3 mb-1">
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">{bill.title}</h2>
+                        <span className={cn(
+                            "text-[9px] font-black px-2.5 py-1 rounded-lg tracking-wider",
+                            isActive ? "bg-orange-50 text-orange-500" : "bg-emerald-50 text-emerald-600"
+                        )}>
+                            {isActive ? "ACTIVE" : "SETTLED"}
+                        </span>
                     </div>
-                    <div className="flex gap-3">
-                        <Button variant="outline" className="rounded-2xl border-slate-200 bg-white font-bold text-slate-600 h-12 w-12 p-0">
-                            <MoreHorizontal className="w-5 h-5" />
+                    <p className="text-gray-400 text-xs font-medium">
+                        Created {new Date(bill.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {" · "}Paid by {bill.payer === "you" ? "You" : "Friend"}
+                    </p>
+                </div>
+                {isActive && (
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={handleSettle}
+                            disabled={settling}
+                            className="bg-emerald-600 hover:bg-emerald-700 rounded-xl h-10 px-5 shadow-sm text-sm font-bold"
+                        >
+                            {settling ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                            Settle All
                         </Button>
-                        <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-8 h-12 flex gap-2 font-black shadow-xl shadow-blue-100 transition-all active:scale-[0.95]">
-                            <Share2 className="w-4 h-4" />
-                            Share Link
+                        <Button
+                            onClick={handleDelete}
+                            disabled={deleting}
+                            variant="outline"
+                            className="rounded-xl h-10 px-4 border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200"
+                        >
+                            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                         </Button>
                     </div>
+                )}
+            </div>
+
+            {/* Overview Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Total</p>
+                    <p className="text-lg font-bold text-gray-900">{formatRp(bill.total_amount)}</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">People</p>
+                    <p className="text-lg font-bold text-gray-900">{totalParticipants + 1}</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider mb-2">Collected</p>
+                    <p className="text-lg font-bold text-emerald-600">{formatRp(totalCollected)}</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                    <p className="text-[10px] font-bold text-orange-500 uppercase tracking-wider mb-2">Pending</p>
+                    <p className="text-lg font-bold text-orange-500">{formatRp(totalPending)}</p>
                 </div>
             </div>
 
-            <div className="space-y-8">
+            {/* Progress */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-bold text-gray-800">Settlement Progress</p>
+                    <p className="text-sm font-bold text-blue-600">{paidCount}/{totalParticipants} settled</p>
+                </div>
+                <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+                    <div
+                        className="h-full bg-blue-600 transition-all duration-700 ease-out rounded-full"
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+            </div>
 
-                {/* --- STAT CARDS --- */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <DetailStatCard label="Total Amount" value="Rp 240.000" />
+            {/* Participants List */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-50">
+                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-gray-400" />
+                        Participants
+                    </h3>
+                </div>
+                <div className="divide-y divide-gray-50">
+                    {/* You */}
+                    <div className="flex items-center justify-between p-5">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                                Y
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-gray-900">
+                                    You {bill.payer === "you" && <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md ml-1">Payer</span>}
+                                </p>
+                                <p className="text-[11px] text-gray-400">Your share</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-bold text-gray-900">
+                                {formatRp(bill.total_amount - bill.participants.reduce((s, p) => s + p.amount, 0))}
+                            </span>
+                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                        </div>
+                    </div>
 
-                    <Card className="p-7 border-none shadow-sm rounded-[32px] bg-white flex flex-col justify-between h-40">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Participants</span>
-                        <div className="flex items-center justify-between">
-                            <span className="text-3xl font-black text-slate-900">4 People</span>
-                            <div className="flex -space-x-3">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="w-10 h-10 rounded-full border-[3px] border-white bg-slate-100 overflow-hidden shadow-sm">
-                                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 5}`} alt="avatar" />
-                                    </div>
-                                ))}
-                                <div className="w-10 h-10 rounded-full border-[3px] border-white bg-blue-600 flex items-center justify-center text-[9px] font-black text-white shadow-sm">
-                                    YOU
+                    {/* Other Participants */}
+                    {bill.participants.map((p) => (
+                        <div
+                            key={p.id}
+                            className={cn(
+                                "flex items-center justify-between p-5 transition-colors",
+                                isActive && "hover:bg-gray-50 cursor-pointer"
+                            )}
+                            onClick={() => isActive && handleTogglePaid(p.id)}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className={cn(
+                                    "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm",
+                                    p.is_paid ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-500"
+                                )}>
+                                    {p.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <p className={cn("text-sm font-bold", p.is_paid ? "text-gray-400 line-through" : "text-gray-900")}>{p.name}</p>
+                                    <p className="text-[11px] text-gray-400">
+                                        {p.is_paid ? "Settled ✓" : isActive ? "Tap to mark as settled" : "Not settled"}
+                                    </p>
                                 </div>
                             </div>
-                        </div>
-                    </Card>
-
-                    <Card className="p-7 border-none shadow-sm rounded-[32px] bg-white flex flex-col justify-between h-40">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progress</span>
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-end">
-                                <span className="text-3xl font-black text-slate-900">2/4 <span className="text-sm text-slate-400 font-bold tracking-normal">Paid</span></span>
-                                <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-xl">50%</span>
+                            <div className="flex items-center gap-3">
+                                <span className={cn("text-sm font-bold", p.is_paid ? "text-gray-400" : "text-gray-900")}>
+                                    {formatRp(p.amount)}
+                                </span>
+                                {togglingId === p.id ? (
+                                    <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                                ) : p.is_paid ? (
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                ) : (
+                                    <Circle className="w-5 h-5 text-gray-200" />
+                                )}
                             </div>
-                            <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-blue-600 w-1/2 rounded-full transition-all duration-1000" />
-                            </div>
                         </div>
-                    </Card>
-                </div>
-
-                {/* --- TABLE SECTION --- */}
-                <Card className="border-none shadow-sm rounded-[32px] overflow-hidden bg-white">
-                    <div className="p-8 border-b border-slate-50 flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-50 rounded-xl">
-                                <History className="w-5 h-5 text-blue-600" />
-                            </div>
-                            <h3 className="font-extrabold text-slate-900 text-lg">Participant Tracking</h3>
-                        </div>
-                        <button className="text-xs font-black text-blue-600 hover:underline tracking-tight">MARK ALL AS PAID</button>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50/50">
-                                    <th className="px-10 py-5">Participant Name</th>
-                                    <th className="px-10 py-5">Amount</th>
-                                    <th className="px-10 py-5">Status</th>
-                                    <th className="px-10 py-5 text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {participants.map((person, idx) => (
-                                    <tr key={idx} className={`group transition-colors ${person.isOwner ? 'bg-blue-50/20' : 'hover:bg-slate-50/50'}`}>
-                                        <td className="px-10 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-sm ${person.isOwner ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-slate-100 text-slate-500'
-                                                    }`}>
-                                                    {person.name.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="text-[15px] font-bold text-slate-900">{person.name}</p>
-                                                    <p className="text-[11px] text-slate-400 font-medium tracking-tight">{person.email}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-10 py-6 text-sm font-black text-slate-700">{person.amount}</td>
-                                        <td className="px-10 py-6">
-                                            <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-black border-2 ${person.status === "Paid"
-                                                ? "bg-emerald-50 text-emerald-600 border-emerald-100/50"
-                                                : "bg-orange-50 text-orange-600 border-orange-100/50"
-                                                }`}>
-                                                <span className={`w-2 h-2 rounded-full mr-2.5 ${person.status === "Paid" ? "bg-emerald-500" : "bg-orange-500 animate-pulse"}`} />
-                                                {person.status.toUpperCase()}
-                                            </div>
-                                        </td>
-                                        <td className="px-10 py-6 text-right">
-                                            {person.status === "Paid" ? (
-                                                <div className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-emerald-100 text-emerald-600">
-                                                    <CheckCircle2 className="w-5 h-5" />
-                                                </div>
-                                            ) : person.isOwner ? (
-                                                <span className="text-[10px] font-bold text-slate-300">ADMIN</span>
-                                            ) : (
-                                                <Button className="bg-white hover:bg-blue-600 border-2 border-blue-600 text-blue-600 hover:text-white text-[10px] font-black h-10 px-5 rounded-2xl transition-all shadow-sm">
-                                                    Confirm Payment
-                                                </Button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </Card>
-
-                {/* --- INFO BOX --- */}
-                <div className="bg-slate-900 rounded-[32px] p-8 flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -mr-32 -mt-32" />
-                    <div className="flex gap-5 relative z-10">
-                        <div className="bg-white/10 p-3 h-fit rounded-2xl backdrop-blur-md">
-                            <Info className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold text-white mb-1">Audit Tracking</h4>
-                            <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-sm">
-                                Every status update is logged manually. This platform does not handle direct bank transfers. Confirm with your bank before settling up.
-                            </p>
-                        </div>
-                    </div>
-                    <Button variant="outline" className="relative z-10 bg-transparent hover:bg-white/10 border-white/20 text-white font-bold text-xs flex gap-2 rounded-2xl px-8 h-14 transition-all">
-                        <Download className="w-4 h-4" />
-                        Download Summary PDF
-                    </Button>
+                    ))}
                 </div>
             </div>
-        </div>
-    )
-}
 
-function DetailStatCard({ label, value }: { label: string; value: string }) {
-    return (
-        <Card className="p-7 border-none shadow-sm rounded-[32px] flex flex-col justify-between h-40 bg-white">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
-            <span className="text-4xl font-black text-slate-900 tracking-tighter">{value}</span>
-        </Card>
+            {/* Delete for settled bills */}
+            {!isActive && (
+                <div className="flex justify-center">
+                    <Button
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        variant="ghost"
+                        className="text-sm font-medium text-gray-400 hover:text-rose-500"
+                    >
+                        {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                        Delete this split bill
+                    </Button>
+                </div>
+            )}
+        </div>
     )
 }

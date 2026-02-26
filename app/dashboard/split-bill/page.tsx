@@ -1,9 +1,21 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation" // Pastikan import ini ada
-import { Plus, Utensils, ShoppingCart, Film, Coffee } from "lucide-react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import {
+  Plus,
+  Utensils,
+  ShoppingCart,
+  Film,
+  Coffee,
+  Users,
+  ArrowUpRight,
+  ArrowDownRight,
+  Receipt,
+  Loader2,
+  Wallet
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -12,54 +24,76 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 import { CreateSplitModal } from "./splitmodel"
+import { getSplitBills, type SplitBill } from "@/app/actions/split-bill"
 
-// Mock Data dengan tambahan ID untuk navigasi
-const ActiveBill = [
-  {
-    id: "dinner-mcd",
-    title: "Dinner McD",
-    cost: "240.000",
-    people: "4",
-    paidCount: 2,
-    totalCount: 4,
-    icon: <Utensils className="w-5 h-5 text-blue-600" />,
-  },
-  {
-    id: "groceries",
-    title: "Groceries",
-    cost: "500.000",
-    people: "2",
-    paidCount: 1,
-    totalCount: 2,
-    icon: <ShoppingCart className="w-5 h-5 text-blue-600" />,
-  }
-]
+const categoryIcons: Record<string, React.ReactNode> = {
+  food: <Utensils className="w-5 h-5 text-blue-600" />,
+  groceries: <ShoppingCart className="w-5 h-5 text-blue-600" />,
+  movie: <Film className="w-5 h-5 text-blue-600" />,
+  coffee: <Coffee className="w-5 h-5 text-blue-600" />,
+  default: <Receipt className="w-5 h-5 text-blue-600" />,
+}
 
-const CompleteBill = [
-  {
-    id: "movie-night",
-    title: "Movie Night",
-    cost: "150.000",
-    people: "3",
-    paidCount: 3,
-    totalCount: 3,
-    icon: <Film className="w-5 h-5 text-gray-500" />,
-  }
-]
+function getIcon(title: string) {
+  const lower = title.toLowerCase()
+  if (lower.includes("dinner") || lower.includes("makan") || lower.includes("food")) return categoryIcons.food
+  if (lower.includes("groceries") || lower.includes("belanja")) return categoryIcons.groceries
+  if (lower.includes("movie") || lower.includes("film") || lower.includes("nonton")) return categoryIcons.movie
+  if (lower.includes("coffee") || lower.includes("kopi") || lower.includes("cafe")) return categoryIcons.coffee
+  return categoryIcons.default
+}
 
 export default function SplitBillPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const router = useRouter() // Inisialisasi router
+  const [bills, setBills] = useState<SplitBill[]>([])
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  const fetchBills = async () => {
+    setLoading(true)
+    const { data, error } = await getSplitBills()
+    if (data) setBills(data)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    fetchBills()
+  }, [])
+
+  const activeBills = bills.filter(b => b.status === "active")
+  const completedBills = bills.filter(b => b.status === "settled")
+
+  const formatRp = (val: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(val).replace('Rp', 'Rp ')
+  }
+
+  // Stats — computed from ALL bills (active + settled)
+  const totalSplit = bills.reduce((sum, b) => sum + b.total_amount, 0)
+  const totalLunas = bills.reduce((sum, b) => {
+    // For each bill, sum up paid participant amounts
+    // paid_count * per-person amount
+    const perPerson = b.participant_count > 0 ? b.total_amount / (b.participant_count + 1) : 0
+    return sum + (perPerson * b.paid_count)
+  }, 0)
+  const totalBelumLunas = bills.reduce((sum, b) => {
+    const perPerson = b.participant_count > 0 ? b.total_amount / (b.participant_count + 1) : 0
+    const unpaidCount = b.participant_count - b.paid_count
+    return sum + (perPerson * unpaidCount)
+  }, 0)
 
   return (
     <div className="space-y-8 pb-24" suppressHydrationWarning={true}>
-
-      {/* Header Section */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl @md:text-3xl font-bold text-gray-900 tracking-tight">Split Bill</h2>
-          <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Welcome back, Alex. Here's what's happening.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Split Bill</h2>
+          <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium italic">Manage shared expenses with friends easily.</p>
         </div>
         <Button
           className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 h-11 shadow-lg shadow-blue-200 w-fit"
@@ -70,79 +104,122 @@ export default function SplitBillPage() {
         </Button>
       </div>
 
-      {/* Stats Overview */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Total balance" amount="Rp 1.250.000" color="text-blue-600" />
-        <StatCard title="You are owed" amount="Rp 850.000" color="text-emerald-600" />
-        <StatCard title="You owe" amount="Rp 400.000" color="text-rose-500" />
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-blue-600" />
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Split</p>
+          </div>
+          <p className="text-xl font-bold text-blue-600">{formatRp(totalSplit)}</p>
+        </div>
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <ArrowDownRight className="w-5 h-5 text-emerald-600" />
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Collected</p>
+          </div>
+          <p className="text-xl font-bold text-emerald-600">{formatRp(totalLunas)}</p>
+        </div>
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
+              <ArrowUpRight className="w-5 h-5 text-rose-500" />
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Pending</p>
+          </div>
+          <p className="text-xl font-bold text-rose-500">{formatRp(totalBelumLunas)}</p>
+        </div>
       </div>
 
-      {/* Active Splits */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-bold text-gray-800">Active Splits</h2>
-          <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider">
-            2 Ongoing
-          </span>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
+          <Loader2 className="w-7 h-7 animate-spin" />
+          <p className="text-xs font-medium">Loading splits...</p>
         </div>
+      ) : bills.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 text-center">
+          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Receipt className="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-1">No splits yet</h3>
+          <p className="text-sm text-gray-400 max-w-sm mx-auto">Create your first split bill to start tracking shared expenses.</p>
+        </div>
+      ) : (
+        <>
+          {/* Active Splits */}
+          {activeBills.length > 0 && (
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-gray-800">Active Splits</h2>
+                <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                  {activeBills.length} Ongoing
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {activeBills.map((bill) => (
+                  <BillCard
+                    key={bill.id}
+                    bill={bill}
+                    status="ACTIVE"
+                    icon={getIcon(bill.title)}
+                    formatRp={formatRp}
+                    onClick={() => router.push(`/dashboard/split-bill/${bill.id}`)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ActiveBill.map((bill, index) => (
-            <BillCard
-              key={index}
-              bill={bill}
-              status="ACTIVE"
-              onClick={() => router.push(`/dashboard/split-bill/${bill.id}`)} // Navigasi yang benar
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Completed Splits */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-bold text-gray-800 text-slate-400">Completed Splits</h2>
-          <Button variant="link" className="text-blue-600 text-xs font-bold p-0">
-            View All History
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-70">
-          {CompleteBill.map((bill, index) => (
-            <BillCard
-              key={index}
-              bill={bill}
-              status="SETTLED"
-              onClick={() => router.push(`/dashboard/split-bill/${bill.id}`)}
-            />
-          ))}
-        </div>
-      </section>
+          {/* Completed Splits */}
+          {completedBills.length > 0 && (
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-gray-400">Completed</h2>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                  {completedBills.length} Settled
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-70">
+                {completedBills.map((bill) => (
+                  <BillCard
+                    key={bill.id}
+                    bill={bill}
+                    status="SETTLED"
+                    icon={getIcon(bill.title)}
+                    formatRp={formatRp}
+                    onClick={() => router.push(`/dashboard/split-bill/${bill.id}`)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
 
       <CreateSplitModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onCreated={fetchBills}
       />
     </div>
   )
 }
 
-function StatCard({ title, amount, color }: { title: string, amount: string, color: string }) {
-  return (
-    <Card className="bg-white border-none shadow-sm rounded-2xl">
-      <CardHeader className="px-6 py-5">
-        <CardDescription className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">
-          {title}
-        </CardDescription>
-        <CardTitle className={`text-2xl font-black ${color}`}>{amount}</CardTitle>
-      </CardHeader>
-    </Card>
-  )
-}
-
-function BillCard({ bill, status, onClick }: { bill: any, status: 'ACTIVE' | 'SETTLED', onClick: () => void }) {
-  const percentage = (bill.paidCount / bill.totalCount) * 100
-  const isActive = status === 'ACTIVE'
+function BillCard({ bill, status, icon, formatRp, onClick }: {
+  bill: SplitBill
+  status: string
+  icon: React.ReactNode
+  formatRp: (val: number) => string
+  onClick: () => void
+}) {
+  const percentage = bill.participant_count > 0
+    ? (bill.paid_count / bill.participant_count) * 100
+    : 0
+  const isActive = bill.status === 'active'
 
   return (
     <Card
@@ -151,30 +228,40 @@ function BillCard({ bill, status, onClick }: { bill: any, status: 'ACTIVE' | 'SE
     >
       <CardHeader className="relative pb-2">
         <div className="flex justify-between items-start">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${isActive ? 'bg-blue-50 group-hover:bg-blue-100' : 'bg-slate-50'}`}>
-            {bill.icon}
+          <div className={cn(
+            "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors",
+            isActive ? "bg-blue-50 group-hover:bg-blue-100" : "bg-slate-50"
+          )}>
+            {icon}
           </div>
-          <span className={`text-[9px] font-black px-2.5 py-1 rounded-lg tracking-wider ${isActive ? 'bg-orange-50 text-orange-500' : 'bg-slate-100 text-slate-400'}`}>
+          <span className={cn(
+            "text-[9px] font-black px-2.5 py-1 rounded-lg tracking-wider",
+            isActive ? "bg-orange-50 text-orange-500" : "bg-emerald-50 text-emerald-600"
+          )}>
             {status}
           </span>
         </div>
         <div className="mt-5">
           <CardTitle className="text-lg font-bold text-slate-800">{bill.title}</CardTitle>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-blue-600 font-black text-xl">Rp {bill.cost}</span>
+            <span className="text-blue-600 font-black text-xl">{formatRp(bill.total_amount)}</span>
           </div>
-          <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">{bill.people} PEOPLE INVOLVED</p>
+          <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">
+            {bill.participant_count + 1} PEOPLE
+          </p>
         </div>
       </CardHeader>
-
       <CardContent className="pb-6">
         <div className="flex justify-between text-[10px] font-black text-slate-500 mb-2.5 uppercase">
-          <span>{bill.paidCount}/{bill.totalCount} Settle up</span>
+          <span>{bill.paid_count}/{bill.participant_count} Settled</span>
           <span className={isActive ? "text-blue-600" : ""}>{Math.round(percentage)}%</span>
         </div>
         <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
           <div
-            className={`h-full transition-all duration-1000 ease-out ${isActive ? 'bg-blue-600' : 'bg-slate-300'}`}
+            className={cn(
+              "h-full transition-all duration-1000 ease-out",
+              isActive ? "bg-blue-600" : "bg-emerald-500"
+            )}
             style={{ width: `${percentage}%` }}
           />
         </div>
