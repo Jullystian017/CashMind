@@ -78,8 +78,8 @@ const defaultLifestyleItems: LifestyleItem[] = [
 ]
 
 const formatRp = (val: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 })
-        .format(val)
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0, maximumFractionDigits: 0 })
+        .format(Math.round(val))
         .replace("Rp", "Rp ")
 
 const formatRpCompact = (val: number) => {
@@ -87,6 +87,40 @@ const formatRpCompact = (val: number) => {
     if (Math.abs(val) >= 1_000_000) return `Rp ${(val / 1_000_000).toFixed(1)}jt`
     if (Math.abs(val) >= 1_000) return `Rp ${(val / 1_000).toFixed(0)}rb`
     return `Rp ${val}`
+}
+
+// ─── CURRENCY INPUT ───────────────────────────────────────────────
+
+const formatNumberDots = (val: number) => val.toLocaleString("id-ID")
+const parseNumberDots = (str: string) => Number(str.replace(/\./g, "").replace(/[^0-9]/g, "")) || 0
+
+function CurrencyInput({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
+    const [displayVal, setDisplayVal] = useState(formatNumberDots(value))
+
+    useEffect(() => {
+        setDisplayVal(formatNumberDots(value))
+    }, [value])
+
+    return (
+        <div>
+            <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{label}</label>
+            <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">Rp</span>
+                <input
+                    type="text"
+                    inputMode="numeric"
+                    value={displayVal}
+                    onChange={e => {
+                        const raw = e.target.value.replace(/[^0-9]/g, "")
+                        const num = Number(raw) || 0
+                        setDisplayVal(formatNumberDots(num))
+                        onChange(num)
+                    }}
+                    className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                />
+            </div>
+        </div>
+    )
 }
 
 // ─── ECONOMIC CONCEPT BADGE ───────────────────────────────────────
@@ -450,33 +484,9 @@ export default function SimulationPage() {
                             </div>
 
                             <div className="grid grid-cols-1 @md/main:grid-cols-2 gap-4 mb-6">
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Income Bulanan</label>
-                                    <input
-                                        type="number"
-                                        value={income}
-                                        onChange={e => setIncome(Number(e.target.value))}
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Target Income</label>
-                                    <input
-                                        type="number"
-                                        value={targetIncome}
-                                        onChange={e => setTargetIncome(Number(e.target.value))}
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Pengeluaran Rata-Rata</label>
-                                    <input
-                                        type="number"
-                                        value={expense}
-                                        onChange={e => setExpense(Number(e.target.value))}
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    />
-                                </div>
+                                <CurrencyInput label="Income Bulanan" value={income} onChange={setIncome} />
+                                <CurrencyInput label="Target Income" value={targetIncome} onChange={setTargetIncome} />
+                                <CurrencyInput label="Pengeluaran Rata-Rata" value={expense} onChange={setExpense} />
                                 <div>
                                     <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Projection Period</label>
                                     <select
