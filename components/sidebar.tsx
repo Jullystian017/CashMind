@@ -31,19 +31,29 @@ import { motion, AnimatePresence } from "framer-motion"
 
 const menuCategories = [
     {
-        title: "Home",
+        title: "Overview",
         items: [
             { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+        ]
+    },
+    {
+        title: "Financial Management",
+        items: [
             { name: "Transactions", icon: ReceiptText, href: "/dashboard/transactions" },
             { name: "Budgets", icon: Wallet, href: "/dashboard/budgets" },
             { name: "Subscriptions", icon: Repeat, href: "/dashboard/subscriptions" },
+        ]
+    },
+    {
+        title: "Growth & Simulation",
+        items: [
+            { name: "Future Simulator", icon: Sparkles, href: "/dashboard/simulation" },
             { name: "Challenges", icon: Trophy, href: "/dashboard/challenges" },
-            { name: "Future Growth", icon: Sparkles, href: "/dashboard/simulation" },
             { name: "Mindy AI", icon: Bot, href: "/dashboard/ai" },
         ]
     },
     {
-        title: "Social & Reports",
+        title: "Utilities",
         items: [
             { name: "Split Bill", icon: TrendingUp, href: "/dashboard/split-bill" },
             { name: "Export", icon: ReceiptText, href: "/dashboard/export" },
