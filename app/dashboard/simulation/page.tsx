@@ -244,29 +244,44 @@ export default function SimulationPage() {
     // ─── FUTURE ME CALCULATIONS ─────────────────────────────────
 
     const futureProjection = useMemo(() => {
-        const monthlySavings = income - expense
-        const savingsRate = income > 0 ? (monthlySavings / income) * 100 : 0
+        const savingsRate = income > 0 ? ((income - expense) / income) * 100 : 0
         const annualGrowthRate = 0.06 // 6% annual return on savings
         const currentBalance = simData?.totalBalance || 0
+
+        // Progressive income growth: from current income → target income over projection period
+        const incomeGrowthPerYear = projectionYears > 0 ? (targetIncome - income) / projectionYears : 0
+        const useProgressiveIncome = targetIncome > income
 
         const yearlyData = []
         let netWorth = currentBalance
         const currentYear = new Date().getFullYear()
 
         for (let y = 0; y <= projectionYears; y++) {
+            // Income grows progressively each year toward target
+            const yearlyIncome = useProgressiveIncome
+                ? Math.round(income + incomeGrowthPerYear * y)
+                : income
+            const yearlySavings = yearlyIncome - expense
+
             yearlyData.push({
                 year: `${currentYear + y}`,
                 netWorth: Math.round(netWorth),
-                savings: Math.round(monthlySavings * 12 * y),
+                income: yearlyIncome,
+                savings: Math.round(yearlySavings),
             })
-            netWorth = (netWorth + monthlySavings * 12) * (1 + annualGrowthRate)
+
+            if (y < projectionYears) {
+                netWorth = (netWorth + yearlySavings * 12) * (1 + annualGrowthRate)
+            }
         }
 
         const finalNetWorth = yearlyData[yearlyData.length - 1]?.netWorth || 0
+        const finalIncome = yearlyData[yearlyData.length - 1]?.income || income
+        const finalSavingsRate = finalIncome > 0 ? ((finalIncome - expense) / finalIncome) * 100 : 0
         const goalAmount = goalPresets.find(g => g.value === selectedGoal)?.amount || 15000000
         const goalReachable = finalNetWorth >= goalAmount
 
-        // Status determination
+        // Status determination — based on current savings rate
         let status: "stable" | "moderate" | "risk" = "stable"
         let statusLabel = "Financially Stable"
         let statusColor = "text-emerald-600"
@@ -291,12 +306,15 @@ export default function SimulationPage() {
         const realityChecks: string[] = []
         if (savingsRate > 50) realityChecks.push("Projection assumes very high savings rate. Ensure expenses are realistic and account for unexpected costs.")
         if (income > 0 && targetIncome > income * 3) realityChecks.push("Target income is 3x+ current income. This requires significant career growth or side income.")
-        realityChecks.push("Projection assumes income stability. Real-world uncertainty, inflation, and emergencies are not included.")
+        if (useProgressiveIncome) realityChecks.push(`Projection assumes income grows gradually from ${formatRp(income)} to ${formatRp(targetIncome)} over ${projectionYears} years. Actual career growth may vary.`)
+        realityChecks.push("Real-world uncertainty, inflation, and emergencies are not included in this projection.")
 
-        // One-line insight
-        const insight = `At current behavior, you will accumulate ${formatRp(finalNetWorth)} in ${projectionYears} years with a ${savingsRate.toFixed(0)}% savings rate.`
+        // One-line insight — now includes income growth info
+        const insight = useProgressiveIncome
+            ? `With income growing from ${formatRp(income)} → ${formatRp(targetIncome)}/bulan, you will accumulate ${formatRp(finalNetWorth)} in ${projectionYears} years. Savings rate improves from ${savingsRate.toFixed(0)}% to ${finalSavingsRate.toFixed(0)}%.`
+            : `At current behavior, you will accumulate ${formatRp(finalNetWorth)} in ${projectionYears} years with a ${savingsRate.toFixed(0)}% savings rate.`
 
-        return { yearlyData, finalNetWorth, savingsRate, monthlySavings, status, statusLabel, statusColor, statusBg, statusEmoji, goalReachable, goalAmount, realityChecks, insight }
+        return { yearlyData, finalNetWorth, savingsRate, monthlySavings: income - expense, status, statusLabel, statusColor, statusBg, statusEmoji, goalReachable, goalAmount, realityChecks, insight }
     }, [income, expense, targetIncome, selectedGoal, projectionYears, simData])
 
     // ─── TRADE-OFF CALCULATIONS ─────────────────────────────────
