@@ -38,6 +38,7 @@ const menuCategories = [
             { name: "Budgets", icon: Wallet, href: "/dashboard/budgets" },
             { name: "Subscriptions", icon: Repeat, href: "/dashboard/subscriptions" },
             { name: "Challenges", icon: Trophy, href: "/dashboard/challenges" },
+            { name: "Future Growth", icon: Sparkles, href: "/dashboard/simulation" },
             { name: "Mindy AI", icon: Bot, href: "/dashboard/ai" },
         ]
     },
