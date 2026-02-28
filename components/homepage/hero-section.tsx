@@ -5,8 +5,7 @@ import { motion } from "framer-motion";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import Image from "next/image";
 import Link from "next/link";
-import { Zap, ArrowRight } from "lucide-react";
-import { SectionBadge } from "@/components/ui/section-badge";
+import { Zap, ArrowRight, Sparkles } from "lucide-react";
 
 export const HeroSection = () => {
     return (
@@ -65,7 +64,12 @@ export const HeroSection = () => {
                 <ContainerScroll
                     titleComponent={
                         <div className="max-w-4xl mx-auto pb-8 text-center flex flex-col items-center">
-                            <SectionBadge label="Platform" className="mb-6" />
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50/50 border border-blue-100 mb-6 group cursor-default">
+                                <Sparkles className="w-4 h-4 text-blue-600 fill-blue-600/20" />
+                                <span className="text-sm font-bold text-blue-600 tracking-tight">
+                                    AI-Powered Finance Platform
+                                </span>
+                            </div>
                             <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-gray-900 mb-6 leading-[1.1]">
                                 Smart Solutions to{" "}
                                 <span className="inline-flex items-center text-blue-600">

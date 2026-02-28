@@ -57,6 +57,7 @@ export const Features = () => {
                     <BentoCard
                         title="Growth Analytics"
                         description="Visualize your financial trajectory with advanced growth metrics and organic performance tracking for all your assets."
+                        className="lg:col-span-2"
                     >
                         <div className="w-full h-full p-6 flex flex-col justify-between">
                             <div className="flex justify-between items-start">
@@ -73,8 +74,8 @@ export const Features = () => {
                             </div>
 
                             {/* Organic Multi-Layered Chart */}
-                            <div className="relative h-32 w-full mt-6">
-                                <svg width="100%" height="100%" viewBox="0 0 200 100" preserveAspectRatio="none">
+                            <div className="relative h-48 w-full mt-6">
+                                <svg width="100%" height="100%" viewBox="0 0 400 150" preserveAspectRatio="none">
                                     <defs>
                                         <linearGradient id="growthGradientLayer1" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4" />
@@ -86,18 +87,18 @@ export const Features = () => {
                                         </linearGradient>
                                     </defs>
 
-                                    {/* Layer 2 (Background) */}
+                                    {/* Layer 2 (Background) - Smoother curves */}
                                     <motion.path
-                                        d="M0,90 C40,85 60,60 100,70 C140,80 160,40 200,50 V100 H0 Z"
+                                        d="M0,130 C80,125 120,40 200,60 C280,80 320,30 400,45 V150 H0 Z"
                                         fill="url(#growthGradientLayer2)"
                                         initial={{ opacity: 0 }}
                                         whileInView={{ opacity: 1 }}
                                         transition={{ duration: 2, delay: 0.2 }}
                                     />
 
-                                    {/* Layer 1 (Main Area) */}
+                                    {/* Layer 1 (Main Area) - More dynamic slopes */}
                                     <motion.path
-                                        d="M0,80 C30,85 50,40 100,55 C150,70 170,20 200,35 V100 H0 Z"
+                                        d="M0,110 C60,120 100,30 200,55 C300,80 340,15 400,30 V150 H0 Z"
                                         fill="url(#growthGradientLayer1)"
                                         initial={{ opacity: 0 }}
                                         whileInView={{ opacity: 1 }}
@@ -106,7 +107,7 @@ export const Features = () => {
 
                                     {/* Main Organic Line */}
                                     <motion.path
-                                        d="M0,80 C30,85 50,40 100,55 C150,70 170,20 200,35"
+                                        d="M0,110 C60,120 100,30 200,55 C300,80 340,15 400,30"
                                         fill="none"
                                         stroke="#3B82F6"
                                         strokeWidth="4"
@@ -116,22 +117,22 @@ export const Features = () => {
                                         transition={{ duration: 1.8, ease: "easeInOut" }}
                                     />
 
-                                    {/* Pulsing Data Points */}
+                                    {/* Pulsing Data Points - Adjusted coordinates */}
                                     <motion.g
                                         initial={{ opacity: 0 }}
                                         whileInView={{ opacity: 1 }}
                                         transition={{ delay: 1.6 }}
                                     >
-                                        <circle cx="100" cy="55" r="4" fill="white" stroke="#3B82F6" strokeWidth="2.5" />
+                                        <circle cx="200" cy="55" r="4" fill="white" stroke="#3B82F6" strokeWidth="2.5" />
                                         <motion.circle
-                                            cx="100" cy="55" r="8" fill="#3B82F6" opacity="0.2"
+                                            cx="200" cy="55" r="8" fill="#3B82F6" opacity="0.2"
                                             animate={{ scale: [1, 1.8, 1] }}
                                             transition={{ duration: 2, repeat: Infinity }}
                                         />
 
-                                        <circle cx="200" cy="35" r="4" fill="white" stroke="#3B82F6" strokeWidth="2.5" />
+                                        <circle cx="400" cy="30" r="4" fill="white" stroke="#3B82F6" strokeWidth="2.5" />
                                         <motion.circle
-                                            cx="200" cy="35" r="8" fill="#3B82F6" opacity="0.2"
+                                            cx="400" cy="30" r="8" fill="#3B82F6" opacity="0.2"
                                             animate={{ scale: [1, 1.8, 1] }}
                                             transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
                                         />
@@ -249,64 +250,7 @@ export const Features = () => {
                         </div>
                     </BentoCard>
 
-                    {/* Financial Health Score */}
-                    <BentoCard
-                        title="Financial Health Score"
-                        description="Monitor your overall financial performance with a real-time score synthesized from your savings, budget, and goals."
-                    >
-                        <div className="w-full h-full p-4 flex flex-col items-center justify-center space-y-6">
-                            {/* Premium Circular Gauge */}
-                            <div className="relative w-32 h-32 flex items-center justify-center group">
-                                {/* External Glow */}
-                                <div className="absolute inset-0 bg-blue-500/5 blur-3xl rounded-full group-hover:bg-blue-500/10 transition-colors" />
 
-                                <svg className="w-full h-full transform -rotate-90 overflow-visible" viewBox="0 0 144 144">
-                                    <defs>
-                                        <linearGradient id="gaugeGradient" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#3B82F6" />
-                                            <stop offset="100%" stopColor="#818CF8" />
-                                        </linearGradient>
-                                    </defs>
-                                    <circle cx="72" cy="72" r="64" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-gray-50" />
-                                    <motion.circle
-                                        cx="72" cy="72" r="64" stroke="url(#gaugeGradient)" strokeWidth="10" fill="transparent"
-                                        strokeDasharray={402}
-                                        initial={{ strokeDashoffset: 402 }}
-                                        whileInView={{ strokeDashoffset: 402 - (402 * 85) / 100 }}
-                                        transition={{ duration: 1.8, ease: "easeOut" }}
-                                        strokeLinecap="round"
-                                        className="drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-                                    />
-                                </svg>
-                                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <motion.span
-                                        className="text-4xl font-black text-gray-900"
-                                        initial={{ opacity: 0, scale: 0.5 }}
-                                        whileInView={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.5 }}
-                                    >
-                                        85
-                                    </motion.span>
-                                    <span className="text-[10px] font-black text-blue-600 bg-blue-50/50 backdrop-blur-sm px-2 py-0.5 rounded-full border border-blue-100 uppercase tracking-widest">Advanced</span>
-                                </div>
-                            </div>
-
-                            {/* Enhanced Breakdown */}
-                            <div className="w-full grid grid-cols-3 gap-3">
-                                {[
-                                    { label: "Savings", score: "38/40", color: "from-emerald-400 to-emerald-600", bg: "bg-emerald-50" },
-                                    { label: "Budget", score: "18/20", color: "from-blue-400 to-blue-600", bg: "bg-blue-50" },
-                                    { label: "Goals", score: "15/20", color: "from-indigo-400 to-indigo-600", bg: "bg-indigo-50" },
-                                ].map((item, i) => (
-                                    <div key={i} className="flex flex-col items-center p-2.5 rounded-[20px] bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-default group/item">
-                                        <div className={cn("w-2 h-2 rounded-full mb-2 bg-gradient-to-br transition-transform group-hover/item:scale-125", item.color)} />
-                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-tight mb-1">{item.label}</span>
-                                        <span className="text-[11px] font-black text-gray-800">{item.score}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </BentoCard>
 
                     {/* Smart Budget Planner */}
                     <BentoCard
