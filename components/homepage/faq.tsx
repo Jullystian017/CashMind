@@ -31,7 +31,7 @@ export const FAQ = () => {
         <section id="faq" className="py-24 bg-white px-4">
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-16">
-                    <SectionBadge label="FAQ" />
+                    <SectionBadge label="FAQ" className="mb-6" />
                     <h3 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
                         Common Questions
                     </h3>

@@ -43,7 +43,7 @@ export const Features = () => {
         <section className="py-24 bg-white relative overflow-hidden">
             <div className="container px-4 mx-auto relative z-10">
                 <div className="text-center mb-16">
-                    <SectionBadge label="Features" variant="dark" className="mb-4" />
+                    <SectionBadge label="Features" className="mb-6" />
                     <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-gray-900 mb-4">
                         Master Your Money with CashMind
                     </h2>

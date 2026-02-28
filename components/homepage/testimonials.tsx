@@ -34,7 +34,7 @@ export const Testimonials = () => {
         <section id="testimonials" className="py-24 bg-gray-50/50 px-4">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
-                    <SectionBadge label="Testimonials" />
+                    <SectionBadge label="Testimonials" className="mb-6" />
                     <h3 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
                         Loved by thousands of <br className="hidden md:block" /> builders and creators.
                     </h3>

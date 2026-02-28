@@ -62,7 +62,7 @@ export const AboutSection = () => {
 
                 <div className="max-w-5xl mx-auto relative z-10 text-center px-6">
                     {/* Section Badge */}
-                    <SectionBadge label="About" className="mb-8" />
+                    <SectionBadge label="About" className="mb-6" />
 
                     {/* Main Content with Word Reveal */}
                     <div className="space-y-4 md:space-y-6">

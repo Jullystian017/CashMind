@@ -51,10 +51,10 @@ export function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isAboutSection
-          ? "bg-white border-b border-gray-100 shadow-sm"
-          : scrolled
-            ? "bg-white/40 backdrop-blur-xl border-b border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)]"
-            : "bg-transparent border-b border-transparent"
+        ? "bg-white border-b border-gray-100 shadow-sm"
+        : scrolled
+          ? "bg-white/40 backdrop-blur-xl border-b border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)]"
+          : "bg-transparent border-b border-transparent"
         }`}
     >
       <nav className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex items-center justify-between">
@@ -87,8 +87,8 @@ export function Navbar() {
               key={item.name}
               href={item.href}
               className={`px-4 py-2 rounded-full transition-all ${isAboutSection
-                  ? "text-black hover:bg-gray-100"
-                  : "text-gray-500 hover:text-blue-600 hover:bg-blue-50/50"
+                ? "text-black hover:bg-gray-100"
+                : "text-gray-500 hover:text-blue-600 hover:bg-blue-50/50"
                 }`}
             >
               {item.name}
