@@ -25,7 +25,7 @@ const BentoCard = ({
             viewport={{ once: true }}
             className={`bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm hover:shadow-2xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full group ${className}`}
         >
-            <div className="flex-1 mb-6 overflow-hidden rounded-2xl bg-gray-50/50 flex items-center justify-center relative">
+            <div className="flex-1 mb-6 overflow-hidden rounded-2xl bg-gray-50 flex items-center justify-center relative">
                 {children}
             </div>
             <div>
@@ -174,7 +174,7 @@ export const Features = () => {
                         title="AI Financial Advisor"
                         description="Experience a new way to manage wealth with our conversational AI that provides personalized financial advice through a smart chat interface."
                     >
-                        <div className="relative w-full h-full p-4 overflow-hidden flex flex-col justify-end bg-gray-50/10">
+                        <div className="relative w-full h-full p-4 overflow-hidden flex flex-col justify-end bg-transparent">
                             {/* Chat Header Overlay */}
                             <div className="absolute top-0 left-0 right-0 p-3 bg-white/80 backdrop-blur-xl border-b border-gray-100 flex items-center justify-between z-10">
                                 <div className="flex items-center gap-2">
