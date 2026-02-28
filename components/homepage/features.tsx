@@ -44,7 +44,7 @@ export const Features = () => {
             <div className="container px-4 mx-auto relative z-10">
                 <div className="text-center mb-16">
                     <SectionBadge label="Features" variant="dark" className="mb-4" />
-                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-4">
+                    <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-gray-900 mb-4">
                         Master Your Money with CashMind
                     </h2>
                     <p className="text-lg text-gray-500 max-w-2xl mx-auto">
