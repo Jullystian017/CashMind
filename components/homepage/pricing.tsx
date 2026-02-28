@@ -38,7 +38,7 @@ export const Pricing = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
                     <SectionBadge label="Pricing" className="mb-6" />
-                    <h3 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
+                    <h3 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight">
                         Transparent pricing for <br className="hidden md:block" /> everyone at every stage.
                     </h3>
                 </div>
