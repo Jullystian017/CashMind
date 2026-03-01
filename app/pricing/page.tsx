@@ -4,6 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Pricing } from "@/components/homepage/pricing";
 import { CTA } from "@/components/homepage/cta";
+import { Check, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { SectionBadge } from "@/components/ui/section-badge";
 
@@ -54,8 +55,65 @@ export default function PricingPage() {
 
             {/* Pricing Component */}
             <div className="relative z-20">
-                <Pricing />
+                <Pricing showHeader={false} />
             </div>
+
+            {/* Feature Comparison Table */}
+            <section className="py-24 bg-white relative z-10">
+                <div className="max-w-4xl mx-auto px-6">
+                    <div className="text-center mb-16">
+                        <h3 className="text-3xl md:text-4xl font-semibold text-gray-900 tracking-tight mb-4">
+                            Compare Features
+                        </h3>
+                        <p className="text-gray-500 font-medium text-lg">
+                            See exactly what's included in each plan to make the right choice.
+                        </p>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-3xl border border-gray-100 shadow-sm">
+                        <table className="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                                <tr>
+                                    <th className="py-6 px-6 text-xl font-bold text-gray-900 border-b border-gray-100 bg-gray-50/50 w-1/2">Features</th>
+                                    <th className="py-6 px-6 text-xl font-bold text-gray-900 border-b border-gray-100 bg-gray-50/50 text-center w-1/4">Starter</th>
+                                    <th className="py-6 px-6 text-xl font-bold text-blue-600 border-b border-blue-100 bg-blue-50/50 text-center w-1/4">Pro</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {[
+                                    { name: "Connected Accounts", free: "1 Account", pro: "Unlimited" },
+                                    { name: "Expense Tracking", free: true, pro: true },
+                                    { name: "Basic Health Score", free: true, pro: true },
+                                    { name: "Community Support", free: true, pro: true },
+                                    { name: "Advanced AI Analytics", free: false, pro: true },
+                                    { name: "AI Financial Coach (Chatbot)", free: false, pro: true },
+                                    { name: "Automated Budget Planner", free: false, pro: true },
+                                    { name: "Priority 24/7 Support", free: false, pro: true },
+                                    { name: "Export to PDF/CSV", free: false, pro: true },
+                                ].map((feature, idx) => (
+                                    <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                                        <td className="py-5 px-6 text-gray-700 font-medium">{feature.name}</td>
+                                        <td className="py-5 px-6 text-center">
+                                            {typeof feature.free === 'boolean' ? (
+                                                feature.free ? <Check className="w-5 h-5 text-gray-400 mx-auto" /> : <X className="w-5 h-5 text-gray-300 mx-auto" />
+                                            ) : (
+                                                <span className="text-gray-600 font-medium">{feature.free}</span>
+                                            )}
+                                        </td>
+                                        <td className="py-5 px-6 text-center bg-blue-50/20">
+                                            {typeof feature.pro === 'boolean' ? (
+                                                feature.pro ? <Check className="w-5 h-5 text-blue-600 mx-auto" strokeWidth={3} /> : <X className="w-5 h-5 text-gray-300 mx-auto" />
+                                            ) : (
+                                                <span className="text-blue-700 font-bold">{feature.pro}</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 
             <CTA />
             <Footer />

@@ -24,16 +24,21 @@ const plans = [
     }
 ];
 
-export const Pricing = () => {
+export const Pricing = ({ showHeader = true }: { showHeader?: boolean }) => {
     return (
-        <section id="pricing" className="py-24 relative px-4 z-10">
+        <section id="pricing" className={`${showHeader ? "py-24" : "py-12"} relative px-4 z-10`}>
             <div className="max-w-5xl mx-auto">
-                <div className="text-center mb-16">
-                    <SectionBadge label="Pricing" className="mb-6 mx-auto" />
-                    <h3 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-4">
-                        Transparent pricing for <br className="hidden md:block" /> everyone at every stage.
-                    </h3>
-                </div>
+                {showHeader && (
+                    <div className="text-center mb-16">
+                        <SectionBadge label="Pricing" className="mb-6 mx-auto" />
+                        <h3 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-4">
+                            Transparent pricing for <br className="hidden md:block" /> everyone at every stage.
+                        </h3>
+                        <p className="text-lg text-gray-500 max-w-2xl mx-auto font-medium">
+                            Whether you need basic tracking or advanced AI features, we have a plan that fits your financial goals.
+                        </p>
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     {plans.map((plan, idx) => (
