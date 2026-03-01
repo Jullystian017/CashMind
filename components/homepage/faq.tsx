@@ -22,6 +22,10 @@ const faqs = [
         question: "How does the AI insights feature work?",
         answer: "Our AI analyzes your spending patterns and compares them against market benchmarks to provide personalized tips on how to save and invest smarter.",
     },
+    {
+        question: "Can I export my financial data?",
+        answer: "Yes! If you're on the Pro plan, you can easily export all your transactions, budgets, and reports to PDF or CSV formats for your personal records.",
+    },
 ];
 
 export const FAQ = () => {
