@@ -32,16 +32,7 @@ export function Footer() {
                         </p>
                         <div className="flex gap-3">
                             {/* Interactive Social Icons */}
-                            <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm">
-                                <Twitter className="w-4 h-4" />
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm">
-                                <Linkedin className="w-4 h-4" />
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-pink-600 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm">
-                                <Instagram className="w-4 h-4" />
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-900 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm">
+                            <a href="https://github.com/Jullystian017/CashMind" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-900 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm">
                                 <Github className="w-4 h-4" />
                             </a>
                         </div>
