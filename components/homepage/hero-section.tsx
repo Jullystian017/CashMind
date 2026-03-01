@@ -64,7 +64,7 @@ export const HeroSection = () => {
                 <ContainerScroll
                     titleComponent={
                         <div className="max-w-4xl mx-auto pb-8 text-center flex flex-col items-center">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50/50 border border-blue-100 mb-6 group cursor-default">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50/80 border border-blue-200 shadow-sm shadow-blue-100 mb-6 group cursor-default">
                                 <Sparkles className="w-4 h-4 text-blue-600 fill-blue-600/20" />
                                 <span className="text-sm font-bold text-blue-600 tracking-tight">
                                     AI-Powered Finance Platform
