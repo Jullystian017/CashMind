@@ -58,7 +58,7 @@ export default function AboutPage() {
             <Navbar />
 
             {/* Premium Hero Section */}
-            <section className="relative pt-32 pb-24 overflow-hidden bg-gradient-to-b from-blue-50/80 to-white">
+            <section className="relative pt-32 pb-24 overflow-hidden bg-gradient-to-b from-blue-100/80 via-blue-50/50 to-white">
                 {/* Background Shader Effect (Matching Homepage) */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <div
@@ -68,9 +68,8 @@ export default function AboutPage() {
                             backgroundSize: '90px 90px'
                         }}
                     />
-                    <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white to-transparent" />
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-100/30 rounded-full blur-[100px]" />
-                    <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-emerald-50/40 rounded-full blur-[100px]" />
+                    <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-[120px]" />
+                    <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-emerald-100/30 rounded-full blur-[100px]" />
                     <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-gray-50/50 to-transparent" />
                 </div>
 
