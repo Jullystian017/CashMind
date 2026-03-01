@@ -11,7 +11,7 @@ const contactInfo = [
     {
         icon: Mail,
         title: "Email Us",
-        details: "support@cashmind.com",
+        details: "jullystian01@gmail.com",
         subDetails: "We'll respond within 24 hours.",
         color: "text-blue-600",
         bg: "bg-blue-50",
@@ -19,7 +19,7 @@ const contactInfo = [
     {
         icon: PhoneCall,
         title: "Call Us",
-        details: "+62 812 3456 7890",
+        details: "+62 857-9805-1625",
         subDetails: "Mon-Fri from 9am to 6pm.",
         color: "text-emerald-600",
         bg: "bg-emerald-50",
@@ -27,8 +27,8 @@ const contactInfo = [
     {
         icon: MapPin,
         title: "Visit Us",
-        details: "CashMind HQ, Jakarta",
-        subDetails: "Jl. Sudirman Kav. 52-53",
+        details: "CashMind HQ, Banyumas",
+        subDetails: "Jl. DI Panjaitan No. 227, Purwokerto, Jawa Tengah",
         color: "text-indigo-600",
         bg: "bg-indigo-50",
     },
