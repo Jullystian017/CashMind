@@ -23,13 +23,13 @@ const BentoCard = ({
             whileInView={{ opacity: 1, y: 0 }}
             whileHover={{ y: -8, scale: 1.01 }}
             viewport={{ once: true }}
-            className={`bg-white rounded-[32px] border border-gray-100 p-6 shadow-sm hover:shadow-2xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full group ${className}`}
+            className={`bg-white rounded-[32px] border border-gray-100 p-5 shadow-sm hover:shadow-2xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full group ${className}`}
         >
-            <div className="flex-1 mb-6 overflow-hidden rounded-2xl bg-gray-50 flex items-center justify-center relative">
+            <div className="flex-1 mb-4 overflow-hidden rounded-2xl bg-gray-50 flex items-center justify-center relative">
                 {children}
             </div>
             <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
                 <p className="text-gray-500 leading-relaxed text-sm md:text-base">
                     {description}
                 </p>
@@ -40,7 +40,7 @@ const BentoCard = ({
 
 export const Features = () => {
     return (
-        <section className="py-24 bg-white relative overflow-hidden">
+        <section className="py-20 bg-white relative overflow-hidden">
             <div className="container px-4 mx-auto relative z-10">
                 <div className="text-center mb-16">
                     <SectionBadge label="Features" className="mb-6" />
@@ -52,7 +52,7 @@ export const Features = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-7xl mx-auto">
                     {/* Growth Analytics */}
                     <BentoCard
                         title="Growth Analytics"
@@ -150,7 +150,7 @@ export const Features = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 mt-6 pt-5 border-t border-gray-100">
+                            <div className="grid grid-cols-2 gap-4 mt-4 pt-5 border-t border-gray-100">
                                 <div>
                                     <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Monthly Yield</p>
                                     <p className="text-base font-semibold text-gray-900 tracking-tight">$3,120 <span className="text-[10px] text-emerald-500 font-sans">↑</span></p>
@@ -257,7 +257,7 @@ export const Features = () => {
                         title="Smart Budget Planner"
                         description="Effortlessly plan your monthly spending and stay on track with automated budget alerts and intelligent categorization."
                     >
-                        <div className="w-full h-full p-5 relative flex flex-col justify-center">
+                        <div className="w-full h-full p-4 relative flex flex-col justify-center">
                             {/* Budget Header Preview */}
                             <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-2xl border border-gray-100 p-4 shadow-sm mb-4 group/header">
                                 <div className="flex justify-between items-end mb-3">
@@ -324,7 +324,7 @@ export const Features = () => {
                         description="Visualize your financial rhythm with a smart calendar that tracks every transaction and upcoming bill."
                         className="lg:col-span-2"
                     >
-                        <div className="w-full h-full p-5 flex flex-col md:flex-row gap-6 items-center justify-between">
+                        <div className="w-full h-full p-4 flex flex-col md:flex-row gap-6 items-center justify-between">
                             {/* Calendar Grid Visual */}
                             <div className="flex-1 grid grid-cols-7 gap-2 max-w-sm w-full">
                                 {Array.from({ length: 31 }).map((_, i) => {
