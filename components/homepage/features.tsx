@@ -23,14 +23,14 @@ const BentoCard = ({
             whileInView={{ opacity: 1, y: 0 }}
             whileHover={{ y: -8, scale: 1.01 }}
             viewport={{ once: true }}
-            className={`bg-white rounded-[32px] border border-gray-100 p-5 shadow-sm hover:shadow-2xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full group ${className}`}
+            className={`bg-white rounded-[32px] border border-gray-100 p-4 shadow-sm hover:shadow-2xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full group ${className}`}
         >
-            <div className="flex-1 mb-4 overflow-hidden rounded-2xl bg-gray-50 flex items-center justify-center relative">
+            <div className="flex-1 mb-3 overflow-hidden rounded-2xl bg-gray-50 flex items-center justify-center relative">
                 {children}
             </div>
             <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-                <p className="text-gray-500 leading-relaxed text-sm md:text-base">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1.5">{title}</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">
                     {description}
                 </p>
             </div>
@@ -40,9 +40,9 @@ const BentoCard = ({
 
 export const Features = () => {
     return (
-        <section className="py-20 bg-white relative overflow-hidden">
+        <section className="py-16 bg-white relative overflow-hidden">
             <div className="container px-4 mx-auto relative z-10">
-                <div className="text-center mb-16">
+                <div className="text-center mb-12">
                     <SectionBadge label="Features" className="mb-6" />
                     <h2 className="text-4xl md:text-5xl font-semibold tracking-tight text-gray-900 mb-4">
                         Master Your Money with CashMind
@@ -52,7 +52,7 @@ export const Features = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
                     {/* Growth Analytics */}
                     <BentoCard
                         title="Growth Analytics"
@@ -150,7 +150,7 @@ export const Features = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 mt-4 pt-5 border-t border-gray-100">
+                            <div className="grid grid-cols-2 gap-4 mt-3 pt-4 border-t border-gray-100">
                                 <div>
                                     <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Monthly Yield</p>
                                     <p className="text-base font-semibold text-gray-900 tracking-tight">$3,120 <span className="text-[10px] text-emerald-500 font-sans">↑</span></p>
