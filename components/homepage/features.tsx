@@ -68,8 +68,14 @@ export const Features = () => {
                                         <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-semibold border border-emerald-100">Annual</span>
                                     </div>
                                 </div>
-                                <div className="p-2.5 bg-blue-50/50 rounded-2xl border border-blue-100 shadow-sm">
-                                    <Activity className="w-5 h-5 text-blue-600" />
+                                <div className="bg-white/90 backdrop-blur-md border border-gray-100 px-3 py-2 rounded-2xl shadow-xl flex items-center gap-2.5 group-hover:scale-105 transition-transform duration-500">
+                                    <div className="flex flex-col text-right">
+                                        <span className="text-[8px] font-semibold text-gray-400 uppercase tracking-tighter">Peak Value</span>
+                                        <span className="text-xs font-semibold text-blue-600 font-sans">$102,450.00</span>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <BarChart3 className="w-4 h-4 text-blue-600" />
+                                    </div>
                                 </div>
                             </div>
 
@@ -138,16 +144,6 @@ export const Features = () => {
                                         />
                                     </motion.g>
                                 </svg>
-
-                                <div className="absolute -top-6 right-0 bg-white/90 backdrop-blur-md border border-gray-100 px-3 py-2 rounded-2xl shadow-xl flex items-center gap-2.5 group-hover:scale-105 transition-transform duration-500">
-                                    <div className="flex flex-col">
-                                        <span className="text-[8px] font-semibold text-gray-400 uppercase tracking-tighter">Peak Value</span>
-                                        <span className="text-xs font-semibold text-blue-600 font-sans">$102,450.00</span>
-                                    </div>
-                                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <BarChart3 className="w-4 h-4 text-blue-600" />
-                                    </div>
-                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 mt-3 pt-4 border-t border-gray-100">
