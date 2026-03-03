@@ -89,8 +89,8 @@ export function Footer() {
                         © 2026 CashMind. All rights reserved. <span className="hidden sm:inline">Made for the future generation.</span>
                     </p>
                     <div className="flex gap-6">
-                        <Link href="#" className="text-gray-400 hover:text-gray-900 text-sm font-medium transition-colors">Privacy Policy</Link>
-                        <Link href="#" className="text-gray-400 hover:text-gray-900 text-sm font-medium transition-colors">Terms of Service</Link>
+                        <Link href="/privacy" className="text-gray-400 hover:text-gray-900 text-sm font-medium transition-colors">Privacy Policy</Link>
+                        <Link href="/terms" className="text-gray-400 hover:text-gray-900 text-sm font-medium transition-colors">Terms of Service</Link>
                     </div>
                 </div>
             </div>
