@@ -164,9 +164,20 @@ const Step3Visual = () => (
 
 const Step4Visual = () => (
     <div className="w-full h-full flex items-start justify-center bg-gradient-to-br from-emerald-50 to-white relative overflow-hidden p-12 pt-8">
-        <div className="w-full h-full bg-white rounded-[2.5rem] shadow-2xl border border-emerald-50 relative pt-6 px-6 pb-14 flex flex-col justify-end overflow-hidden">
+        <div className="w-full h-full bg-white rounded-[2.5rem] shadow-2xl border border-emerald-50 relative p-8 flex flex-col justify-start overflow-hidden">
             {/* Grid Helper */}
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#10B981 1px, transparent 1px), linear-gradient(90deg, #10B981 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+            <div className="flex justify-between items-start mb-6 z-10">
+                <div>
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Wealth</p>
+                    <h4 className="text-3xl font-semibold text-gray-900">$240,500.00</h4>
+                </div>
+                <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-2xl border border-emerald-100">
+                    <TrendingUp className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-semibold text-emerald-600">+12.5%</span>
+                </div>
+            </div>
 
             {/* Growth Chart Area */}
             <div className="relative flex-1">
@@ -209,17 +220,6 @@ const Step4Visual = () => (
                         transition={{ duration: 2, repeat: Infinity }}
                     />
                 </motion.div>
-            </div>
-
-            <div className="mt-4 flex justify-between items-end">
-                <div>
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Wealth</p>
-                    <h4 className="text-3xl font-semibold text-gray-900">$240,500.00</h4>
-                </div>
-                <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-2xl border border-emerald-100">
-                    <TrendingUp className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-semibold text-emerald-600">+12.5%</span>
-                </div>
             </div>
         </div>
 
