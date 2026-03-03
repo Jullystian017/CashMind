@@ -8,7 +8,7 @@ import { Shield, Sparkles, PieChart, TrendingUp, ShoppingBag, Car, Coffee, Home,
 // --- Step Visual Components ---
 
 const Step1Visual = () => (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden">
+    <div className="w-full h-full flex items-start justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden pt-20">
         {/* Animated Rings */}
         {[1, 2, 3].map((i) => (
             <motion.div
@@ -63,7 +63,7 @@ const Step1Visual = () => (
 );
 
 const Step2Visual = () => (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white relative overflow-hidden">
+    <div className="w-full h-full flex items-start justify-center bg-gradient-to-br from-indigo-50 to-white relative overflow-hidden pt-6">
         <div className="grid grid-cols-2 gap-4 relative z-10">
             {[
                 { icon: ShoppingBag, label: "Groceries", color: "text-orange-500", bg: "bg-orange-50" },
@@ -110,7 +110,7 @@ const Step2Visual = () => (
 );
 
 const Step3Visual = () => (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden">
+    <div className="w-full h-full flex items-start justify-center bg-gradient-to-br from-blue-50 to-white relative overflow-hidden pt-12">
         <div className="relative">
             {/* Main Gauge */}
             <svg className="w-64 h-64 transform -rotate-90" viewBox="0 0 100 100">
@@ -163,8 +163,8 @@ const Step3Visual = () => (
 );
 
 const Step4Visual = () => (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-white relative overflow-hidden p-12">
-        <div className="w-full h-full bg-white rounded-[2.5rem] shadow-2xl border border-emerald-50 relative p-8 flex flex-col justify-end overflow-hidden">
+    <div className="w-full h-full flex items-start justify-center bg-gradient-to-br from-emerald-50 to-white relative overflow-hidden p-12 pt-8">
+        <div className="w-full h-full bg-white rounded-[2.5rem] shadow-2xl border border-emerald-50 relative pt-6 px-6 pb-14 flex flex-col justify-end overflow-hidden">
             {/* Grid Helper */}
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#10B981 1px, transparent 1px), linear-gradient(90deg, #10B981 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
@@ -211,7 +211,7 @@ const Step4Visual = () => (
                 </motion.div>
             </div>
 
-            <div className="mt-6 flex justify-between items-end">
+            <div className="mt-4 flex justify-between items-end">
                 <div>
                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Wealth</p>
                     <h4 className="text-3xl font-semibold text-gray-900">$240,500.00</h4>
