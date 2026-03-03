@@ -283,7 +283,7 @@ export const HowItWorks = () => {
     }, [activeStep]);
 
     return (
-        <section id="how-it-works" className="py-24 bg-white px-4 overflow-hidden relative">
+        <section id="how-it-works" className="py-16 bg-white px-4 overflow-hidden relative">
             {/* Background Shader Effect (Matching Hero) */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
                 {/* Grid Pattern */}
@@ -298,8 +298,8 @@ export const HowItWorks = () => {
                 <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-emerald-50/50 rounded-full blur-[100px]" />
             </div>
 
-            <div className="max-w-7xl mx-auto relative z-10">
-                <div className="flex flex-col items-center justify-center text-center mb-20 px-4">
+            <div className="max-w-6xl mx-auto relative z-10">
+                <div className="flex flex-col items-center justify-center text-center mb-12 px-4">
                     <SectionBadge label="Process" className="mb-6" />
                     <h2 className="text-4xl md:text-5xl font-semibold text-gray-900 tracking-tight leading-tight mb-6">
                         Seamless Financial Mastery
@@ -309,7 +309,7 @@ export const HowItWorks = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
                     {/* Left Column: Vertical Steps */}
                     <div className="relative pl-0 md:pl-0">
                         {/* Connecting Line */}
@@ -321,23 +321,23 @@ export const HowItWorks = () => {
                                 return (
                                     <div
                                         key={idx}
-                                        className={`relative cursor-pointer group p-6 rounded-[2rem] transition-all duration-500 ${isActive
-                                                ? 'bg-white shadow-xl shadow-blue-500/5 border border-blue-50'
-                                                : 'hover:bg-gray-50/50'
+                                        className={`relative cursor-pointer group p-5 rounded-[2rem] transition-all duration-500 ${isActive
+                                            ? 'bg-white shadow-xl shadow-blue-500/5 border border-blue-50'
+                                            : 'hover:bg-gray-50/50'
                                             }`}
                                         onClick={() => setActiveStep(idx)}
                                     >
                                         <div className="flex gap-6 items-start relative z-10">
                                             {/* Number Circle */}
                                             <div className={`flex-shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center font-semibold text-lg transition-all duration-500 ${isActive
-                                                    ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200'
-                                                    : 'bg-white border-gray-100 text-gray-300 group-hover:border-gray-200 group-hover:text-gray-400'
+                                                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200'
+                                                : 'bg-white border-gray-100 text-gray-300 group-hover:border-gray-200 group-hover:text-gray-400'
                                                 }`}>
                                                 {step.number}
                                             </div>
 
                                             <div className="flex-1">
-                                                <h3 className={`text-2xl font-semibold tracking-tight transition-colors duration-300 ${isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                                <h3 className={`text-xl font-semibold tracking-tight transition-colors duration-300 ${isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-600'}`}>
                                                     {step.title}
                                                 </h3>
 
@@ -350,7 +350,7 @@ export const HowItWorks = () => {
                                                             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                                                             className="overflow-hidden"
                                                         >
-                                                            <p className="text-gray-500 leading-relaxed mt-3 max-w-md font-medium">
+                                                            <p className="text-gray-500 leading-relaxed mt-2 max-w-md font-medium">
                                                                 {step.description}
                                                             </p>
                                                             {/* Progress bar inside active step */}
