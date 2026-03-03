@@ -106,7 +106,7 @@ export default function ContactPage() {
                                 transition={{ duration: 0.6 }}
                                 className="mb-8"
                             >
-                                <h3 className="text-2xl font-bold text-gray-900 mb-2">Connect with us</h3>
+                                <h3 className="text-2xl font-semibold text-gray-900 mb-2">Connect with us</h3>
                                 <p className="text-gray-500">Reach out using any of the methods below.</p>
                             </motion.div>
 
@@ -122,7 +122,7 @@ export default function ContactPage() {
                                         <info.icon className={`w-6 h-6 ${info.color}`} />
                                     </div>
                                     <div>
-                                        <h4 className="text-lg font-bold text-gray-900 mb-1">{info.title}</h4>
+                                        <h4 className="text-lg font-semibold text-gray-900 mb-1">{info.title}</h4>
                                         <p className="text-gray-900 font-medium">{info.details}</p>
                                         <p className="text-sm text-gray-500">{info.subDetails}</p>
                                     </div>
@@ -144,7 +144,7 @@ export default function ContactPage() {
                                 <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
                                     <MessageSquare className="w-5 h-5 text-white" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-gray-900">Send a Message</h3>
+                                <h3 className="text-2xl font-semibold text-gray-900">Send a Message</h3>
                             </div>
 
                             <form onSubmit={handleSubmit} className="relative z-10 space-y-6">
@@ -196,7 +196,7 @@ export default function ContactPage() {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md"
+                                    className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md"
                                 >
                                     {isSubmitting ? (
                                         <motion.div

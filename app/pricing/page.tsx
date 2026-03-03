@@ -74,9 +74,9 @@ export default function PricingPage() {
                         <table className="w-full text-left border-collapse min-w-[600px]">
                             <thead>
                                 <tr>
-                                    <th className="py-6 px-6 text-xl font-bold text-gray-900 border-b border-gray-100 bg-gray-50/50 w-1/2">Features</th>
-                                    <th className="py-6 px-6 text-xl font-bold text-gray-900 border-b border-gray-100 bg-gray-50/50 text-center w-1/4">Starter</th>
-                                    <th className="py-6 px-6 text-xl font-bold text-blue-600 border-b border-blue-100 bg-blue-50/50 text-center w-1/4">Pro</th>
+                                    <th className="py-6 px-6 text-xl font-semibold text-gray-900 border-b border-gray-100 bg-gray-50/50 w-1/2">Features</th>
+                                    <th className="py-6 px-6 text-xl font-semibold text-gray-900 border-b border-gray-100 bg-gray-50/50 text-center w-1/4">Starter</th>
+                                    <th className="py-6 px-6 text-xl font-semibold text-blue-600 border-b border-blue-100 bg-blue-50/50 text-center w-1/4">Pro</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -104,7 +104,7 @@ export default function PricingPage() {
                                             {typeof feature.pro === 'boolean' ? (
                                                 feature.pro ? <Check className="w-5 h-5 text-blue-600 mx-auto" strokeWidth={3} /> : <X className="w-5 h-5 text-gray-300 mx-auto" />
                                             ) : (
-                                                <span className="text-blue-700 font-bold">{feature.pro}</span>
+                                                <span className="text-blue-700 font-semibold">{feature.pro}</span>
                                             )}
                                         </td>
                                     </tr>

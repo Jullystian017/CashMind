@@ -114,12 +114,12 @@ export default function SubscriptionsPage() {
       {/* Top Header Section */}
       <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl @md:text-3xl font-bold text-gray-900 tracking-tight">Subscriptions Management</h2>
+          <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">Subscriptions Management</h2>
           <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Manage your recurring payments and digital services.</p>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 shadow-lg shadow-blue-100 transition-all w-fit active:scale-[0.98]"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg shadow-blue-100 transition-all w-fit active:scale-[0.98]"
         >
           <Plus size={18} /> Add Subscription
         </button>
@@ -132,13 +132,13 @@ export default function SubscriptionsPage() {
             <AlertTriangle className="text-orange-600 w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-orange-900">Smart Mode: Action Required</h4>
+            <h4 className="text-sm font-semibold text-orange-900">Smart Mode: Action Required</h4>
             <p className="text-xs text-orange-700">⚠️ Insufficient balance in Dana for Netflix renewal (Rp 186.000)</p>
           </div>
         </div>
         <button
           onClick={handleTopUp}
-          className="text-xs font-black text-orange-900 uppercase tracking-widest hover:underline active:opacity-80"
+          className="text-xs font-semibold text-orange-900 uppercase tracking-widest hover:underline active:opacity-80"
         >
           Top Up Now
         </button>
@@ -152,8 +152,8 @@ export default function SubscriptionsPage() {
           <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-8 rounded-3xl shadow-xl shadow-blue-100 relative overflow-hidden">
             <div className="relative z-10">
               <p className="text-blue-100 text-xs font-medium mb-1">Total Recurring / Month</p>
-              <h2 className="text-4xl font-black text-white mb-6">{formatRp(totalRecurring)} <span className="text-lg font-normal text-blue-200">/mo</span></h2>
-              <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-4 py-2 rounded-full border border-white/20">
+              <h2 className="text-4xl font-semibold text-white mb-6">{formatRp(totalRecurring)} <span className="text-lg font-normal text-blue-200">/mo</span></h2>
+              <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold px-4 py-2 rounded-full border border-white/20">
                 Across {subscriptions.length} active subscription{subscriptions.length !== 1 ? "s" : ""}
               </span>
             </div>
@@ -163,10 +163,10 @@ export default function SubscriptionsPage() {
 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="font-bold">Active Subscriptions</h3>
+              <h3 className="font-semibold">Active Subscriptions</h3>
               <button
               onClick={() => { setToast("Showing all subscriptions"); setTimeout(() => setToast(null), 2000); }}
-              className="text-blue-600 text-xs font-bold hover:underline active:opacity-80"
+              className="text-blue-600 text-xs font-semibold hover:underline active:opacity-80"
             >
               View All
             </button>
@@ -195,7 +195,7 @@ export default function SubscriptionsPage() {
         {/* Right Side: Upcoming & Summary */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
-            <h3 className="font-bold">Upcoming (Next 7 Days)</h3>
+            <h3 className="font-semibold">Upcoming (Next 7 Days)</h3>
 
             <div className="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1px] before:bg-slate-100">
               {upcomingItems.length === 0 ? (
@@ -216,8 +216,8 @@ export default function SubscriptionsPage() {
 
             <div className="pt-6 border-t border-slate-50 flex justify-between items-end">
               <div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Estimated Total</p>
-                <p className="text-lg font-black text-slate-900">{formatRp(upcomingTotal)}</p>
+                <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Estimated Total</p>
+                <p className="text-lg font-semibold text-slate-900">{formatRp(upcomingTotal)}</p>
               </div>
             </div>
           </div>
@@ -263,7 +263,7 @@ export default function SubscriptionsPage() {
                     {React.createElement(IconMap[selectedSubscription.icon], { className: "text-white w-7 h-7" })}
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900">{selectedSubscription.name}</h3>
+                    <h3 className="text-xl font-semibold text-slate-900">{selectedSubscription.name}</h3>
                     <p className="text-sm text-slate-500">{formatRp(selectedSubscription.price)} / {selectedSubscription.billing}</p>
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export default function SubscriptionsPage() {
                       setToast("Edit coming soon (Demo)");
                       setTimeout(() => setToast(null), 2000);
                     }}
-                    className="flex-1 py-3 px-4 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-200 flex items-center justify-center gap-2"
+                    className="flex-1 py-3 px-4 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-slate-200 flex items-center justify-center gap-2"
                   >
                     <Pencil className="w-4 h-4" /> Edit
                   </button>
@@ -287,7 +287,7 @@ export default function SubscriptionsPage() {
                     onClick={() => {
                       if (confirm("Cancel this subscription?")) handleDeleteSubscription(selectedSubscription.id);
                     }}
-                    className="flex-1 py-3 px-4 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-rose-100 flex items-center justify-center gap-2"
+                    className="flex-1 py-3 px-4 bg-rose-50 text-rose-600 rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-rose-100 flex items-center justify-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" /> Cancel
                   </button>
@@ -338,14 +338,14 @@ function SubscriptionItem({ icon, bgColor, name, billing, price, onClick }: { ic
           {icon}
         </div>
         <div>
-          <h4 className="text-sm font-bold text-slate-800">{name}</h4>
+          <h4 className="text-sm font-semibold text-slate-800">{name}</h4>
           <p className="text-[10px] text-slate-400">{billing}</p>
         </div>
       </div>
       <div className="flex items-center gap-4">
         <div className="text-right">
-          <p className="text-sm font-black text-slate-900">{price}</p>
-          <span className="text-[9px] font-bold text-green-500 bg-green-50 px-2 py-0.5 rounded uppercase">Active</span>
+          <p className="text-sm font-semibold text-slate-900">{price}</p>
+          <span className="text-[9px] font-semibold text-green-500 bg-green-50 px-2 py-0.5 rounded uppercase">Active</span>
         </div>
         <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
       </div>
@@ -364,10 +364,10 @@ function TimelineItem({ date, name, price, dotColor, onClick }: { date: string; 
       className="relative pl-8 cursor-pointer hover:opacity-80 active:scale-[0.99] transition-transform"
     >
       <div className={`absolute left-0 top-1.5 w-[22px] h-[22px] rounded-full border-4 border-white shadow-sm ${dotColor}`}></div>
-      <p className={`text-[9px] font-black uppercase tracking-tighter ${date.includes('DUE') ? 'text-orange-500' : 'text-slate-400'}`}>
+      <p className={`text-[9px] font-semibold uppercase tracking-tighter ${date.includes('DUE') ? 'text-orange-500' : 'text-slate-400'}`}>
         {date}
       </p>
-      <h4 className="text-sm font-bold text-slate-800 mt-0.5">{name}</h4>
+      <h4 className="text-sm font-semibold text-slate-800 mt-0.5">{name}</h4>
       <p className="text-[10px] text-slate-400 font-medium">{price}</p>
     </div>
   );
@@ -433,14 +433,14 @@ function AddSubscriptionModal({ onClose, onAdded }: { onClose: () => void; onAdd
         className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative z-10"
       >
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-slate-900">Add Subscription</h3>
+          <h3 className="text-xl font-semibold text-slate-900">Add Subscription</h3>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400">
             <X className="w-5 h-5" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Name</label>
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-2">Name</label>
             <input
               type="text"
               placeholder="e.g. Spotify Premium"
@@ -450,7 +450,7 @@ function AddSubscriptionModal({ onClose, onAdded }: { onClose: () => void; onAdd
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Amount (Rp)</label>
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-2">Amount (Rp)</label>
             <input
               type="text"
               inputMode="numeric"
@@ -461,7 +461,7 @@ function AddSubscriptionModal({ onClose, onAdded }: { onClose: () => void; onAdd
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Billing</label>
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-2">Billing</label>
             <select
               value={billing}
               onChange={(e) => setBilling(e.target.value)}
@@ -473,7 +473,7 @@ function AddSubscriptionModal({ onClose, onAdded }: { onClose: () => void; onAdd
             </select>
           </div>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Icon</label>
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-2">Icon</label>
             <div className="flex gap-2">
               {iconOptions.map(({ key, Icon, label }) => (
                 <button
@@ -493,7 +493,7 @@ function AddSubscriptionModal({ onClose, onAdded }: { onClose: () => void; onAdd
           <button
             type="submit"
             disabled={!name || !price || loading}
-            className="w-full py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {loading ? "Adding…" : "Add Subscription"}
           </button>

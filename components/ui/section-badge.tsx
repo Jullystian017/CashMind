@@ -26,7 +26,7 @@ export const SectionBadge = ({ label, className, variant = "light" }: SectionBad
             )}
         >
             <span className={cn(
-                "text-[10px] md:text-xs font-bold uppercase tracking-[0.2em]",
+                "text-[10px] md:text-xs font-semibold uppercase tracking-[0.2em]",
                 variant === "light" ? "text-blue-700" : "text-blue-400"
             )}>
                 {label}

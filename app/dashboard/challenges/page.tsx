@@ -133,7 +133,7 @@ export default function ChallengesPage() {
       {/* Header */}
       <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl @md:text-3xl font-bold text-gray-900 tracking-tight">CashMind Challenges</h2>
+          <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">CashMind Challenges</h2>
           <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Level up your financial habits with fun challenges.</p>
         </div>
       </div>
@@ -146,14 +146,14 @@ export default function ChallengesPage() {
         <div className="flex-1">
           <div className="flex justify-between items-end mb-2">
             <div>
-              <h3 className="font-bold text-lg text-slate-800">
+              <h3 className="font-semibold text-lg text-slate-800">
                 Level {xpData?.level ?? 1} – {xpData?.title ?? "Beginner Saver"}
               </h3>
               <p className="text-xs text-slate-400">
                 {activeChallenges.length} Active Challenge{activeChallenges.length !== 1 ? "s" : ""} • {badges.length} Badge{badges.length !== 1 ? "s" : ""} Earned
               </p>
             </div>
-            <span className="text-sm font-bold text-slate-700">
+            <span className="text-sm font-semibold text-slate-700">
               {xpData?.totalXp ?? 0} <span className="text-slate-400 font-normal">/ {xpData?.xpForNext ?? 200} XP</span>
             </span>
           </div>
@@ -178,13 +178,13 @@ export default function ChallengesPage() {
             <Sparkles className="text-purple-600 w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-bold text-slate-800">Mindy AI Personalized Challenge</h4>
+            <h4 className="font-semibold text-slate-800">Mindy AI Personalized Challenge</h4>
             <p className="text-sm text-slate-600 max-w-md">Generate challenges based on your spending behavior.</p>
           </div>
         </div>
         <button
           onClick={() => setIsGenerateModalOpen(true)}
-          className="bg-slate-900 text-white hover:bg-slate-800 transition-colors rounded-full px-6 py-2.5 text-sm font-bold shrink-0 active:scale-[0.98]"
+          className="bg-slate-900 text-white hover:bg-slate-800 transition-colors rounded-full px-6 py-2.5 text-sm font-semibold shrink-0 active:scale-[0.98]"
         >
           Generate Challenge
         </button>
@@ -197,11 +197,11 @@ export default function ChallengesPage() {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`text-sm font-bold pb-3 border-b-2 transition-colors capitalize ${tab === t ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"
+              className={`text-sm font-semibold pb-3 border-b-2 transition-colors capitalize ${tab === t ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"
                 }`}
             >
               {t} {t === "active" && activeChallenges.length > 0 && (
-                <span className="ml-1 text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-black">{activeChallenges.length}</span>
+                <span className="ml-1 text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-semibold">{activeChallenges.length}</span>
               )}
             </button>
           ))}
@@ -225,18 +225,18 @@ export default function ChallengesPage() {
                       }`}
                   >
                     {tpl.is_recommended && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-black tracking-widest shadow-md">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-semibold tracking-widest shadow-md">
                         RECOMMENDED
                       </div>
                     )}
                     <div>
                       <div className="flex justify-between items-center mb-5">
-                        <span className={`text-[10px] font-black px-2 py-1 rounded-md tracking-wider ${difficultyColors[tpl.difficulty]}`}>{tpl.difficulty}</span>
-                        <span className="text-blue-600 text-[11px] font-bold flex items-center gap-1">
+                        <span className={`text-[10px] font-semibold px-2 py-1 rounded-md tracking-wider ${difficultyColors[tpl.difficulty]}`}>{tpl.difficulty}</span>
+                        <span className="text-blue-600 text-[11px] font-semibold flex items-center gap-1">
                           <Star size={12} fill="currentColor" /> +{tpl.xp_reward} XP
                         </span>
                       </div>
-                      <h4 className="font-bold text-slate-800 text-base leading-tight mb-4">{tpl.title}</h4>
+                      <h4 className="font-semibold text-slate-800 text-base leading-tight mb-4">{tpl.title}</h4>
                       <div className="space-y-2 text-slate-500 text-[11px] font-medium">
                         <p className="flex items-center gap-2">
                           <Target size={14} className="text-slate-400" /> {tpl.limit_amount > 0 ? `Max ${formatRp(tpl.limit_amount)}` : "Zero spending"}
@@ -249,7 +249,7 @@ export default function ChallengesPage() {
                     <button
                       onClick={(e) => { e.stopPropagation(); handleAccept(tpl.id); }}
                       disabled={isActive}
-                      className={`w-full mt-6 py-2.5 rounded-2xl border-2 text-xs font-bold transition-all ${isActive
+                      className={`w-full mt-6 py-2.5 rounded-2xl border-2 text-xs font-semibold transition-all ${isActive
                         ? "border-slate-100 bg-slate-50 text-slate-500 cursor-not-allowed"
                         : "border-slate-100 text-slate-800 hover:bg-blue-600 hover:border-blue-600 hover:text-white"
                         }`}
@@ -263,7 +263,7 @@ export default function ChallengesPage() {
 
             {/* Active Tracking */}
             <div className="space-y-4 pt-4">
-              <h3 className="font-bold text-slate-800">Active Tracking</h3>
+              <h3 className="font-semibold text-slate-800">Active Tracking</h3>
               {activeChallenges.length === 0 ? (
                 <div className="bg-white p-8 rounded-2xl border border-slate-100 text-center">
                   <p className="text-slate-500 text-sm">No active challenges. Accept a challenge above to start!</p>
@@ -285,16 +285,16 @@ export default function ChallengesPage() {
                           <Icon className="text-orange-500 w-6 h-6" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-slate-800">{ac.template?.title}</h4>
+                          <h4 className="font-semibold text-slate-800">{ac.template?.title}</h4>
                           <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
                             <span>🕒</span> {ac.daysLeft} day{ac.daysLeft !== 1 ? "s" : ""} left
-                            {ac.consumedPercent >= 80 && <span className="ml-2 text-red-500 font-bold">⚠️ AT RISK</span>}
+                            {ac.consumedPercent >= 80 && <span className="ml-2 text-red-500 font-semibold">⚠️ AT RISK</span>}
                           </p>
                           <div className="mt-3 max-w-xs">
                             <div className="w-full bg-slate-100 rounded-full h-2">
                               <div className={`${progressColor} h-2 rounded-full transition-all`} style={{ width: `${ac.consumedPercent}%` }} />
                             </div>
-                            <div className="flex justify-between mt-2 text-[9px] font-bold tracking-wider">
+                            <div className="flex justify-between mt-2 text-[9px] font-semibold tracking-wider">
                               <span className="text-orange-500 uppercase">{ac.consumedPercent}% CONSUMED</span>
                               <span className="text-slate-400 uppercase font-medium">{formatRp(ac.remaining)} REMAINING</span>
                             </div>
@@ -304,19 +304,19 @@ export default function ChallengesPage() {
 
                       <div className="flex flex-col items-end gap-3 w-full md:w-auto">
                         <div className="text-right">
-                          <p className="text-xl font-black text-slate-900">{formatRp(ac.spent)}</p>
+                          <p className="text-xl font-semibold text-slate-900">{formatRp(ac.spent)}</p>
                           <p className="text-[10px] text-slate-400 font-medium">Limit: {formatRp(ac.template?.limit_amount ?? 0)}</p>
                         </div>
                         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleCancel(ac.id)}
-                            className="px-4 py-2 rounded-full border border-red-200 text-red-500 text-xs font-bold hover:bg-red-50 transition-colors"
+                            className="px-4 py-2 rounded-full border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 transition-colors"
                           >
                             Cancel
                           </button>
                           <button
                             onClick={() => handleComplete(ac.id)}
-                            className="px-5 py-2 rounded-full bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition-colors"
+                            className="px-5 py-2 rounded-full bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-colors"
                           >
                             Complete
                           </button>
@@ -347,12 +347,12 @@ export default function ChallengesPage() {
                     className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center justify-between"
                   >
                     <div>
-                      <h4 className="font-bold text-slate-800">{ch.template?.title}</h4>
-                      <span className="text-blue-600 text-xs font-bold flex items-center gap-1 mt-1">
+                      <h4 className="font-semibold text-slate-800">{ch.template?.title}</h4>
+                      <span className="text-blue-600 text-xs font-semibold flex items-center gap-1 mt-1">
                         <Star size={12} fill="currentColor" /> +{ch.xp_earned} XP earned
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded">DONE</span>
+                    <span className="text-[10px] font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">DONE</span>
                   </motion.div>
                 ))}
                 {failedChallenges.map((ch: any) => (
@@ -363,12 +363,12 @@ export default function ChallengesPage() {
                     className="bg-white p-4 rounded-2xl border border-red-100 flex items-center justify-between"
                   >
                     <div>
-                      <h4 className="font-bold text-slate-800">{ch.template?.title}</h4>
+                      <h4 className="font-semibold text-slate-800">{ch.template?.title}</h4>
                       <span className="text-red-500 text-xs font-medium flex items-center gap-1 mt-1">
                         <Ban size={12} /> {ch.failure_reason === "over_spending" ? "Over spending limit" : ch.failure_reason === "user_cancelled" ? "Cancelled" : "Time expired"}
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded">
+                    <span className="text-[10px] font-semibold text-red-600 bg-red-50 px-2 py-1 rounded">
                       {ch.status === "cancelled" ? "CANCELLED" : "FAILED"}
                     </span>
                   </motion.div>
@@ -395,7 +395,7 @@ export default function ChallengesPage() {
                 >
                   <div className="text-3xl">{b.icon}</div>
                   <div>
-                    <h4 className="font-bold text-slate-800">{b.name}</h4>
+                    <h4 className="font-semibold text-slate-800">{b.name}</h4>
                     <p className="text-xs text-slate-500">{b.description}</p>
                   </div>
                 </motion.div>
@@ -446,10 +446,10 @@ export default function ChallengesPage() {
                   <Target className="text-orange-500 w-6 h-6" />
                 </div>
                 <div>
-                  <span className={`text-[10px] font-black px-2 py-0.5 rounded ${difficultyColors[selectedChallenge.difficulty] || ""}`}>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${difficultyColors[selectedChallenge.difficulty] || ""}`}>
                     {selectedChallenge.difficulty}
                   </span>
-                  <h3 className="font-bold text-slate-900 text-lg">{selectedChallenge.title || selectedChallenge.template?.title}</h3>
+                  <h3 className="font-semibold text-slate-900 text-lg">{selectedChallenge.title || selectedChallenge.template?.title}</h3>
                 </div>
               </div>
 
@@ -481,7 +481,7 @@ export default function ChallengesPage() {
                 {selectedChallenge.type === "template" && !isTemplateActive(selectedChallenge.id) && (
                   <button
                     onClick={() => { handleAccept(selectedChallenge.id); setSelectedChallenge(null); }}
-                    className="flex-1 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors"
+                    className="flex-1 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
                   >
                     Accept Challenge
                   </button>
@@ -490,19 +490,19 @@ export default function ChallengesPage() {
                   <>
                     <button
                       onClick={() => handleCancel(selectedChallenge.id)}
-                      className="flex-1 py-3 rounded-xl border border-red-200 text-red-500 text-sm font-bold hover:bg-red-50 transition-colors"
+                      className="flex-1 py-3 rounded-xl border border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={() => handleComplete(selectedChallenge.id)}
-                      className="flex-1 py-3 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition-colors"
+                      className="flex-1 py-3 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-colors"
                     >
                       Complete
                     </button>
                   </>
                 )}
-                <button onClick={() => setSelectedChallenge(null)} className="py-3 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-50 transition-colors">
+                <button onClick={() => setSelectedChallenge(null)} className="py-3 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors">
                   Close
                 </button>
               </div>
@@ -530,17 +530,17 @@ export default function ChallengesPage() {
               className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative z-10"
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-slate-900">Generate AI Challenge</h3>
+                <h3 className="font-semibold text-slate-900">Generate AI Challenge</h3>
                 <button onClick={() => setIsGenerateModalOpen(false)} className="p-2 rounded-lg hover:bg-slate-100">
                   <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
               <p className="text-sm text-slate-600 mb-6">Mindy will analyze your spending and suggest a personalized challenge.</p>
               <div className="flex gap-3">
-                <button onClick={() => setIsGenerateModalOpen(false)} className="flex-1 py-3 rounded-xl border border-slate-200 font-bold">Cancel</button>
+                <button onClick={() => setIsGenerateModalOpen(false)} className="flex-1 py-3 rounded-xl border border-slate-200 font-semibold">Cancel</button>
                 <button
                   onClick={() => { setIsGenerateModalOpen(false); showToast("AI challenge generated! (Coming soon)"); }}
-                  className="flex-1 py-3 rounded-xl bg-slate-900 text-white font-bold"
+                  className="flex-1 py-3 rounded-xl bg-slate-900 text-white font-semibold"
                 >
                   Generate
                 </button>

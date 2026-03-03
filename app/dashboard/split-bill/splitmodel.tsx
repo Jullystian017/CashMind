@@ -116,7 +116,7 @@ export function CreateSplitModal({
             {/* Header */}
             <div className="px-8 pt-8 pb-5 shrink-0 border-b border-gray-50">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">Create New Split</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Create New Split</h2>
                 <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
@@ -174,14 +174,14 @@ export function CreateSplitModal({
                     <button
                       type="button"
                       onClick={() => setPayer("you")}
-                      className={`flex-1 rounded-lg text-sm font-bold transition-all ${payer === "you" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400"}`}
+                      className={`flex-1 rounded-lg text-sm font-semibold transition-all ${payer === "you" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400"}`}
                     >
                       You
                     </button>
                     <button
                       type="button"
                       onClick={() => setPayer("friend")}
-                      className={`flex-1 rounded-lg text-sm font-bold transition-all ${payer === "friend" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400"}`}
+                      className={`flex-1 rounded-lg text-sm font-semibold transition-all ${payer === "friend" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400"}`}
                     >
                       Friend
                     </button>
@@ -193,15 +193,15 @@ export function CreateSplitModal({
               {total > 0 && splitMode === "equal" && (
                 <div className="bg-blue-50/60 border border-blue-100 rounded-xl px-5 py-3 flex items-center justify-between">
                   <span className="text-xs font-medium text-blue-600">Per person</span>
-                  <span className="text-sm font-bold text-blue-700">Rp {perPerson.toLocaleString('id-ID')}</span>
+                  <span className="text-sm font-semibold text-blue-700">Rp {perPerson.toLocaleString('id-ID')}</span>
                 </div>
               )}
 
               {/* Split Mode & Participants */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="text-[13px] font-bold text-gray-900 uppercase tracking-wide">Participants ({participants.length})</label>
-                  <div className="flex bg-gray-50 p-1 rounded-lg text-[10px] font-bold border border-gray-100">
+                  <label className="text-[13px] font-semibold text-gray-900 uppercase tracking-wide">Participants ({participants.length})</label>
+                  <div className="flex bg-gray-50 p-1 rounded-lg text-[10px] font-semibold border border-gray-100">
                     <button
                       type="button"
                       onClick={() => setSplitMode("equal")}
@@ -223,12 +223,12 @@ export function CreateSplitModal({
                   {/* You (always shown) */}
                   <div className="flex items-center justify-between p-3.5 bg-blue-50/50 border border-blue-100 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
+                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-xs">
                         Y
                       </div>
-                      <p className="text-sm font-bold text-gray-900">You</p>
+                      <p className="text-sm font-semibold text-gray-900">You</p>
                     </div>
-                    <span className="text-sm font-bold text-blue-600">
+                    <span className="text-sm font-semibold text-blue-600">
                       {total > 0 ? `Rp ${yourShare.toLocaleString('id-ID')}` : "-"}
                     </span>
                   </div>
@@ -236,7 +236,7 @@ export function CreateSplitModal({
                   {/* Other Participants */}
                   {participants.map((p, i) => (
                     <div key={i} className="flex items-center gap-2.5 p-3.5 bg-white border border-gray-100 rounded-xl">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-semibold text-xs shrink-0">
                         {i + 1}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -258,7 +258,7 @@ export function CreateSplitModal({
                           />
                         </div>
                       ) : (
-                        <span className="text-xs font-bold text-gray-500 shrink-0 w-24 text-right">
+                        <span className="text-xs font-semibold text-gray-500 shrink-0 w-24 text-right">
                           {total > 0 ? `Rp ${perPerson.toLocaleString('id-ID')}` : "-"}
                         </span>
                       )}
@@ -270,18 +270,18 @@ export function CreateSplitModal({
               {/* Summary */}
               {total > 0 && (
                 <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 space-y-3">
-                  <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Summary</h4>
+                  <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Summary</h4>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Total bill</span>
-                    <span className="font-bold text-gray-900">Rp {total.toLocaleString('id-ID')}</span>
+                    <span className="font-semibold text-gray-900">Rp {total.toLocaleString('id-ID')}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Split between {peopleCount} people</span>
-                    <span className="font-bold text-gray-900">Rp {perPerson.toLocaleString('id-ID')} / person</span>
+                    <span className="font-semibold text-gray-900">Rp {perPerson.toLocaleString('id-ID')} / person</span>
                   </div>
                   <div className="flex justify-between items-center pt-2 border-t border-gray-200 mt-1">
-                    <span className="text-sm font-bold text-gray-900">Your share</span>
-                    <span className="text-lg font-black text-blue-600">Rp {yourShare.toLocaleString('id-ID')}</span>
+                    <span className="text-sm font-semibold text-gray-900">Your share</span>
+                    <span className="text-lg font-semibold text-blue-600">Rp {yourShare.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
               )}
@@ -289,13 +289,13 @@ export function CreateSplitModal({
 
             {/* Footer */}
             <div className="p-6 border-t border-gray-50 flex items-center justify-between shrink-0 bg-white">
-              <button type="button" onClick={onClose} className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors">
+              <button type="button" onClick={onClose} className="text-sm font-semibold text-gray-400 hover:text-gray-600 transition-colors">
                 Cancel
               </button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !eventName.trim() || total <= 0}
-                className="h-11 px-8 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200 active:scale-[0.98] transition-all disabled:opacity-40"
+                className="h-11 px-8 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200 active:scale-[0.98] transition-all disabled:opacity-40"
               >
                 {isSubmitting ? (
                   <>

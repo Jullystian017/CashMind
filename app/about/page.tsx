@@ -120,7 +120,7 @@ export default function AboutPage() {
                                 <div className={`w-14 h-14 rounded-2xl ${value.bg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                                     <value.icon className={`w-7 h-7 ${value.color}`} />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-tight">
+                                <h3 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">
                                     {value.title}
                                 </h3>
                                 <p className="text-gray-500 leading-relaxed font-medium">

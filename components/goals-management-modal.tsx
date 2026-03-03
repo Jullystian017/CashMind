@@ -185,7 +185,7 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                         <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
                                             <AlertCircle className="w-5 h-5 text-rose-600" />
                                         </div>
-                                        <p className="text-xs font-bold text-rose-900">{errorMsg}</p>
+                                        <p className="text-xs font-semibold text-rose-900">{errorMsg}</p>
                                     </div>
                                 </motion.div>
                             )}
@@ -194,7 +194,7 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                         {/* Header */}
                         <div className="p-8 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+                                <h2 className="text-2xl font-semibold text-gray-900 tracking-tight flex items-center gap-3">
                                     <Target className="w-6 h-6 text-blue-600" />
                                     Manage Savings Goals
                                 </h2>
@@ -216,12 +216,12 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                     animate={{ opacity: 1, x: 0 }}
                                     className="bg-gray-50/50 p-6 rounded-[24px] border border-gray-100 space-y-4"
                                 >
-                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest px-1">
+                                    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-widest px-1">
                                         {editingId ? 'Edit Goal' : 'Create New Goal'}
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Goal Title</label>
+                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">Goal Title</label>
                                             <input
                                                 type="text"
                                                 value={formData.title}
@@ -231,7 +231,7 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Deadline Date</label>
+                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">Deadline Date</label>
                                             <input
                                                 type="date"
                                                 value={formData.deadline}
@@ -240,9 +240,9 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Target Amount (Rp)</label>
+                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">Target Amount (Rp)</label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">Rp</span>
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400">Rp</span>
                                                 <input
                                                     type="text"
                                                     inputMode="numeric"
@@ -257,14 +257,14 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                     <div className="flex gap-3 pt-4">
                                         <Button
                                             onClick={handleSave}
-                                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 font-bold shadow-lg shadow-blue-500/20"
+                                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 font-semibold shadow-lg shadow-blue-500/20"
                                         >
                                             <Save className="w-4 h-4 mr-2" /> Save Goal
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             onClick={() => { setIsAdding(false); setEditingId(null); }}
-                                            className="px-6 rounded-xl h-12 font-bold text-gray-500 hover:bg-gray-100"
+                                            className="px-6 rounded-xl h-12 font-semibold text-gray-500 hover:bg-gray-100"
                                         >
                                             Cancel
                                         </Button>
@@ -273,10 +273,10 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                             ) : (
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between mb-2">
-                                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest px-1">Current Milestones</h3>
+                                        <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-widest px-1">Current Milestones</h3>
                                         <Button
                                             onClick={() => setIsAdding(true)}
-                                            className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-[10px] font-bold uppercase tracking-widest px-4 py-2 h-auto"
+                                            className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-[10px] font-semibold uppercase tracking-widest px-4 py-2 h-auto"
                                         >
                                             <Plus className="w-3 h-3 mr-1.5" /> Add Goal
                                         </Button>
@@ -287,7 +287,7 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-4">
                                                 <Target className="w-8 h-8 text-gray-300" />
                                             </div>
-                                            <p className="text-gray-900 font-bold">No goals created yet</p>
+                                            <p className="text-gray-900 font-semibold">No goals created yet</p>
                                             <p className="text-gray-500 text-xs mt-1">Start by adding your first financial milestone!</p>
                                         </div>
                                     ) : (
@@ -302,15 +302,15 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                                                     <Wallet className="w-5 h-5" />
                                                                 </div>
                                                                 <div>
-                                                                    <h4 className="text-sm font-bold text-gray-900 uppercase tracking-tight">{goal.title}</h4>
+                                                                    <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-tight">{goal.title}</h4>
                                                                     <div className="flex flex-wrap items-center gap-3 mt-1">
                                                                         <div className="flex items-center gap-1.5">
                                                                             <Calendar className="w-3 h-3 text-gray-400" />
-                                                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{formatIndoDate(goal.deadline)}</span>
+                                                                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{formatIndoDate(goal.deadline)}</span>
                                                                         </div>
                                                                         <div className="flex items-center gap-1.5">
                                                                             <Clock className="w-3 h-3 text-blue-500" />
-                                                                            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{calculateTimeLeft(goal.deadline)}</span>
+                                                                            <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-widest">{calculateTimeLeft(goal.deadline)}</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -322,11 +322,11 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                                         </div>
                                                         <div className="space-y-3">
                                                             <div className="flex justify-between items-end">
-                                                                <p className="text-xs font-bold text-gray-900">
+                                                                <p className="text-xs font-semibold text-gray-900">
                                                                     {formatCompact(goal.currentAmount)}
                                                                     <span className="text-gray-400 font-medium"> / {formatCompact(goal.targetAmount)}</span>
                                                                 </p>
-                                                                <span className="text-xs font-black text-blue-600">{Math.round(progress)}%</span>
+                                                                <span className="text-xs font-semibold text-blue-600">{Math.round(progress)}%</span>
                                                             </div>
                                                             <div className="h-2 bg-gray-50 rounded-full overflow-hidden p-[1px] border border-gray-100 mb-4">
                                                                 <motion.div
@@ -343,7 +343,7 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                                                     className="flex gap-2 items-center bg-blue-50/50 p-3 rounded-xl border border-blue-100"
                                                                 >
                                                                     <div className="relative flex-1">
-                                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-blue-400">Rp</span>
+                                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-blue-400">Rp</span>
                                                                         <input
                                                                             autoFocus
                                                                             type="text"
@@ -351,13 +351,13 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                                                             value={allocationDisplay}
                                                                             onChange={(e) => setAllocationDisplay(fmtThousands(e.target.value))}
                                                                             placeholder="Nominal nabung..."
-                                                                            className="w-full pl-8 pr-3 py-2 bg-white border border-blue-200 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500/10 outline-none transition-all"
+                                                                            className="w-full pl-8 pr-3 py-2 bg-white border border-blue-200 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-blue-500/10 outline-none transition-all"
                                                                         />
                                                                     </div>
                                                                     <Button
                                                                         disabled={isAllocating}
                                                                         onClick={() => handleAllocate(goal)}
-                                                                        className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 text-xs font-bold rounded-lg shrink-0"
+                                                                        className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 text-xs font-semibold rounded-lg shrink-0"
                                                                     >
                                                                         {isAllocating ? 'Saving...' : 'Nabung'}
                                                                     </Button>
@@ -372,7 +372,7 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                                                             ) : (
                                                                 <Button
                                                                     onClick={() => setAllocatingId(goal.id)}
-                                                                    className="w-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100 rounded-xl h-10 text-[10px] font-black uppercase tracking-widest transition-all"
+                                                                    className="w-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100 rounded-xl h-10 text-[10px] font-semibold uppercase tracking-widest transition-all"
                                                                 >
                                                                     <Plus className="w-3 h-3 mr-2" /> Allocate From Balance
                                                                 </Button>
@@ -392,7 +392,7 @@ export function GoalsManagementModal({ isOpen, onClose, goals, onUpdateGoals, on
                             <div className="p-8 border-t border-gray-50 bg-gray-50/30 sticky bottom-0">
                                 <Button
                                     onClick={onClose}
-                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-12 font-bold transition-all shadow-lg"
+                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-12 font-semibold transition-all shadow-lg"
                                 >
                                     Done
                                 </Button>

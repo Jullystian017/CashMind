@@ -23,7 +23,7 @@ export function Footer() {
                                     className="object-contain"
                                 />
                             </div>
-                            <span className="text-2xl font-bold tracking-tight text-gray-900">
+                            <span className="text-2xl font-semibold tracking-tight text-gray-900">
                                 CashMind
                             </span>
                         </Link>
@@ -40,7 +40,7 @@ export function Footer() {
 
                     {/* Links Columns */}
                     <div className="md:col-span-4 lg:col-span-2 lg:col-start-6">
-                        <h4 className="font-bold text-gray-900 mb-6">Discovery</h4>
+                        <h4 className="font-semibold text-gray-900 mb-6">Discovery</h4>
                         <ul className="space-y-4">
                             <li><Link href="/about" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">About Us</Link></li>
                             <li><Link href="/features" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">Features</Link></li>
@@ -50,7 +50,7 @@ export function Footer() {
                     </div>
 
                     <div className="md:col-span-4 lg:col-span-2">
-                        <h4 className="font-bold text-gray-900 mb-6">Product</h4>
+                        <h4 className="font-semibold text-gray-900 mb-6">Product</h4>
                         <ul className="space-y-4">
                             <li><Link href="/dashboard" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">Dashboard</Link></li>
                             <li><Link href="#" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">Budget Planner</Link></li>
@@ -60,7 +60,7 @@ export function Footer() {
                     </div>
 
                     <div className="md:col-span-4 lg:col-span-3">
-                        <h4 className="font-bold text-gray-900 mb-6">Contact</h4>
+                        <h4 className="font-semibold text-gray-900 mb-6">Contact</h4>
                         <ul className="space-y-4">
                             <li className="flex items-center gap-3 text-gray-500 text-sm font-medium group">
                                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">

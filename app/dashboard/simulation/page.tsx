@@ -138,7 +138,7 @@ function ConceptBadge({ label }: { label: string }) {
         "Net Worth Projection": "bg-indigo-50 text-indigo-700 border-indigo-200",
     }
     return (
-        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${colors[label] || "bg-slate-50 text-slate-600 border-slate-200"}`}>
+        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${colors[label] || "bg-slate-50 text-slate-600 border-slate-200"}`}>
             <GraduationCap className="w-3 h-3" />
             {label}
         </span>
@@ -159,7 +159,7 @@ function RealityCheck({ messages }: { messages: string[] }) {
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
             </div>
             <div>
-                <p className="text-xs font-bold text-amber-800 mb-1">⚠️ Reality Check</p>
+                <p className="text-xs font-semibold text-amber-800 mb-1">⚠️ Reality Check</p>
                 {messages.map((msg, i) => (
                     <p key={i} className="text-[11px] text-amber-700 leading-relaxed">{msg}</p>
                 ))}
@@ -199,7 +199,7 @@ function ChartTooltip({ active, payload, label }: any) {
     if (!active || !payload?.length) return null
     return (
         <div className="bg-white/95 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-xl">
-            <p className="text-xs font-bold text-slate-800 mb-1">{label}</p>
+            <p className="text-xs font-semibold text-slate-800 mb-1">{label}</p>
             {payload.map((p: any, i: number) => (
                 <p key={i} className="text-xs text-slate-600">
                     <span className="font-semibold" style={{ color: p.color }}>{p.name}:</span> {formatRp(p.value)}
@@ -420,7 +420,7 @@ export default function SimulationPage() {
             {/* Header */}
             <div className="flex flex-col @md/main:flex-row @md/main:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl @md/main:text-3xl font-bold text-gray-900 tracking-tight">Future Growth Simulation</h2>
+                    <h2 className="text-2xl @md/main:text-3xl font-semibold text-gray-900 tracking-tight">Future Growth Simulation</h2>
                     <p className="text-gray-500 text-xs @md/main:text-sm mt-1 font-medium italic">Simulasi masa depan finansialmu berdasarkan data nyata.</p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
@@ -451,7 +451,7 @@ export default function SimulationPage() {
                             </div>
                             <div>
                                 <p className="text-[11px] text-slate-400 font-medium">{card.label}</p>
-                                <p className={`text-lg font-bold ${card.color}`}>{card.value}</p>
+                                <p className={`text-lg font-semibold ${card.color}`}>{card.value}</p>
                             </div>
                         </div>
                     </motion.div>
@@ -468,7 +468,7 @@ export default function SimulationPage() {
                     <button
                         key={t.key}
                         onClick={() => setTab(t.key)}
-                        className={`flex items-center gap-2 text-sm font-bold pb-3 border-b-2 transition-colors whitespace-nowrap px-1 ${tab === t.key ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"}`}
+                        className={`flex items-center gap-2 text-sm font-semibold pb-3 border-b-2 transition-colors whitespace-nowrap px-1 ${tab === t.key ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"}`}
                     >
                         <t.icon className="w-4 h-4" />
                         {t.label}
@@ -493,7 +493,7 @@ export default function SimulationPage() {
                                     <Sparkles className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-800">Future Me {new Date().getFullYear() + projectionYears}</h3>
+                                    <h3 className="font-semibold text-slate-800">Future Me {new Date().getFullYear() + projectionYears}</h3>
                                     <p className="text-xs text-slate-400">Isi data untuk melihat proyeksi masa depanmu</p>
                                 </div>
                                 <div className="ml-auto">
@@ -533,7 +533,7 @@ export default function SimulationPage() {
                                                 }`}
                                         >
                                             <goal.icon className="w-5 h-5 mx-auto mb-1" />
-                                            <p className="text-[10px] font-bold">{goal.label}</p>
+                                            <p className="text-[10px] font-semibold">{goal.label}</p>
                                             <p className="text-[9px] text-slate-400 mt-0.5">{formatRpCompact(goal.amount)}</p>
                                         </button>
                                     ))}
@@ -542,7 +542,7 @@ export default function SimulationPage() {
 
                             <button
                                 onClick={() => setShowProjection(true)}
-                                className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20"
+                                className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20"
                             >
                                 <Play className="w-4 h-4" />
                                 Generate Projection
@@ -569,13 +569,13 @@ export default function SimulationPage() {
                                                 <div className="text-4xl">{futureProjection.statusEmoji}</div>
                                                 <div>
                                                     <p className="text-xs font-medium text-slate-500">Future You:</p>
-                                                    <h3 className={`text-xl font-black ${futureProjection.statusColor}`}>{futureProjection.statusLabel}</h3>
+                                                    <h3 className={`text-xl font-semibold ${futureProjection.statusColor}`}>{futureProjection.statusLabel}</h3>
                                                     <ConceptBadge label="Savings Ratio" />
                                                 </div>
                                             </div>
                                             <div className="text-left @sm/main:text-right">
                                                 <p className="text-xs text-slate-500">Projected Net Worth</p>
-                                                <p className={`text-2xl font-black ${futureProjection.statusColor}`}>
+                                                <p className={`text-2xl font-semibold ${futureProjection.statusColor}`}>
                                                     <AnimatedNumber value={futureProjection.finalNetWorth} />
                                                 </p>
                                             </div>
@@ -623,7 +623,7 @@ export default function SimulationPage() {
                                     >
                                         <div className="flex items-center justify-between mb-4">
                                             <div>
-                                                <h4 className="font-bold text-slate-800">📈 Growth Path</h4>
+                                                <h4 className="font-semibold text-slate-800">📈 Growth Path</h4>
                                                 <p className="text-[11px] text-slate-400">Proyeksi pertumbuhan net worth</p>
                                             </div>
                                             <ConceptBadge label="Compound Growth" />
@@ -679,7 +679,7 @@ export default function SimulationPage() {
                                     <Zap className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-800">Lifestyle Trade-Off Simulator</h3>
+                                    <h3 className="font-semibold text-slate-800">Lifestyle Trade-Off Simulator</h3>
                                     <p className="text-xs text-slate-400">Toggle kebiasaan dan lihat dampaknya ke masa depan</p>
                                 </div>
                                 <div className="ml-auto">
@@ -709,14 +709,14 @@ export default function SimulationPage() {
                                             <div className={`text-2xl`}>{item.emoji}</div>
                                             <div>
                                                 <div className="flex items-center gap-2 mb-0.5">
-                                                    <h4 className="font-bold text-slate-800 text-sm">{item.label}</h4>
+                                                    <h4 className="font-semibold text-slate-800 text-sm">{item.label}</h4>
                                                     <ConceptBadge label={item.concept} />
                                                 </div>
                                                 <p className="text-[11px] text-slate-400">{item.description}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <span className={`text-xs font-black ${item.costPerMonth < 0 ? "text-emerald-600" : "text-red-500"}`}>
+                                            <span className={`text-xs font-semibold ${item.costPerMonth < 0 ? "text-emerald-600" : "text-red-500"}`}>
                                                 {item.costPerMonth < 0 ? "+" : "-"}{formatRpCompact(Math.abs(item.costPerMonth))}/bln
                                             </span>
                                             <div className={`w-11 h-6 rounded-full transition-all flex items-center px-0.5 ${item.enabled
@@ -742,7 +742,7 @@ export default function SimulationPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100"
                             >
-                                <h4 className="font-bold text-slate-800 text-sm mb-4">📊 5-Year Net Worth Comparison</h4>
+                                <h4 className="font-semibold text-slate-800 text-sm mb-4">📊 5-Year Net Worth Comparison</h4>
                                 <div className="h-48">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={tradeOffResult.comparisonData} barGap={12}>
@@ -767,24 +767,24 @@ export default function SimulationPage() {
                                 className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between"
                             >
                                 <div>
-                                    <h4 className="font-bold text-slate-800 text-sm mb-4">💡 Impact Analysis</h4>
+                                    <h4 className="font-semibold text-slate-800 text-sm mb-4">💡 Impact Analysis</h4>
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs text-slate-500">Biaya Bulanan Lifestyle</span>
-                                            <span className={`text-sm font-black ${tradeOffResult.totalEnabledCost > 0 ? "text-red-500" : tradeOffResult.totalEnabledCost < 0 ? "text-emerald-600" : "text-slate-400"}`}>
+                                            <span className={`text-sm font-semibold ${tradeOffResult.totalEnabledCost > 0 ? "text-red-500" : tradeOffResult.totalEnabledCost < 0 ? "text-emerald-600" : "text-slate-400"}`}>
                                                 {tradeOffResult.totalEnabledCost > 0 ? "-" : tradeOffResult.totalEnabledCost < 0 ? "+" : ""}{formatRp(Math.abs(tradeOffResult.totalEnabledCost))}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs text-slate-500">Savings Tersisa/bulan</span>
-                                            <span className={`text-sm font-black ${tradeOffResult.adjustedSavings >= 0 ? "text-blue-600" : "text-red-500"}`}>
+                                            <span className={`text-sm font-semibold ${tradeOffResult.adjustedSavings >= 0 ? "text-blue-600" : "text-red-500"}`}>
                                                 {formatRp(tradeOffResult.adjustedSavings)}
                                             </span>
                                         </div>
                                         <div className="h-px bg-slate-100" />
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs text-slate-500 font-semibold">Dampak 5 Tahun</span>
-                                            <span className={`text-lg font-black ${tradeOffResult.difference >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                                            <span className={`text-lg font-semibold ${tradeOffResult.difference >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                                                 {tradeOffResult.difference >= 0 ? "+" : ""}{formatRp(tradeOffResult.difference)}
                                             </span>
                                         </div>
@@ -824,7 +824,7 @@ export default function SimulationPage() {
                                     <Clock className="w-5 h-5 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-800">Wealth Timeline</h3>
+                                    <h3 className="font-semibold text-slate-800">Wealth Timeline</h3>
                                     <p className="text-xs text-slate-400">Kapan milestone finansialmu tercapai?</p>
                                 </div>
                                 <div className="ml-auto">
@@ -860,7 +860,7 @@ export default function SimulationPage() {
                                                 ? "bg-blue-600 border-blue-600"
                                                 : "bg-white border-slate-300"
                                                 }`} />
-                                            <span className={`text-[10px] font-bold mt-2 ${index === 0 ? "text-blue-600" : "text-slate-400"}`}>
+                                            <span className={`text-[10px] font-semibold mt-2 ${index === 0 ? "text-blue-600" : "text-slate-400"}`}>
                                                 {year}
                                             </span>
                                         </motion.div>
@@ -893,16 +893,16 @@ export default function SimulationPage() {
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-2xl">{milestone.emoji}</span>
                                                     <div>
-                                                        <h4 className="font-bold text-slate-800 text-sm">{milestone.label}</h4>
+                                                        <h4 className="font-semibold text-slate-800 text-sm">{milestone.label}</h4>
                                                         <p className="text-xs text-slate-400 font-medium">{formatRp(milestone.amount)}</p>
                                                     </div>
                                                 </div>
                                                 {isReached ? (
-                                                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">TERCAPAI ✅</span>
+                                                    <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">TERCAPAI ✅</span>
                                                 ) : hasYear ? (
-                                                    <span className="text-[10px] font-black text-blue-600 bg-blue-100 px-2 py-1 rounded-lg">{milestone.year}</span>
+                                                    <span className="text-[10px] font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-lg">{milestone.year}</span>
                                                 ) : (
-                                                    <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
+                                                    <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
                                                         <Lock className="w-3 h-3" /> 10+ TAHUN
                                                     </span>
                                                 )}

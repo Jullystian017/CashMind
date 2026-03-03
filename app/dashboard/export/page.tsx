@@ -242,11 +242,11 @@ export default function ExportPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Export Data</h2>
+                    <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">Export Data</h2>
                     <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium italic">Download your financial records for offline analysis or backup.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 text-xs font-bold">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 text-xs font-semibold">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Connected
                     </div>
@@ -256,8 +256,8 @@ export default function ExportPage() {
             {/* Step 1: Select Period */}
             <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-black">1</div>
-                    <h3 className="text-base font-bold text-gray-900">Select Period</h3>
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-semibold">1</div>
+                    <h3 className="text-base font-semibold text-gray-900">Select Period</h3>
                 </div>
                 <div className="flex items-center gap-4">
                     <button
@@ -267,7 +267,7 @@ export default function ExportPage() {
                         <ChevronLeft size={18} />
                     </button>
                     <div className="flex-1 text-center py-3 px-6 bg-gray-50 rounded-2xl">
-                        <p className="text-lg font-bold text-gray-900">
+                        <p className="text-lg font-semibold text-gray-900">
                             {selectedDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                         </p>
                         <p className="text-[11px] text-gray-400 font-medium mt-0.5">
@@ -286,8 +286,8 @@ export default function ExportPage() {
             {/* Step 2: Choose Format */}
             <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-black">2</div>
-                    <h3 className="text-base font-bold text-gray-900">Choose Format</h3>
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-semibold">2</div>
+                    <h3 className="text-base font-semibold text-gray-900">Choose Format</h3>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                     {formats.map((f) => (
@@ -310,7 +310,7 @@ export default function ExportPage() {
                                 <f.icon className={cn("w-5 h-5", f.color)} />
                             </div>
                             <div className="text-center">
-                                <p className={cn("text-sm font-bold", format === f.id ? "text-blue-700" : "text-gray-800")}>{f.name}</p>
+                                <p className={cn("text-sm font-semibold", format === f.id ? "text-blue-700" : "text-gray-800")}>{f.name}</p>
                                 <p className="text-[10px] text-gray-400 font-medium mt-0.5">{f.desc}</p>
                             </div>
                         </button>
@@ -324,10 +324,10 @@ export default function ExportPage() {
                 <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
                     <div className="p-6 md:p-8 flex justify-between items-center border-b border-gray-50">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-black">3</div>
-                            <h3 className="text-base font-bold text-gray-900">Preview</h3>
+                            <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-semibold">3</div>
+                            <h3 className="text-base font-semibold text-gray-900">Preview</h3>
                         </div>
-                        <span className="text-[11px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg uppercase tracking-wider">
+                        <span className="text-[11px] font-semibold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg uppercase tracking-wider">
                             {selectedDate.toLocaleString('default', { month: 'short' })} {selectedDate.getFullYear()}
                         </span>
                     </div>
@@ -351,7 +351,7 @@ export default function ExportPage() {
                                             <stat.icon className={cn("w-4.5 h-4.5", stat.color)} />
                                         </div>
                                         <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-1">{stat.label}</p>
-                                        <p className="text-sm font-bold text-gray-900">{stat.val}</p>
+                                        <p className="text-sm font-semibold text-gray-900">{stat.val}</p>
                                     </div>
                                 ))}
                             </div>
@@ -397,7 +397,7 @@ export default function ExportPage() {
                         </div>
 
                         <div>
-                            <h3 className="text-lg font-bold text-white">
+                            <h3 className="text-lg font-semibold text-white">
                                 {isGenerating ? "Processing..." : hasDownloaded ? "Downloaded!" : "Ready to Export"}
                             </h3>
                             <p className="text-blue-100/70 text-xs font-medium mt-1.5 max-w-[180px] mx-auto leading-relaxed">
@@ -413,7 +413,7 @@ export default function ExportPage() {
                             onClick={handleDownload}
                             disabled={isGenerating || data.length === 0}
                             className={cn(
-                                "w-full bg-white text-blue-700 font-bold py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm",
+                                "w-full bg-white text-blue-700 font-semibold py-3.5 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm",
                                 (isGenerating || data.length === 0)
                                     ? "opacity-30 cursor-not-allowed"
                                     : "hover:bg-blue-50 active:scale-[0.98] shadow-lg"

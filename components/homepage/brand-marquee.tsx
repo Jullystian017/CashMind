@@ -43,7 +43,7 @@ export const BrandMarquee = () => {
                     {[...brands, ...brands].map((brand, idx) => (
                         <div
                             key={idx}
-                            className="flex items-center gap-4 text-2xl md:text-3xl font-bold text-gray-300/80 hover:text-gray-900 transition-colors cursor-default grayscale hover:grayscale-0"
+                            className="flex items-center gap-4 text-2xl md:text-3xl font-semibold text-gray-300/80 hover:text-gray-900 transition-colors cursor-default grayscale hover:grayscale-0"
                         >
                             <span className="opacity-50">{brand.logo}</span>
                             <span className="tracking-tight">{brand.name}</span>

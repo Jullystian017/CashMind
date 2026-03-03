@@ -151,14 +151,14 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                             color: isActive ? "#ffffff" : "#9ca3af"
                                         }}
                                         className={cn(
-                                            "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors",
+                                            "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors",
                                             isActive ? "shadow-lg shadow-blue-500/20" : ""
                                         )}
                                     >
                                         {i + 1}
                                     </motion.div>
                                     <span className={cn(
-                                        "text-[10px] font-bold uppercase tracking-wider transition-colors",
+                                        "text-[10px] font-semibold uppercase tracking-wider transition-colors",
                                         isActive ? "text-blue-600" : "text-gray-400"
                                     )}>
                                         {step.title.split(" ")[0]}
@@ -179,20 +179,20 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                     className="space-y-8"
                                 >
                                     <div className="space-y-2 text-center">
-                                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">How much do you get? 💰</h2>
+                                        <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">How much do you get? 💰</h2>
                                         <p className="text-gray-500 font-medium">Let's set your financial baseline.</p>
                                     </div>
 
                                     <div className="space-y-6">
                                         <div className="space-y-4">
-                                            <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Pocket Money / Income</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Pocket Money / Income</Label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">Rp</span>
                                                 <Input
                                                     type="text"
                                                     inputMode="numeric"
                                                     placeholder="0"
-                                                    className="pl-12 h-12 rounded-xl text-lg font-bold border-gray-100 focus:ring-blue-500/20"
+                                                    className="pl-12 h-12 rounded-xl text-lg font-semibold border-gray-100 focus:ring-blue-500/20"
                                                     value={formatRupiahInput(formData.income)}
                                                     onChange={(e) => setFormData({ ...formData, income: e.target.value.replace(/\D/g, "") })}
                                                 />
@@ -205,7 +205,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                                     key={type}
                                                     onClick={() => setFormData({ ...formData, incomeType: type })}
                                                     className={cn(
-                                                        "py-3 rounded-xl border-2 font-bold transition-all capitalize",
+                                                        "py-3 rounded-xl border-2 font-semibold transition-all capitalize",
                                                         formData.incomeType === type
                                                             ? "border-blue-600 bg-blue-50 text-blue-600 shadow-md"
                                                             : "border-gray-100 text-gray-400 hover:border-blue-200"
@@ -228,29 +228,29 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                     className="space-y-8"
                                 >
                                     <div className="space-y-2 text-center">
-                                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">What's your main goal? 🎯</h2>
+                                        <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">What's your main goal? 🎯</h2>
                                         <p className="text-gray-500 font-medium">What are you saving for right now?</p>
                                     </div>
 
                                     <div className="space-y-6">
                                         <div className="space-y-4">
-                                            <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Goal Name</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Goal Name</Label>
                                             <Input
                                                 placeholder="e.g. New Gaming Laptop"
-                                                className="h-12 rounded-xl text-lg font-bold border-gray-100"
+                                                className="h-12 rounded-xl text-lg font-semibold border-gray-100"
                                                 value={formData.targetName}
                                                 onChange={(e) => setFormData({ ...formData, targetName: e.target.value })}
                                             />
                                         </div>
                                         <div className="space-y-4">
-                                            <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Target Amount</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Target Amount</Label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">Rp</span>
                                                 <Input
                                                     type="text"
                                                     inputMode="numeric"
                                                     placeholder="0"
-                                                    className="pl-12 h-12 rounded-xl text-lg font-bold border-gray-100"
+                                                    className="pl-12 h-12 rounded-xl text-lg font-semibold border-gray-100"
                                                     value={formatRupiahInput(formData.targetAmount)}
                                                     onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value.replace(/\D/g, "") })}
                                                 />
@@ -269,7 +269,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                     className="space-y-6"
                                 >
                                     <div className="space-y-2 text-center">
-                                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">Frequent Spends 🍱</h2>
+                                        <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">Frequent Spends 🍱</h2>
                                         <p className="text-gray-500 font-medium">Which categories do you spend most on?</p>
                                     </div>
 
@@ -279,7 +279,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                                 key={cat}
                                                 onClick={() => toggleCategory(cat)}
                                                 className={cn(
-                                                    "flex items-center gap-3 px-4 py-3 rounded-2xl border-2 font-bold transition-all text-sm",
+                                                    "flex items-center gap-3 px-4 py-3 rounded-2xl border-2 font-semibold transition-all text-sm",
                                                     formData.categories.includes(cat)
                                                         ? "border-blue-600 bg-blue-50 text-blue-600 shadow-md"
                                                         : "border-gray-100 text-gray-400 hover:border-blue-200"
@@ -307,12 +307,12 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                         <CheckCircle2 className="w-10 h-10" />
                                     </div>
                                     <div className="space-y-2">
-                                        <h1 className="text-3xl font-black text-gray-900">You're all set! 🚀</h1>
+                                        <h1 className="text-3xl font-semibold text-gray-900">You're all set! 🚀</h1>
                                         <p className="text-gray-500 font-medium">CashMind is ready to supercharge your finances.</p>
                                     </div>
                                     <Button
                                         onClick={() => onClose(true)}
-                                        className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg rounded-2xl shadow-xl shadow-blue-500/20"
+                                        className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg rounded-2xl shadow-xl shadow-blue-500/20"
                                     >
                                         Start Exploring
                                     </Button>
@@ -326,7 +326,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                     <Button
                                         variant="outline"
                                         onClick={prevStep}
-                                        className="h-12 px-6 rounded-xl font-bold text-gray-500 border-gray-100 flex items-center gap-2"
+                                        className="h-12 px-6 rounded-xl font-semibold text-gray-500 border-gray-100 flex items-center gap-2"
                                     >
                                         <ChevronLeft className="w-5 h-5" />
                                         Back
@@ -335,7 +335,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                                 <Button
                                     onClick={nextStep}
                                     disabled={loading}
-                                    className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-lg shadow-blue-200 gap-2"
+                                    className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 gap-2"
                                 >
                                     {loading ? (
                                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -349,7 +349,7 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                             </div>
                         )}
                         {saveError && (
-                            <p className="mt-4 text-center text-sm font-bold text-rose-500">
+                            <p className="mt-4 text-center text-sm font-semibold text-rose-500">
                                 {saveError}
                             </p>
                         )}

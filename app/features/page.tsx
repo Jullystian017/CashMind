@@ -27,19 +27,19 @@ const ScoreVisual = () => (
 
             {/* The Score Circle */}
             <div className="relative w-56 h-56 rounded-full bg-white shadow-2xl flex flex-col items-center justify-center border-8 border-blue-50 z-10">
-                <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-1">Health Score</p>
+                <p className="text-gray-400 font-semibold uppercase tracking-widest text-xs mb-1">Health Score</p>
                 <div className="flex items-start">
                     <motion.span
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8, type: "spring" }}
-                        className="text-7xl font-black text-blue-600 tracking-tighter"
+                        className="text-7xl font-semibold text-blue-600 tracking-tighter"
                     >
                         85
                     </motion.span>
                 </div>
-                <div className="mt-2 bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                <div className="mt-2 bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" /> Excellent
                 </div>
 
@@ -69,7 +69,7 @@ const ScoreVisual = () => (
                 </div>
                 <div>
                     <p className="text-xs text-gray-400 font-medium">Status</p>
-                    <p className="text-sm font-bold text-gray-900">Protected</p>
+                    <p className="text-sm font-semibold text-gray-900">Protected</p>
                 </div>
             </motion.div>
         </div>
@@ -84,7 +84,7 @@ const AnalyticsVisual = () => (
 
             <div className="flex justify-between items-center mb-auto relative z-10">
                 <div>
-                    <h4 className="text-sm font-bold text-gray-900">Spending Overview</h4>
+                    <h4 className="text-sm font-semibold text-gray-900">Spending Overview</h4>
                     <p className="text-xs text-gray-400">Past 6 months</p>
                 </div>
                 <div className="bg-indigo-50 text-indigo-600 p-2 rounded-xl">
@@ -103,7 +103,7 @@ const AnalyticsVisual = () => (
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, delay: i * 0.1, type: "spring" }}
                         />
-                        <span className="text-[10px] font-bold text-gray-400">M{i + 1}</span>
+                        <span className="text-[10px] font-semibold text-gray-400">M{i + 1}</span>
                     </div>
                 ))}
             </div>
@@ -114,7 +114,7 @@ const AnalyticsVisual = () => (
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.8 }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-2xl flex items-center gap-2"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-2xl flex items-center gap-2"
             >
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
                 +24% Savings
@@ -147,9 +147,9 @@ const BudgetVisual = () => (
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${cat.lightBg} ${cat.lightText}`}>
                                 <Activity className="w-4 h-4" />
                             </div>
-                            <span className="font-bold text-gray-900">{cat.name}</span>
+                            <span className="font-semibold text-gray-900">{cat.name}</span>
                         </div>
-                        <span className="text-sm font-bold text-gray-500">${cat.used} <span className="text-gray-300">/ ${cat.limit}</span></span>
+                        <span className="text-sm font-semibold text-gray-500">${cat.used} <span className="text-gray-300">/ ${cat.limit}</span></span>
                     </div>
                     {/* Progress Bar */}
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -176,7 +176,7 @@ const BudgetVisual = () => (
                     <div className="w-2 h-2 rounded-full bg-red-500 animate-ping absolute" />
                     <div className="w-2 h-2 rounded-full bg-red-500 relative" />
                 </div>
-                <p className="text-xs font-bold text-red-900">Food budget nearing limit!</p>
+                <p className="text-xs font-semibold text-red-900">Food budget nearing limit!</p>
             </motion.div>
         </div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-400/20 rounded-full blur-[80px]" />
@@ -208,7 +208,7 @@ const AICoachVisual = () => {
                         <Bot className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <h4 className="text-white font-bold text-sm">Mindy (AI Coach)</h4>
+                        <h4 className="text-white font-semibold text-sm">Mindy (AI Coach)</h4>
                         <p className="text-purple-200 text-xs flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Online
                         </p>
@@ -377,10 +377,10 @@ export default function FeaturesPage() {
                                     transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
                                 >
                                     <div>
-                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200 text-xs font-bold mb-6 uppercase tracking-widest">
+                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200 text-xs font-semibold mb-6 uppercase tracking-widest">
                                             <Sparkles className="w-3.5 h-3.5" /> {feature.badge}
                                         </div>
-                                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight leading-tight mb-4">
+                                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 tracking-tight leading-tight mb-4">
                                             {feature.title}
                                         </h2>
                                         <p className="text-xl text-blue-600 font-semibold mb-6">

@@ -110,29 +110,29 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
         return (
             <div className="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-2xl min-w-[180px] backdrop-blur-md bg-opacity-95">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">{label}</p>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.2em] mb-3">{label}</p>
 
                 <div className="space-y-2.5">
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                            <span className="text-[10px] font-bold text-gray-400">Income</span>
+                            <span className="text-[10px] font-semibold text-gray-400">Income</span>
                         </div>
-                        <span className="text-xs font-bold text-white">Rp {income.toLocaleString('id-ID')},000</span>
+                        <span className="text-xs font-semibold text-white">Rp {income.toLocaleString('id-ID')},000</span>
                     </div>
 
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                            <span className="text-[10px] font-bold text-gray-400">Expense</span>
+                            <span className="text-[10px] font-semibold text-gray-400">Expense</span>
                         </div>
-                        <span className="text-xs font-bold text-white">Rp {expense.toLocaleString('id-ID')},000</span>
+                        <span className="text-xs font-semibold text-white">Rp {expense.toLocaleString('id-ID')},000</span>
                     </div>
 
                     <div className="pt-2 mt-2 border-t border-gray-800 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-gray-500 uppercase">Savings Gap</span>
+                        <span className="text-[10px] font-semibold text-gray-500 uppercase">Savings Gap</span>
                         <span className={cn(
-                            "text-xs font-black",
+                            "text-xs font-semibold",
                             isPositive ? "text-emerald-400" : "text-rose-400"
                         )}>
                             {isPositive ? "+" : ""}
@@ -346,14 +346,14 @@ export default function DashboardOverview() {
             {/* Header Section */}
             <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl @md:text-3xl font-bold text-gray-900 tracking-tight">Financial Overview</h2>
+                    <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">Financial Overview</h2>
                     <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Welcome back! Here's what's happening with your money today.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         suppressHydrationWarning={true}
                         onClick={() => setIsCalendarOpen(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 group"
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 group"
                     >
                         <Calendar className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
                         <span>Financial Calendar</span>
@@ -397,10 +397,10 @@ export default function DashboardOverview() {
                                         <stat.icon className="w-5 h-5 @md:w-5 @md:h-5" />
                                     </div>
                                     <div className="min-w-0">
-                                        <p className={cn("text-[9px] @md:text-[10px] font-bold uppercase tracking-widest truncate", isSpecial ? "text-blue-100/80" : "text-gray-500")}>
+                                        <p className={cn("text-[9px] @md:text-[10px] font-semibold uppercase tracking-widest truncate", isSpecial ? "text-blue-100/80" : "text-gray-500")}>
                                             {stat.label}
                                         </p>
-                                        <h3 className={cn("text-lg @md:text-xl font-bold tracking-tight mt-0.5 whitespace-nowrap", isSpecial ? "text-white" : "text-gray-900")}>
+                                        <h3 className={cn("text-lg @md:text-xl font-semibold tracking-tight mt-0.5 whitespace-nowrap", isSpecial ? "text-white" : "text-gray-900")}>
                                             {stat.amount}
                                         </h3>
                                     </div>
@@ -410,20 +410,20 @@ export default function DashboardOverview() {
 
                             <div className="relative z-10 mt-1">
                                 <div className="flex items-center justify-between">
-                                    <span className={cn("text-[9px] @md:text-[11px] font-bold truncate", isSpecial ? "text-blue-100/70" : "text-gray-400")}>
+                                    <span className={cn("text-[9px] @md:text-[11px] font-semibold truncate", isSpecial ? "text-blue-100/70" : "text-gray-400")}>
                                         {stat.subLabel}
                                     </span>
                                     {isSpecial ? (
                                         <div
                                             onClick={(e) => { e.stopPropagation(); setIsScoreModalOpen(true); }}
-                                            className="flex items-center gap-1 text-[9px] @md:text-[10px] font-bold cursor-pointer transition-all hover:translate-x-0.5 text-white/80 hover:text-white"
+                                            className="flex items-center gap-1 text-[9px] @md:text-[10px] font-semibold cursor-pointer transition-all hover:translate-x-0.5 text-white/80 hover:text-white"
                                             suppressHydrationWarning={true}
                                         >
                                             View Details <ChevronRight className="w-2.5 h-2.5" />
                                         </div>
                                     ) : (
                                         <div className={cn(
-                                            "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight transition-colors w-fit shrink-0",
+                                            "flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-tight transition-colors w-fit shrink-0",
                                             stat.sentiment === "good" ? "text-emerald-600 bg-emerald-50" :
                                                 stat.sentiment === "bad" ? "text-rose-600 bg-rose-50" :
                                                     "text-blue-600 bg-blue-50"
@@ -451,7 +451,7 @@ export default function DashboardOverview() {
                     >
                         <div className="flex flex-col @md:flex-row justify-between items-start @md:items-center gap-4 mb-4">
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 leading-none">Spending Analytics</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 leading-none">Spending Analytics</h3>
                                 <p className="text-xs text-gray-500 font-medium mt-1.5">
                                     {chartView === 'weekly' ? 'Weekly expenses trend' : 'Monthly expenses trend'}
                                 </p>
@@ -461,7 +461,7 @@ export default function DashboardOverview() {
                                     onClick={() => setChartView('weekly')}
                                     suppressHydrationWarning={true}
                                     className={cn(
-                                        "flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all",
+                                        "flex-1 @md:flex-none px-4 py-2 text-[10px] font-semibold rounded-lg transition-all",
                                         chartView === 'weekly' ? "text-blue-600 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"
                                     )}
                                 >
@@ -471,7 +471,7 @@ export default function DashboardOverview() {
                                     onClick={() => setChartView('monthly')}
                                     suppressHydrationWarning={true}
                                     className={cn(
-                                        "flex-1 @md:flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all",
+                                        "flex-1 @md:flex-none px-4 py-2 text-[10px] font-semibold rounded-lg transition-all",
                                         chartView === 'monthly' ? "text-blue-600 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"
                                     )}
                                 >
@@ -548,7 +548,7 @@ export default function DashboardOverview() {
                                             <Zap className="w-4 h-4 text-white" />
                                         </div>
                                         <div>
-                                            <p className="text-[11px] font-bold text-blue-900 leading-tight">Mindy's Logic Insight</p>
+                                            <p className="text-[11px] font-semibold text-blue-900 leading-tight">Mindy's Logic Insight</p>
                                             <p className="text-[10px] font-medium text-blue-700/80 mt-1 leading-relaxed">
                                                 {chartView === 'weekly'
                                                     ? "Your spending increased by 18% compared to last week. Try to reduce your 'Entertainment' expenses to stay within your budget limit."
@@ -573,12 +573,12 @@ export default function DashboardOverview() {
                     <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
                         <div className="p-6 border-b border-[#E5E7EB] flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-bold tracking-tight text-gray-900">Recent Transactions</h3>
+                                <h3 className="text-lg font-semibold tracking-tight text-gray-900">Recent Transactions</h3>
                                 <p className="text-xs text-gray-500 font-semibold tracking-wide">Last activities this week</p>
                             </div>
                             <Link
                                 href="/dashboard/transactions"
-                                className="text-[11px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
+                                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
                             >
                                 View All <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                             </Link>
@@ -701,12 +701,12 @@ export default function DashboardOverview() {
                     <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm">
                         <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 leading-none">Top Categories</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 leading-none">Top Categories</h3>
                                 <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">Monthly spending</p>
                             </div>
                             <Link
                                 href="/dashboard/transactions"
-                                className="text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
+                                className="text-[10px] font-semibold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
                             >
                                 Details <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                             </Link>
@@ -734,8 +734,8 @@ export default function DashboardOverview() {
                                     </ResponsiveContainer>
                                 </div>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-[8px] @md:text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">Total Spent</span>
-                                    <span className="text-lg @md:text-2xl font-black text-gray-900 tracking-tight">
+                                    <span className="text-[8px] @md:text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">Total Spent</span>
+                                    <span className="text-lg @md:text-2xl font-semibold text-gray-900 tracking-tight">
                                         {formatAmountCompact(categoriesData.reduce((a, b) => a + b.value, 0))}
                                     </span>
                                 </div>
@@ -744,8 +744,8 @@ export default function DashboardOverview() {
                             <div className="flex flex-col items-center justify-center py-8 text-center">
                                 <div className="w-32 h-32 @md:w-48 @md:h-48 rounded-full border-[12px] border-gray-100 flex items-center justify-center">
                                     <div className="text-center">
-                                        <span className="text-[8px] @md:text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none block mb-1">Total Spent</span>
-                                        <span className="text-lg @md:text-2xl font-black text-gray-900 tracking-tight">Rp 0</span>
+                                        <span className="text-[8px] @md:text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] leading-none block mb-1">Total Spent</span>
+                                        <span className="text-lg @md:text-2xl font-semibold text-gray-900 tracking-tight">Rp 0</span>
                                     </div>
                                 </div>
                             </div>
@@ -763,12 +763,12 @@ export default function DashboardOverview() {
                                             <item.icon className="w-4 h-4" />
                                         </div>
                                         <div className="min-w-0">
-                                            <span className="text-[11px] font-black text-gray-800 block truncate">{item.name}</span>
-                                            <span className="text-[9px] font-bold text-gray-400 uppercase">Rp {formatAmountCompact(item.value)}</span>
+                                            <span className="text-[11px] font-semibold text-gray-800 block truncate">{item.name}</span>
+                                            <span className="text-[9px] font-semibold text-gray-400 uppercase">Rp {formatAmountCompact(item.value)}</span>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-xs font-black text-gray-900">{item.percent}%</span>
+                                        <span className="text-xs font-semibold text-gray-900">{item.percent}%</span>
                                         <div className="w-12 h-1 bg-gray-100 rounded-full mt-1 overflow-hidden">
                                             <div className="h-full rounded-full" style={{ width: `${item.percent}%`, backgroundColor: item.color }}></div>
                                         </div>
@@ -782,7 +782,7 @@ export default function DashboardOverview() {
                     <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm transition-all min-h-[395px]">
                         <div className="flex items-center justify-between mb-9">
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 tracking-tight leading-none">Goal Spotlight</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 tracking-tight leading-none">Goal Spotlight</h3>
                                 <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">Fueling your future</p>
                             </div>
 
@@ -792,7 +792,7 @@ export default function DashboardOverview() {
                                     suppressHydrationWarning={true}
                                     className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors group"
                                 >
-                                    <span className="text-[10px] font-black uppercase tracking-widest">View All</span>
+                                    <span className="text-[10px] font-semibold uppercase tracking-widest">View All</span>
                                     <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             </div>
@@ -817,21 +817,21 @@ export default function DashboardOverview() {
                                         <div className="relative z-10">
                                             <div className="flex justify-between items-start mb-3">
                                                 <div className="space-y-1.5">
-                                                    <h4 className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors tracking-tight uppercase leading-none">{goal.title}</h4>
+                                                    <h4 className="text-[14px] font-semibold text-gray-900 group-hover:text-blue-600 transition-colors tracking-tight uppercase leading-none">{goal.title}</h4>
                                                     <div className="flex flex-wrap items-center gap-2">
                                                         <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white border border-gray-100 rounded shadow-sm">
                                                             <Calendar className="w-2 h-2 text-gray-400" />
-                                                            <span className="text-[8px] font-bold text-gray-400 uppercase tracking-wider" suppressHydrationWarning={true}>{formatIndoDate(goal.deadline)}</span>
+                                                            <span className="text-[8px] font-semibold text-gray-400 uppercase tracking-wider" suppressHydrationWarning={true}>{formatIndoDate(goal.deadline)}</span>
                                                         </div>
                                                         <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-50 rounded border border-blue-100/50">
                                                             <Clock className="w-2 h-2 text-blue-500" />
-                                                            <span className="text-[8px] font-black text-blue-600 uppercase tracking-wider" suppressHydrationWarning={true}>{calculateTimeLeft(goal.deadline)}</span>
+                                                            <span className="text-[8px] font-semibold text-blue-600 uppercase tracking-wider" suppressHydrationWarning={true}>{calculateTimeLeft(goal.deadline)}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="text-right shrink-0 mt-1">
 
-                                                    <p className="text-[11px] font-bold text-gray-900 whitespace-nowrap leading-none">
+                                                    <p className="text-[11px] font-semibold text-gray-900 whitespace-nowrap leading-none">
                                                         Rp {formatJt(goal.currentAmount)}
                                                         <span className="text-gray-300 mx-0.5">/</span>
                                                         <span className="text-gray-400">{formatJt(goal.targetAmount)}</span>
@@ -853,10 +853,10 @@ export default function DashboardOverview() {
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-1.5">
                                                     <div className={cn("w-1 h-1 rounded-full shadow-sm", goal.color)}></div>
-                                                    <span className="text-[10px] font-bold text-gray-900 uppercase tracking-widest">{Math.round(progress)}% SAVED</span>
+                                                    <span className="text-[10px] font-semibold text-gray-900 uppercase tracking-widest">{Math.round(progress)}% SAVED</span>
                                                 </div>
                                                 <div className="flex items-center gap-1 text-black">
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest">Need {formatJt(remaining)} more</span>
+                                                    <span className="text-[10px] font-semibold uppercase tracking-widest">Need {formatJt(remaining)} more</span>
                                                     <ChevronRight className="w-2 h-2 group-hover:translate-x-0.5 transition-transform" />
                                                 </div>
                                             </div>
@@ -871,11 +871,11 @@ export default function DashboardOverview() {
                                 <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
                                     <Target className="w-8 h-8 text-gray-300" />
                                 </div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No goals set</p>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">No goals set</p>
                                 <button
                                     onClick={() => setIsGoalModalOpen(true)}
                                     suppressHydrationWarning={true}
-                                    className="mt-4 text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
+                                    className="mt-4 text-[10px] font-semibold text-blue-600 uppercase tracking-widest hover:underline"
                                 >
                                     Create one now
                                 </button>

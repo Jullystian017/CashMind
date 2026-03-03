@@ -87,14 +87,14 @@ export function LoginForm() {
                         className="object-contain"
                     />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-gray-900 font-inter">
+                <span className="text-xl font-semibold tracking-tight text-gray-900 font-inter">
                     CashMind
                 </span>
             </Link>
 
             {/* Header */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome Back</h1>
+                <h1 className="text-2xl font-semibold text-gray-900 mb-1">Welcome Back</h1>
                 <p className="text-gray-500 text-xs">
                     Enter your details to access your account.
                 </p>
@@ -123,7 +123,7 @@ export function LoginForm() {
                 <div className="space-y-2">
                     <div className="flex justify-between items-center">
                         <Label htmlFor="password" className="text-sm font-semibold text-gray-700">Password</Label>
-                        <Link href="/forgot-password" className="text-xs font-bold text-blue-600 hover:underline">
+                        <Link href="/forgot-password" className="text-xs font-semibold text-blue-600 hover:underline">
                             Forgot password?
                         </Link>
                     </div>
@@ -147,7 +147,7 @@ export function LoginForm() {
                     </div>
                 </div>
 
-                <Button type="submit" disabled={loading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70">
+                <Button type="submit" disabled={loading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70">
                     {loading ? "Signing in…" : "Sign In"}
                 </Button>
 
@@ -172,7 +172,7 @@ export function LoginForm() {
             </form>
 
             <p className="mt-6 text-center text-sm text-gray-500">
-                Don't have an account? <Link href="/register" className="text-blue-600 font-bold hover:underline">Sign Up</Link>
+                Don't have an account? <Link href="/register" className="text-blue-600 font-semibold hover:underline">Sign Up</Link>
             </p>
         </div>
     )

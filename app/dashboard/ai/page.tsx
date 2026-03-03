@@ -163,7 +163,7 @@ export default function DeepChatPage() {
                 <div className="p-5">
                     <button
                         onClick={handleNewChat}
-                        className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-white border border-gray-200 rounded-2xl text-sm font-bold text-gray-900 hover:bg-gray-50 hover:shadow-md transition-all shadow-sm group"
+                        className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-white border border-gray-200 rounded-2xl text-sm font-semibold text-gray-900 hover:bg-gray-50 hover:shadow-md transition-all shadow-sm group"
                     >
                         <Plus className="w-4 h-4 text-blue-600 group-hover:rotate-90 transition-transform" />
                         New Chat
@@ -172,11 +172,11 @@ export default function DeepChatPage() {
 
                 <div className="flex-1 overflow-y-auto px-4 no-scrollbar pb-8">
                     <div className="flex items-center justify-between px-2 mb-4">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">HISTORY</p>
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">HISTORY</p>
                         {chatSessions.length > 0 && (
                             <button
                                 onClick={() => { setChatSessions([]); handleNewChat() }}
-                                className="text-[10px] font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-widest"
+                                className="text-[10px] font-semibold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-widest"
                             >
                                 Clear All
                             </button>
@@ -225,7 +225,7 @@ export default function DeepChatPage() {
                                     <div className="w-10 h-10 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400 mb-3">
                                         <History className="w-5 h-5" />
                                     </div>
-                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No History</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">No History</p>
                                     <p className="text-[11px] text-gray-400 mt-1 font-medium">Your chat sessions will appear here.</p>
                                 </div>
                             )}
@@ -247,8 +247,8 @@ export default function DeepChatPage() {
                                 <Sparkles className="w-4 h-4 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900 tracking-tight leading-tight">Mindy AI</h2>
-                                <p className="text-[10px] font-bold text-green-500 uppercase tracking-wider">Online</p>
+                                <h2 className="text-lg font-semibold text-gray-900 tracking-tight leading-tight">Mindy AI</h2>
+                                <p className="text-[10px] font-semibold text-green-500 uppercase tracking-wider">Online</p>
                             </div>
                         </div>
                     </div>
@@ -263,7 +263,7 @@ export default function DeepChatPage() {
                                 <div className="w-20 h-20 bg-blue-600 rounded-[28px] flex items-center justify-center text-white shadow-2xl shadow-blue-500/20 mb-8">
                                     <Sparkles className="w-10 h-10" />
                                 </div>
-                                <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Hi, I'm Mindy! ✨</h1>
+                                <h1 className="text-3xl font-semibold text-gray-900 tracking-tight mb-2">Hi, I'm Mindy! ✨</h1>
                                 <p className="text-gray-400 text-sm font-medium mb-12 max-w-md text-center">
                                     Your smart financial AI assistant. Ask me anything about your spending, budgets, savings, or financial goals.
                                 </p>
@@ -278,7 +278,7 @@ export default function DeepChatPage() {
                                             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-3 group-hover:bg-blue-100 transition-colors">
                                                 <action.icon className="w-5 h-5" />
                                             </div>
-                                            <p className="text-sm font-bold text-gray-800 mb-0.5">{action.name}</p>
+                                            <p className="text-sm font-semibold text-gray-800 mb-0.5">{action.name}</p>
                                             <p className="text-[11px] text-gray-400 font-medium">{action.desc}</p>
                                         </button>
                                     ))}
@@ -317,7 +317,7 @@ export default function DeepChatPage() {
                                                         <div className="whitespace-pre-wrap break-words">{msg.text}</div>
                                                     </div>
                                                     <p className={cn(
-                                                        "mt-1.5 text-[10px] font-bold text-gray-400 px-1",
+                                                        "mt-1.5 text-[10px] font-semibold text-gray-400 px-1",
                                                         msg.role === "user" ? "text-right" : "text-left"
                                                     )}>
                                                         {msg.time}

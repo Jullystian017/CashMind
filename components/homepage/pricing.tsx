@@ -59,15 +59,15 @@ export const Pricing = ({ showHeader = true }: { showHeader?: boolean }) => {
                             )}
 
                             {plan.popular && (
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] sm:text-xs font-bold px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-lg shadow-blue-200 flex items-center gap-1">
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] sm:text-xs font-semibold px-4 py-1.5 rounded-b-xl uppercase tracking-widest shadow-lg shadow-blue-200 flex items-center gap-1">
                                     <Sparkles className="w-3 h-3" /> Most Popular
                                 </div>
                             )}
 
                             <div className="mb-8 mt-4 relative z-10">
-                                <h4 className="text-2xl font-bold text-gray-900 mb-2 tracking-tight">{plan.name}</h4>
+                                <h4 className="text-2xl font-semibold text-gray-900 mb-2 tracking-tight">{plan.name}</h4>
                                 <div className="flex items-baseline gap-1 mb-4">
-                                    <span className={`text-5xl font-black tracking-tighter ${plan.popular ? "text-blue-600" : "text-gray-900"}`}>{plan.price}</span>
+                                    <span className={`text-5xl font-semibold tracking-tighter ${plan.popular ? "text-blue-600" : "text-gray-900"}`}>{plan.price}</span>
                                     {plan.price !== "Free" && <span className="text-gray-500 font-medium">/month</span>}
                                 </div>
                                 <p className="text-gray-500 font-medium text-sm leading-relaxed max-w-[280px]">
@@ -86,7 +86,7 @@ export const Pricing = ({ showHeader = true }: { showHeader?: boolean }) => {
                                 ))}
                             </div>
 
-                            <button className={`w-full py-4 rounded-2xl font-bold transition-all relative z-10 flex items-center justify-center gap-2 ${plan.popular
+                            <button className={`w-full py-4 rounded-2xl font-semibold transition-all relative z-10 flex items-center justify-center gap-2 ${plan.popular
                                 ? "bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-600/30 hover:-translate-y-1 hover:shadow-blue-600/40 active:translate-y-0"
                                 : "bg-gray-50 text-gray-900 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
                                 }`}>

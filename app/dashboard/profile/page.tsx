@@ -26,7 +26,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-8 pb-24" suppressHydrationWarning>
       <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">My Profile</h2>
+        <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">My Profile</h2>
         <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium">Your account overview</p>
       </div>
 
@@ -41,7 +41,7 @@ export default function ProfilePage() {
               <User className="w-12 h-12 text-blue-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-bold text-gray-900">{profile?.display_name ?? profile?.email?.split("@")[0] ?? "User"}</h3>
+              <h3 className="text-xl font-semibold text-gray-900">{profile?.display_name ?? profile?.email?.split("@")[0] ?? "User"}</h3>
               <p className="text-gray-500 text-sm flex items-center gap-2 mt-1">
                 <Mail className="w-4 h-4 text-gray-400" />
                 {profile?.email ?? "—"}
@@ -53,7 +53,7 @@ export default function ProfilePage() {
             </div>
             <Link
               href="/dashboard/settings"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gray-100 text-gray-700 text-sm font-bold hover:bg-gray-200 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200 transition-colors"
             >
               Edit profile
               <ChevronRight className="w-4 h-4" />
@@ -74,7 +74,7 @@ export default function ProfilePage() {
                 <s.icon className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-black text-gray-900">{s.value}</p>
+                <p className="text-2xl font-semibold text-gray-900">{s.value}</p>
                 <p className="text-xs font-medium text-gray-500">{s.label}</p>
               </div>
             </motion.div>
@@ -88,7 +88,7 @@ export default function ProfilePage() {
         transition={{ delay: 0.1 }}
         className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6"
       >
-        <h4 className="font-bold text-gray-900 mb-4">Quick links</h4>
+        <h4 className="font-semibold text-gray-900 mb-4">Quick links</h4>
         <div className="space-y-2">
           {[
             { label: "Settings & preferences", href: "/dashboard/settings" },

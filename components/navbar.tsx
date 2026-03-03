@@ -115,10 +115,10 @@ export function Navbar() {
                     transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                     className="flex flex-col"
                   >
-                    <span className="text-sm font-bold text-white tracking-tight h-5 flex items-center">
+                    <span className="text-sm font-semibold text-white tracking-tight h-5 flex items-center">
                       Dashboard
                     </span>
-                    <span className="text-sm font-bold text-white tracking-tight h-5 flex items-center">
+                    <span className="text-sm font-semibold text-white tracking-tight h-5 flex items-center">
                       Dashboard
                     </span>
                   </motion.div>
@@ -144,11 +144,11 @@ export function Navbar() {
                       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                       className="flex flex-col"
                     >
-                      <span className={`text-sm font-bold tracking-tight h-5 flex items-center transition-colors ${isAboutSection ? "text-black" : "text-gray-600"
+                      <span className={`text-sm font-semibold tracking-tight h-5 flex items-center transition-colors ${isAboutSection ? "text-black" : "text-gray-600"
                         }`}>
                         Login
                       </span>
-                      <span className={`text-sm font-bold tracking-tight h-5 flex items-center transition-colors ${isAboutSection ? "text-black/70" : "text-blue-600"
+                      <span className={`text-sm font-semibold tracking-tight h-5 flex items-center transition-colors ${isAboutSection ? "text-black/70" : "text-blue-600"
                         }`}>
                         Login
                       </span>
@@ -173,10 +173,10 @@ export function Navbar() {
                       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                       className="flex flex-col"
                     >
-                      <span className="text-sm font-bold text-white tracking-tight h-5 flex items-center">
+                      <span className="text-sm font-semibold text-white tracking-tight h-5 flex items-center">
                         Register
                       </span>
-                      <span className="text-sm font-bold text-white tracking-tight h-5 flex items-center">
+                      <span className="text-sm font-semibold text-white tracking-tight h-5 flex items-center">
                         Register
                       </span>
                     </motion.div>

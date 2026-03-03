@@ -137,19 +137,19 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                     transition={{ duration: 0.18 }}
                 >
                     <div className="mb-4">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Selected</p>
-                        <h4 className="text-2xl font-black text-gray-900">{MONTHS[currentMonth].slice(0, 3)} {selectedDay}</h4>
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-0.5">Selected</p>
+                        <h4 className="text-2xl font-semibold text-gray-900">{MONTHS[currentMonth].slice(0, 3)} {selectedDay}</h4>
                         <div className="flex gap-4 mt-2">
                             {selectedData.expense > 0 && (
                                 <div>
-                                    <p className="text-[9px] font-bold text-rose-400 uppercase">Expense</p>
-                                    <p className="text-base font-black text-rose-600">Rp {formatRp(selectedData.expense)}</p>
+                                    <p className="text-[9px] font-semibold text-rose-400 uppercase">Expense</p>
+                                    <p className="text-base font-semibold text-rose-600">Rp {formatRp(selectedData.expense)}</p>
                                 </div>
                             )}
                             {selectedData.income > 0 && (
                                 <div>
-                                    <p className="text-[9px] font-bold text-emerald-400 uppercase">Income</p>
-                                    <p className="text-base font-black text-emerald-600">Rp {formatRp(selectedData.income)}</p>
+                                    <p className="text-[9px] font-semibold text-emerald-400 uppercase">Income</p>
+                                    <p className="text-base font-semibold text-emerald-600">Rp {formatRp(selectedData.income)}</p>
                                 </div>
                             )}
                             {selectedData.expense === 0 && selectedData.income === 0 && (
@@ -160,18 +160,18 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
 
                     {selectedData.transactions.length > 0 && (
                         <div className="space-y-2">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Transactions</p>
+                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Transactions</p>
                             {selectedData.transactions.map(tx => (
                                 <div key={tx.id} className="p-3 bg-white rounded-2xl border border-gray-100 shadow-sm">
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-bold text-gray-800 truncate">{tx.name}</p>
-                                            <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-md mt-1 inline-block", categoryColors[tx.category] || "bg-gray-100 text-gray-500")}>
+                                            <p className="text-xs font-semibold text-gray-800 truncate">{tx.name}</p>
+                                            <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-md mt-1 inline-block", categoryColors[tx.category] || "bg-gray-100 text-gray-500")}>
                                                 {tx.category}
                                             </span>
                                         </div>
                                         <div className="text-right flex-shrink-0">
-                                            <p className={cn("text-sm font-black", tx.isExpense ? "text-rose-600" : "text-emerald-600")}>
+                                            <p className={cn("text-sm font-semibold", tx.isExpense ? "text-rose-600" : "text-emerald-600")}>
                                                 {tx.isExpense ? "-" : "+"}Rp {formatRp(tx.amount)}
                                             </p>
                                             <p className="text-[9px] text-gray-400 mt-0.5">{tx.time}</p>
@@ -193,7 +193,7 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                     <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-3">
                         <Calendar className="w-7 h-7 text-gray-300" />
                     </div>
-                    <p className="text-xs font-bold text-gray-400">Tap a date</p>
+                    <p className="text-xs font-semibold text-gray-400">Tap a date</p>
                     <p className="text-[10px] text-gray-300 mt-1">to see transactions</p>
                 </motion.div>
             )}
@@ -238,7 +238,7 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                                             <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                         </div>
                                         <div>
-                                            <h2 className="text-base sm:text-lg font-black text-gray-900 leading-none">Financial Calendar</h2>
+                                            <h2 className="text-base sm:text-lg font-semibold text-gray-900 leading-none">Financial Calendar</h2>
                                             <p className="text-[10px] text-gray-400 font-semibold mt-0.5">Monthly expense heatmap</p>
                                         </div>
                                     </div>
@@ -258,8 +258,8 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                                             <TrendingDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-600" />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Expense</p>
-                                            <p className="text-sm sm:text-base font-black text-rose-700 truncate">Rp {formatRp(totalMonthExpense)}</p>
+                                            <p className="text-[9px] font-semibold text-rose-400 uppercase tracking-widest">Expense</p>
+                                            <p className="text-sm sm:text-base font-semibold text-rose-700 truncate">Rp {formatRp(totalMonthExpense)}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-emerald-50 rounded-xl sm:rounded-2xl border border-emerald-100">
@@ -267,8 +267,8 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                                             <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Income</p>
-                                            <p className="text-sm sm:text-base font-black text-emerald-700 truncate">Rp {formatRp(totalMonthIncome)}</p>
+                                            <p className="text-[9px] font-semibold text-emerald-400 uppercase tracking-widest">Income</p>
+                                            <p className="text-sm sm:text-base font-semibold text-emerald-700 truncate">Rp {formatRp(totalMonthIncome)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -289,7 +289,7 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                                         <button suppressHydrationWarning onClick={prevMonth} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
                                             <ChevronLeft className="w-5 h-5" />
                                         </button>
-                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-wide">
+                                        <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
                                             {MONTHS[currentMonth]} {currentYear}
                                         </h3>
                                         <button suppressHydrationWarning onClick={nextMonth} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
@@ -300,7 +300,7 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                                     {/* Day headers */}
                                     <div className="grid grid-cols-7 mb-1.5">
                                         {DAYS.map(d => (
-                                            <div key={d} className="text-center text-[9px] font-black text-gray-400 uppercase tracking-widest py-1">{d}</div>
+                                            <div key={d} className="text-center text-[9px] font-semibold text-gray-400 uppercase tracking-widest py-1">{d}</div>
                                         ))}
                                     </div>
 
@@ -331,14 +331,14 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
                                                     )}
                                                 >
                                                     <span className={cn(
-                                                        "text-[11px] font-black leading-none mb-0.5",
+                                                        "text-[11px] font-semibold leading-none mb-0.5",
                                                         isSelected ? "text-white" : isToday ? "text-blue-600" : "text-gray-800"
                                                     )}>
                                                         {day}
                                                     </span>
                                                     {data?.expense > 0 && (
                                                         <span className={cn(
-                                                            "hidden sm:block text-[7px] font-bold leading-none",
+                                                            "hidden sm:block text-[7px] font-semibold leading-none",
                                                             isSelected ? "text-white/80" : "text-current opacity-80"
                                                         )}>
                                                             {formatRp(data.expense)}
@@ -357,7 +357,7 @@ export function FinancialCalendarModal({ isOpen, onClose }: Props) {
 
                                     {/* Legend */}
                                     <div className="flex items-center gap-2 sm:gap-3 mt-4 flex-wrap">
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Heat:</span>
+                                        <span className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest">Heat:</span>
                                         {[
                                             { label: "Low", color: "bg-blue-100" },
                                             { label: "Medium", color: "bg-amber-100" },

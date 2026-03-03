@@ -92,7 +92,7 @@ export function OTPForm() {
                     <CheckCircle2 className="w-10 h-10" />
                 </motion.div>
                 <div className="space-y-2">
-                    <h1 className="text-2xl font-black text-gray-900 leading-tight">Registration Successful!</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900 leading-tight">Registration Successful!</h1>
                     <p className="text-gray-500 text-sm font-medium">Your account is now verified. <br /> Redirecting to dashboard...</p>
                 </div>
             </div>
@@ -111,14 +111,14 @@ export function OTPForm() {
                         className="object-contain"
                     />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-gray-900 font-inter">
+                <span className="text-xl font-semibold tracking-tight text-gray-900 font-inter">
                     CashMind
                 </span>
             </Link>
 
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">OTP Verification</h1>
+                <h1 className="text-2xl font-semibold text-gray-900 mb-1">OTP Verification</h1>
                 <p className="text-gray-500 text-xs">
                     Discover the power of AI to enhance business efficiency.
                 </p>
@@ -141,7 +141,7 @@ export function OTPForm() {
                             value={digit}
                             onChange={(e) => handleChange(index, e.target.value)}
                             onKeyDown={(e) => handleKeyDown(index, e)}
-                            className="w-full h-14 sm:h-16 text-center text-2xl sm:text-3xl font-bold border-2 border-gray-100 rounded-2xl focus:border-blue-600 focus:ring-0 focus:outline-none transition-all"
+                            className="w-full h-14 sm:h-16 text-center text-2xl sm:text-3xl font-semibold border-2 border-gray-100 rounded-2xl focus:border-blue-600 focus:ring-0 focus:outline-none transition-all"
                         />
                     ))}
                 </div>
@@ -150,14 +150,14 @@ export function OTPForm() {
                     <Button
                         type="submit"
                         disabled={loading}
-                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
+                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
                     >
                         {loading ? "Verifying…" : "Verify"}
                     </Button>
                     <Button
                         type="button"
                         variant="ghost"
-                        className="w-full h-12 border-2 border-gray-100 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-all"
+                        className="w-full h-12 border-2 border-gray-100 rounded-xl font-semibold text-gray-500 hover:bg-gray-50 transition-all"
                     >
                         Resend
                     </Button>
@@ -165,7 +165,7 @@ export function OTPForm() {
             </form>
 
             <p className="mt-8 text-center text-sm text-gray-500 font-medium">
-                Already have an account? <Link href="/login" className="text-blue-600 font-bold hover:underline">Sign In</Link>
+                Already have an account? <Link href="/login" className="text-blue-600 font-semibold hover:underline">Sign In</Link>
             </p>
         </div>
     )

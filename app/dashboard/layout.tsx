@@ -150,13 +150,13 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                                     <Sparkles className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold">Complete your setup</p>
+                                    <p className="text-sm font-semibold">Complete your setup</p>
                                     <p className="text-xs text-blue-100">Finish onboarding to get the most out of CashMind.</p>
                                 </div>
                             </div>
                             <Button
                                 onClick={() => setIsOnboardingOpen(true)}
-                                className="bg-white text-blue-600 hover:bg-blue-50 font-bold rounded-xl h-10 px-5 shrink-0 flex items-center gap-2"
+                                className="bg-white text-blue-600 hover:bg-blue-50 font-semibold rounded-xl h-10 px-5 shrink-0 flex items-center gap-2"
                             >
                                 Continue
                                 <ChevronRight className="w-4 h-4" />

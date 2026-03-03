@@ -232,7 +232,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                     className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl z-50 overflow-hidden max-h-[480px] flex flex-col"
                                 >
                                     <div className="p-3 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">Results for "{searchValue}"</span>
+                                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">Results for "{searchValue}"</span>
                                         {searchResults.length > 0 && <span className="text-[10px] font-medium text-gray-400">{searchResults.length} found</span>}
                                     </div>
 
@@ -269,9 +269,9 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="flex items-center justify-between gap-2">
-                                                                    <p className="text-sm font-bold text-gray-900 truncate">{res.title}</p>
+                                                                    <p className="text-sm font-semibold text-gray-900 truncate">{res.title}</p>
                                                                     {res.amount !== undefined && (
-                                                                        <span className="text-xs font-black text-gray-900 shrink-0">
+                                                                        <span className="text-xs font-semibold text-gray-900 shrink-0">
                                                                             Rp {new Intl.NumberFormat('id-ID').format(res.amount)}
                                                                         </span>
                                                                     )}
@@ -291,13 +291,13 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                     <div className="p-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between px-4">
                                         <div className="flex items-center gap-2">
                                             <div className="flex gap-1">
-                                                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-bold text-gray-400">↑</kbd>
-                                                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-bold text-gray-400">↓</kbd>
+                                                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-semibold text-gray-400">↑</kbd>
+                                                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-semibold text-gray-400">↓</kbd>
                                             </div>
                                             <span className="text-[10px] text-gray-400 font-medium">to navigate</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-bold text-gray-400">Enter</kbd>
+                                            <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-semibold text-gray-400">Enter</kbd>
                                             <span className="text-[10px] text-gray-400 font-medium">to select</span>
                                         </div>
                                     </div>
@@ -352,7 +352,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                         >
                             <Bell className="w-4 h-4" />
                             {unreadCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full border-2 border-white">
+                                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-rose-500 text-white text-[10px] font-semibold rounded-full border-2 border-white">
                                     {unreadCount > 9 ? "9+" : unreadCount}
                                 </span>
                             )}
@@ -367,7 +367,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                     className="absolute right-0 top-full mt-2 w-[360px] max-h-[400px] bg-white rounded-2xl border border-gray-100 shadow-xl z-50 overflow-hidden"
                                 >
                                     <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                                        <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
+                                        <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
                                         {unreadCount > 0 && (
                                             <button
                                                 onClick={handleMarkAllRead}
@@ -474,7 +474,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                                 <User className="w-5 h-5 text-blue-600" />
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="text-sm font-bold text-gray-900 truncate">{user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}</p>
+                                                <p className="text-sm font-semibold text-gray-900 truncate">{user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}</p>
                                                 <p className="text-xs text-gray-500 truncate">{user?.email ?? ""}</p>
                                             </div>
                                         </div>

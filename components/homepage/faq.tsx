@@ -62,7 +62,7 @@ export const FAQ = () => {
                                     onClick={() => setOpenIndex(isOpen ? null : idx)}
                                     className="w-full p-6 md:p-8 flex items-center justify-between text-left transition-all"
                                 >
-                                    <span className={`text-lg md:text-xl font-bold tracking-tight transition-colors ${isOpen ? "text-blue-600" : "text-gray-900"
+                                    <span className={`text-lg md:text-xl font-semibold tracking-tight transition-colors ${isOpen ? "text-blue-600" : "text-gray-900"
                                         }`}>
                                         {faq.question}
                                     </span>

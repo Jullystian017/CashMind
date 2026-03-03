@@ -98,14 +98,14 @@ export function FinancialScoreModal({ isOpen, onClose, data }: FinancialScoreMod
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-2xl font-black">{data.score}</span>
+                                        <span className="text-2xl font-semibold">{data.score}</span>
                                     </div>
                                 </div>
 
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <ShieldCheck className="w-4 h-4 text-blue-200" />
-                                        <span className="text-xl font-black tracking-tight">{data.status}</span>
+                                        <span className="text-xl font-semibold tracking-tight">{data.status}</span>
                                     </div>
                                     <p className="text-xs text-blue-100/80 font-medium">
                                         Calculated from month-to-date data.
@@ -133,9 +133,9 @@ export function FinancialScoreModal({ isOpen, onClose, data }: FinancialScoreMod
                                                 <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", item.bg, item.color)}>
                                                     <item.icon className="w-4.5 h-4.5" />
                                                 </div>
-                                                <h3 className="text-sm font-bold text-gray-900">{item.label}</h3>
+                                                <h3 className="text-sm font-semibold text-gray-900">{item.label}</h3>
                                             </div>
-                                            <span className="text-sm font-black text-gray-900">{item.score}<span className="text-[10px] text-gray-400 font-bold">/{item.max}</span></span>
+                                            <span className="text-sm font-semibold text-gray-900">{item.score}<span className="text-[10px] text-gray-400 font-semibold">/{item.max}</span></span>
                                         </div>
 
                                         <p className="text-[11px] text-gray-500 font-medium leading-normal mb-3 pl-12">
@@ -157,9 +157,9 @@ export function FinancialScoreModal({ isOpen, onClose, data }: FinancialScoreMod
                             <div className="p-4 rounded-[24px] bg-white border border-blue-100 flex items-start gap-3 relative shadow-sm overflow-hidden">
                                 <Lightbulb className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                                 <div>
-                                    <h4 className="text-[11px] font-black text-gray-900 uppercase tracking-widest mb-0.5">Scoring Logic</h4>
+                                    <h4 className="text-[11px] font-semibold text-gray-900 uppercase tracking-widest mb-0.5">Scoring Logic</h4>
                                     <p className="text-[11px] text-gray-600 leading-normal font-medium">
-                                        Your score reflects current month habits. Maintain higher <span className="text-emerald-600 font-bold">Savings</span> to boost it quickly!
+                                        Your score reflects current month habits. Maintain higher <span className="text-emerald-600 font-semibold">Savings</span> to boost it quickly!
                                     </p>
                                 </div>
                                 <Sparkles className="absolute top-2 right-2 w-4 h-4 text-blue-100" />
@@ -170,7 +170,7 @@ export function FinancialScoreModal({ isOpen, onClose, data }: FinancialScoreMod
                         <div className="px-6 pb-6 pt-2 bg-white flex">
                             <button
                                 onClick={onClose}
-                                className="w-full py-4 rounded-2xl bg-[#0f172a] text-white text-xs font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-gray-200"
+                                className="w-full py-4 rounded-2xl bg-[#0f172a] text-white text-xs font-semibold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-gray-200"
                             >
                                 Back to Dashboard
                             </button>

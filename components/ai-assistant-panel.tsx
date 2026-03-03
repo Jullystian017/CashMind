@@ -85,7 +85,7 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
             <div className="h-[88px] px-6 flex items-center justify-between border-b border-gray-100 bg-white flex-shrink-0">
                 <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-600" />
-                    <span className="font-bold text-gray-900 tracking-tight">Mindy AI</span>
+                    <span className="font-semibold text-gray-900 tracking-tight">Mindy AI</span>
                 </div>
                 <Link
                     href="/dashboard/ai"
@@ -108,14 +108,14 @@ export function AIAssistantPanel({ isOpen, onClose }: AIAssistantPanelProps) {
                                     <div className="absolute -right-1 -bottom-1 w-5 h-5 bg-green-500 border-[3px] border-white rounded-full"></div>
                                 </div>
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 tracking-tight">Hi there! 👋</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 tracking-tight">Hi there! 👋</h3>
                             <p className="text-xs text-gray-500 font-medium px-4">
-                                I'm <span className="text-blue-600 font-bold">Mindy</span>, your smart financial coach. How can I help?
+                                I'm <span className="text-blue-600 font-semibold">Mindy</span>, your smart financial coach. How can I help?
                             </p>
                         </div>
 
                         <div className="w-full space-y-2">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1 mb-3">SMART ACTIONS</p>
+                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1 mb-3">SMART ACTIONS</p>
                             {quickActions.map((action) => (
                                 <button
                                     key={action.name}

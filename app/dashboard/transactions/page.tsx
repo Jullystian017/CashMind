@@ -307,7 +307,7 @@ export default function TransactionsPage() {
             {/* Header Section */}
             <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Transactions</h2>
+                    <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">Transactions</h2>
                     <p className="text-gray-500 text-sm mt-2 font-medium">Track your payments and subscription history</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -315,7 +315,7 @@ export default function TransactionsPage() {
                     <div className="relative">
                         <button
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            className="flex items-center gap-3 pl-4 pr-10 py-2.5 bg-white border border-gray-100 rounded-2xl text-xs font-bold text-gray-600 outline-none hover:border-blue-100 transition-all shadow-sm relative group"
+                            className="flex items-center gap-3 pl-4 pr-10 py-2.5 bg-white border border-gray-100 rounded-2xl text-xs font-semibold text-gray-600 outline-none hover:border-blue-100 transition-all shadow-sm relative group"
                         >
                             <Filter className={cn("w-4 h-4 transition-colors", isFilterOpen ? "text-blue-600" : "text-gray-400")} />
                             <span>{filterCategory === "All Categories" ? "All Categories" : filterCategory}</span>
@@ -336,7 +336,7 @@ export default function TransactionsPage() {
                                             <button
                                                 onClick={() => { setFilterCategory("All Categories"); setIsFilterOpen(false); }}
                                                 className={cn(
-                                                    "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-bold transition-all",
+                                                    "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all",
                                                     filterCategory === "All Categories" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                                                 )}
                                             >
@@ -357,7 +357,7 @@ export default function TransactionsPage() {
                                                         key={c}
                                                         onClick={() => { setFilterCategory(c); setIsFilterOpen(false); }}
                                                         className={cn(
-                                                            "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-bold transition-all group/item",
+                                                            "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all group/item",
                                                             isSelected ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                                                         )}
                                                     >
@@ -380,7 +380,7 @@ export default function TransactionsPage() {
                                             <button
                                                 onClick={() => { setFilterCategory("Others"); setIsFilterOpen(false); }}
                                                 className={cn(
-                                                    "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-bold transition-all",
+                                                    "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all",
                                                     filterCategory === "Others" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                                                 )}
                                             >
@@ -397,7 +397,7 @@ export default function TransactionsPage() {
                     </div>
                     <button
                         onClick={() => { resetForm(); setIsModalOpen(true); }}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-2xl text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-2xl text-xs font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
                     >
                         <Plus className="w-4 h-4" />
                         <span>Add Transaction</span>
@@ -417,8 +417,8 @@ export default function TransactionsPage() {
                             <stat.icon className={cn("w-6 h-6", stat.color)} />
                         </div>
                         <div>
-                            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">{stat.label}</p>
-                            <p className="text-xl font-bold text-gray-900">{stat.value}</p>
+                            <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-widest">{stat.label}</p>
+                            <p className="text-xl font-semibold text-gray-900">{stat.value}</p>
                         </div>
                     </div>
                 ))}
@@ -530,14 +530,14 @@ export default function TransactionsPage() {
                 {
                     totalPages > 1 && (
                         <div className="px-8 py-5 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                                 Showing <span className="text-gray-900">{Math.min(filteredTransactions.length, (currentPage - 1) * ITEMS_PER_PAGE + 1)}-{Math.min(filteredTransactions.length, currentPage * ITEMS_PER_PAGE)}</span> of <span className="text-gray-900">{filteredTransactions.length}</span>
                             </p>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-gray-100 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    className="px-4 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-widest border border-gray-100 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
                                     Previous
                                 </button>
@@ -547,7 +547,7 @@ export default function TransactionsPage() {
                                             key={i}
                                             onClick={() => setCurrentPage(i + 1)}
                                             className={cn(
-                                                "w-8 h-8 rounded-xl text-[10px] font-black transition-all",
+                                                "w-8 h-8 rounded-xl text-[10px] font-semibold transition-all",
                                                 currentPage === i + 1
                                                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
                                                     : "text-gray-400 hover:bg-gray-100"
@@ -560,7 +560,7 @@ export default function TransactionsPage() {
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-gray-100 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    className="px-4 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-widest border border-gray-100 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
                                     Next
                                 </button>
@@ -602,8 +602,8 @@ export default function TransactionsPage() {
                                 >
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-xl font-black text-gray-900 tracking-tight leading-tight">{selectedDetail.description}</h3>
-                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Transaction Details</p>
+                                            <h3 className="text-xl font-semibold text-gray-900 tracking-tight leading-tight">{selectedDetail.description}</h3>
+                                            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-1">Transaction Details</p>
                                         </div>
                                         <button
                                             onClick={() => setSelectedDetail(null)}
@@ -616,13 +616,13 @@ export default function TransactionsPage() {
                                     {/* Amount hero */}
                                     <div className="mt-8 flex items-baseline gap-2">
                                         <span className={cn(
-                                            "text-3xl font-black tracking-tight",
+                                            "text-3xl font-semibold tracking-tight",
                                             isIncome ? "text-emerald-600" : "text-rose-600"
                                         )}>
                                             {isIncome ? "+" : "-"} {formatRp(selectedDetail.amount)}
                                         </span>
                                         <span className={cn(
-                                            "text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg",
+                                            "text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-lg",
                                             isIncome ? "bg-emerald-500/15 text-emerald-600" : "bg-rose-500/15 text-rose-600"
                                         )}>
                                             {selectedDetail.category}
@@ -632,7 +632,7 @@ export default function TransactionsPage() {
 
                                 {/* Details grid - fields from Add Transaction */}
                                 <div className="px-6 py-5 space-y-6">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Transaction Details</p>
+                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Transaction Details</p>
                                     <div className="grid grid-cols-2 gap-4">
                                         {[
                                             { label: "Date", value: new Date(selectedDetail.date).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }), icon: CalendarIcon },
@@ -642,9 +642,9 @@ export default function TransactionsPage() {
                                             <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-gray-50/80 border border-gray-100">
                                                 <item.icon className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
                                                 <div className="min-w-0">
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">{item.label}</p>
+                                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">{item.label}</p>
                                                     <p className={cn(
-                                                        "text-sm font-bold truncate",
+                                                        "text-sm font-semibold truncate",
                                                         item.statusKey
                                                             ? `capitalize px-2 py-0.5 rounded-md inline-block border ${statusColors[item.statusKey as TransactionStatus]}`
                                                             : "text-gray-900"
@@ -658,7 +658,7 @@ export default function TransactionsPage() {
 
                                     {selectedDetail.note && (
                                         <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100">
-                                            <p className="text-[10px] font-bold text-amber-700/80 uppercase tracking-wider mb-1">Note</p>
+                                            <p className="text-[10px] font-semibold text-amber-700/80 uppercase tracking-wider mb-1">Note</p>
                                             <p className="text-sm font-medium text-gray-700">{selectedDetail.note}</p>
                                         </div>
                                     )}
@@ -669,14 +669,14 @@ export default function TransactionsPage() {
                                     <div className="flex gap-3">
                                         <button
                                             onClick={() => { setEditingTransaction(selectedDetail); setSelectedDetail(null); }}
-                                            className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
+                                            className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                                         >
                                             <Pencil className="w-4 h-4" />
                                             Edit
                                         </button>
                                         <button
                                             onClick={() => { handleDelete(selectedDetail.id); setSelectedDetail(null); }}
-                                            className="flex-1 py-3 px-4 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
+                                            className="flex-1 py-3 px-4 bg-rose-50 text-rose-600 rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                             Delete
@@ -712,10 +712,10 @@ export default function TransactionsPage() {
                                 {/* Header */}
                                 <div className="flex items-center justify-between p-6 border-b border-gray-50">
                                     <div>
-                                        <h2 className="text-xl font-black text-gray-900 tracking-tight leading-none">
+                                        <h2 className="text-xl font-semibold text-gray-900 tracking-tight leading-none">
                                             {editingTransaction ? 'Edit Transaction' : 'Add Transaction'}
                                         </h2>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">Set details below</p>
+                                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-1.5">Set details below</p>
                                     </div>
                                     <button
                                         onClick={() => { setIsModalOpen(false); resetForm(); }}
@@ -731,7 +731,7 @@ export default function TransactionsPage() {
                                         <button
                                             onClick={() => setType('expense')}
                                             className={cn(
-                                                "flex-1 py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                                "flex-1 py-3 px-4 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all",
                                                 type === 'expense' ? "bg-white text-rose-600 shadow-sm border border-rose-100/50" : "text-gray-400 hover:text-gray-600"
                                             )}
                                         >
@@ -740,7 +740,7 @@ export default function TransactionsPage() {
                                         <button
                                             onClick={() => setType('income')}
                                             className={cn(
-                                                "flex-1 py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                                "flex-1 py-3 px-4 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all",
                                                 type === 'income' ? "bg-white text-emerald-600 shadow-sm border border-emerald-100/50" : "text-gray-400 hover:text-gray-600"
                                             )}
                                         >
@@ -751,41 +751,41 @@ export default function TransactionsPage() {
                                 {/* Description */}
                                 <div className="space-y-6 px-6 py-5"> {/* Added px-6 py-5 for consistent padding */}
                                     <div>
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Description</label>
+                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">Description</label>
                                         <input
                                             type="text"
                                             placeholder="e.g. Lunch with friends"
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
-                                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
+                                            className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-semibold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
                                         />
                                     </div>
 
                                     {/* Amount & Date Grid */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Amount (Rp)</label>
+                                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">Amount (Rp)</label>
                                             <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-400 italic">Rp</span>
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400 italic">Rp</span>
                                                 <input
                                                     type="text"
                                                     inputMode="numeric"
                                                     placeholder="0"
                                                     value={formatThousands(amount)}
                                                     onChange={(e) => setAmount(e.target.value)}
-                                                    className="w-full pl-11 pr-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-lg font-black text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
+                                                    className="w-full pl-11 pr-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-lg font-semibold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
                                                 />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Date</label>
+                                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">Date</label>
                                             <div className="relative">
                                                 <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                                 <input
                                                     type="date"
                                                     value={date}
                                                     onChange={(e) => setDate(e.target.value)}
-                                                    className="w-full pl-11 pr-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none"
+                                                    className="w-full pl-11 pr-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-semibold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all appearance-none"
                                                 />
                                             </div>
                                         </div>
@@ -793,7 +793,7 @@ export default function TransactionsPage() {
 
                                     {/* Category Selection */}
                                     <div>
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-3 px-1">Select Category</label>
+                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-3 px-1">Select Category</label>
                                         <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                                             {(type === 'expense' ? expenseCategories : incomeCategories).map((c: string) => {
                                                 const config = categoryConfig[c] || categoryConfig["Others"]
@@ -813,7 +813,7 @@ export default function TransactionsPage() {
                                                         style={isSelected ? { backgroundColor: color, borderColor: color, boxShadow: `0 10px 15px -3px ${color}33` } : {}}
                                                     >
                                                         <CatIcon className="w-5 h-5" />
-                                                        <span className={cn("text-[8px] font-bold truncate w-full text-center", isSelected ? "text-white" : "text-gray-500")}>
+                                                        <span className={cn("text-[8px] font-semibold truncate w-full text-center", isSelected ? "text-white" : "text-gray-500")}>
                                                             {c.split(' ')[0]}
                                                         </span>
                                                     </button>
@@ -824,7 +824,7 @@ export default function TransactionsPage() {
 
                                     {/* Note */}
                                     <div>
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2 px-1">Note (Optional)</label>
+                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">Note (Optional)</label>
                                         <textarea
                                             rows={2}
                                             placeholder="Add a small detail..."
@@ -839,7 +839,7 @@ export default function TransactionsPage() {
                                     onClick={handleSave}
                                     disabled={!description || !amount}
                                     className={cn(
-                                        "w-full mt-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl",
+                                        "w-full mt-8 py-4 rounded-2xl font-semibold text-sm tracking-widest uppercase transition-all shadow-xl",
                                         (!description || !amount)
                                             ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
                                             : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/10 hover:-translate-y-0.5"

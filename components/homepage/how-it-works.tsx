@@ -81,7 +81,7 @@ const Step2Visual = () => (
                     <div className={`p-3 rounded-2xl ${item.bg}`}>
                         <item.icon className={`w-8 h-8 ${item.color}`} />
                     </div>
-                    <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{item.label}</span>
+                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{item.label}</span>
                     <motion.div
                         className="w-full h-1 bg-gray-50 rounded-full overflow-hidden mt-2"
                         initial={{ width: 0 }}
@@ -136,11 +136,11 @@ const Step3Visual = () => (
                 <motion.p
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="text-5xl font-black text-gray-900"
+                    className="text-5xl font-semibold text-gray-900"
                 >
                     75%
                 </motion.p>
-                <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Budget used</p>
+                <p className="text-[10px] font-semibold text-blue-600 uppercase tracking-[0.2em] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Budget used</p>
             </div>
 
             {/* Floating indicator bubbles */}
@@ -213,12 +213,12 @@ const Step4Visual = () => (
 
             <div className="mt-6 flex justify-between items-end">
                 <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Wealth</p>
-                    <h4 className="text-3xl font-black text-gray-900">$240,500.00</h4>
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Total Wealth</p>
+                    <h4 className="text-3xl font-semibold text-gray-900">$240,500.00</h4>
                 </div>
                 <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-2xl border border-emerald-100">
                     <TrendingUp className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-black text-emerald-600">+12.5%</span>
+                    <span className="text-xs font-semibold text-emerald-600">+12.5%</span>
                 </div>
             </div>
         </div>
@@ -329,7 +329,7 @@ export const HowItWorks = () => {
                                     >
                                         <div className="flex gap-6 items-start relative z-10">
                                             {/* Number Circle */}
-                                            <div className={`flex-shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold text-lg transition-all duration-500 ${isActive
+                                            <div className={`flex-shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center font-semibold text-lg transition-all duration-500 ${isActive
                                                     ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200'
                                                     : 'bg-white border-gray-100 text-gray-300 group-hover:border-gray-200 group-hover:text-gray-400'
                                                 }`}>
@@ -337,7 +337,7 @@ export const HowItWorks = () => {
                                             </div>
 
                                             <div className="flex-1">
-                                                <h3 className={`text-2xl font-bold tracking-tight transition-colors duration-300 ${isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                                <h3 className={`text-2xl font-semibold tracking-tight transition-colors duration-300 ${isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-600'}`}>
                                                     {step.title}
                                                 </h3>
 
@@ -397,8 +397,8 @@ export const HowItWorks = () => {
 
                             {/* Step Badge (Floating on Visual) */}
                             <div className="absolute bottom-8 left-8 right-8 p-6 bg-white/60 backdrop-blur-xl border border-white/80 rounded-3xl shadow-2xl">
-                                <p className="text-gray-900 font-bold text-lg mb-0.5 tracking-tight">{steps[activeStep].title}</p>
-                                <p className="text-blue-600/80 text-[10px] font-black uppercase tracking-[0.2em] leading-none">Step {steps[activeStep].number} — CashMind</p>
+                                <p className="text-gray-900 font-semibold text-lg mb-0.5 tracking-tight">{steps[activeStep].title}</p>
+                                <p className="text-blue-600/80 text-[10px] font-semibold uppercase tracking-[0.2em] leading-none">Step {steps[activeStep].number} — CashMind</p>
                             </div>
                         </div>
                     </div>

@@ -15,7 +15,7 @@ export function AuthPreview() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="text-3xl xl:text-4xl font-bold text-white mb-4 leading-[1.2] tracking-tight"
+                    className="text-3xl xl:text-4xl font-semibold text-white mb-4 leading-[1.2] tracking-tight"
                 >
                     Simplify Your Finances and Boost Your Productivity
                 </motion.h2>
@@ -40,10 +40,10 @@ export function AuthPreview() {
                 >
                     <div className="flex justify-between items-center mb-6">
                         <div className="space-y-1">
-                            <p className="text-gray-500 text-xs font-bold uppercase tracking-wider">Today's Revenue</p>
-                            <h3 className="text-3xl font-black text-gray-900">$3,543</h3>
+                            <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">Today's Revenue</p>
+                            <h3 className="text-3xl font-semibold text-gray-900">$3,543</h3>
                         </div>
-                        <div className="flex items-center gap-1 text-green-500 bg-green-50 px-2 py-1 rounded-full text-xs font-bold">
+                        <div className="flex items-center gap-1 text-green-500 bg-green-50 px-2 py-1 rounded-full text-xs font-semibold">
                             <ArrowUpRight className="w-3 h-3" />
                             40% <span className="text-gray-400 font-normal">last month</span>
                         </div>
@@ -71,10 +71,10 @@ export function AuthPreview() {
                 >
                     <div className="flex justify-between items-center mb-4">
                         <div className="space-y-0.5">
-                            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-wider">Today's Expense</p>
-                            <h3 className="text-xl font-black text-gray-900">$1,258</h3>
+                            <p className="text-gray-500 text-[10px] font-semibold uppercase tracking-wider">Today's Expense</p>
+                            <h3 className="text-xl font-semibold text-gray-900">$1,258</h3>
                         </div>
-                        <div className="flex items-center gap-1 text-red-500 bg-red-50 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                        <div className="flex items-center gap-1 text-red-500 bg-red-50 px-2 py-0.5 rounded-full text-[10px] font-semibold">
                             <ArrowDownRight className="w-2.5 h-2.5" />
                             25% <span className="text-gray-400 font-normal">last month</span>
                         </div>
@@ -94,10 +94,10 @@ export function AuthPreview() {
 
             {/* Partner Logos */}
             <div className="absolute bottom-12 left-0 right-0 flex justify-center items-center gap-12 opacity-60">
-                <span className="text-white text-xl font-bold tracking-tighter italic">Meta</span>
-                <span className="text-white text-xl font-bold tracking-widest uppercase">Sony</span>
-                <span className="text-white text-xl font-bold tracking-tight">Google</span>
-                <span className="text-white text-xl font-bold tracking-tighter uppercase">Samsung</span>
+                <span className="text-white text-xl font-semibold tracking-tighter italic">Meta</span>
+                <span className="text-white text-xl font-semibold tracking-widest uppercase">Sony</span>
+                <span className="text-white text-xl font-semibold tracking-tight">Google</span>
+                <span className="text-white text-xl font-semibold tracking-tighter uppercase">Samsung</span>
             </div>
         </div>
     )

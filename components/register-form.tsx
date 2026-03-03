@@ -90,14 +90,14 @@ export function RegisterForm() {
                         className="object-contain"
                     />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-gray-900 font-inter">
+                <span className="text-xl font-semibold tracking-tight text-gray-900 font-inter">
                     CashMind
                 </span>
             </Link>
 
             {/* Header */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">Get Started Now</h1>
+                <h1 className="text-2xl font-semibold text-gray-900 mb-1">Get Started Now</h1>
                 <p className="text-gray-500 text-xs">
                     Discover the power of AI to manage your finances more efficiently.
                 </p>
@@ -110,7 +110,7 @@ export function RegisterForm() {
                         Check your email to confirm your account. Then you can sign in.
                     </div>
                     <Link href={`/login?email=${encodeURIComponent(email)}`} className="block">
-                        <Button type="button" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl">
+                        <Button type="button" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">
                             Go to Sign In
                         </Button>
                     </Link>
@@ -183,7 +183,7 @@ export function RegisterForm() {
                         </label>
                     </div>
 
-                    <Button type="submit" disabled={loading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70">
+                    <Button type="submit" disabled={loading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70">
                         {loading ? "Signing up…" : "Sign Up"}
                     </Button>
 
@@ -209,7 +209,7 @@ export function RegisterForm() {
             )}
 
             <p className="mt-6 text-center text-sm text-gray-500">
-                Already have an account? <Link href="/login" className="text-blue-600 font-bold hover:underline">Sign In</Link>
+                Already have an account? <Link href="/login" className="text-blue-600 font-semibold hover:underline">Sign In</Link>
             </p>
         </div>
     )

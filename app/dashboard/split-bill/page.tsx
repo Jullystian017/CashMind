@@ -92,7 +92,7 @@ export default function SplitBillPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Split Bill</h2>
+          <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">Split Bill</h2>
           <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium italic">Manage shared expenses with friends easily.</p>
         </div>
         <Button
@@ -111,27 +111,27 @@ export default function SplitBillPage() {
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
               <Wallet className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Split</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Total Split</p>
           </div>
-          <p className="text-xl font-bold text-blue-600">{formatRp(totalSplit)}</p>
+          <p className="text-xl font-semibold text-blue-600">{formatRp(totalSplit)}</p>
         </div>
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
               <ArrowDownRight className="w-5 h-5 text-emerald-600" />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Collected</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Collected</p>
           </div>
-          <p className="text-xl font-bold text-emerald-600">{formatRp(totalLunas)}</p>
+          <p className="text-xl font-semibold text-emerald-600">{formatRp(totalLunas)}</p>
         </div>
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
               <ArrowUpRight className="w-5 h-5 text-rose-500" />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Pending</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Pending</p>
           </div>
-          <p className="text-xl font-bold text-rose-500">{formatRp(totalBelumLunas)}</p>
+          <p className="text-xl font-semibold text-rose-500">{formatRp(totalBelumLunas)}</p>
         </div>
       </div>
 
@@ -145,7 +145,7 @@ export default function SplitBillPage() {
           <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Receipt className="w-8 h-8 text-blue-600" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-1">No splits yet</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">No splits yet</h3>
           <p className="text-sm text-gray-400 max-w-sm mx-auto">Create your first split bill to start tracking shared expenses.</p>
         </div>
       ) : (
@@ -154,8 +154,8 @@ export default function SplitBillPage() {
           {activeBills.length > 0 && (
             <section className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-bold text-gray-800">Active Splits</h2>
-                <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                <h2 className="font-semibold text-gray-800">Active Splits</h2>
+                <span className="bg-blue-50 text-blue-600 text-[10px] font-semibold px-2.5 py-1 rounded-lg uppercase tracking-wider">
                   {activeBills.length} Ongoing
                 </span>
               </div>
@@ -178,8 +178,8 @@ export default function SplitBillPage() {
           {completedBills.length > 0 && (
             <section className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-bold text-gray-400">Completed</h2>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                <h2 className="font-semibold text-gray-400">Completed</h2>
+                <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                   {completedBills.length} Settled
                 </span>
               </div>
@@ -235,24 +235,24 @@ function BillCard({ bill, status, icon, formatRp, onClick }: {
             {icon}
           </div>
           <span className={cn(
-            "text-[9px] font-black px-2.5 py-1 rounded-lg tracking-wider",
+            "text-[9px] font-semibold px-2.5 py-1 rounded-lg tracking-wider",
             isActive ? "bg-orange-50 text-orange-500" : "bg-emerald-50 text-emerald-600"
           )}>
             {status}
           </span>
         </div>
         <div className="mt-5">
-          <CardTitle className="text-lg font-bold text-slate-800">{bill.title}</CardTitle>
+          <CardTitle className="text-lg font-semibold text-slate-800">{bill.title}</CardTitle>
           <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-blue-600 font-black text-xl">{formatRp(bill.total_amount)}</span>
+            <span className="text-blue-600 font-semibold text-xl">{formatRp(bill.total_amount)}</span>
           </div>
-          <p className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">
+          <p className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-tighter">
             {bill.participant_count + 1} PEOPLE
           </p>
         </div>
       </CardHeader>
       <CardContent className="pb-6">
-        <div className="flex justify-between text-[10px] font-black text-slate-500 mb-2.5 uppercase">
+        <div className="flex justify-between text-[10px] font-semibold text-slate-500 mb-2.5 uppercase">
           <span>{bill.paid_count}/{bill.participant_count} Settled</span>
           <span className={isActive ? "text-blue-600" : ""}>{Math.round(percentage)}%</span>
         </div>

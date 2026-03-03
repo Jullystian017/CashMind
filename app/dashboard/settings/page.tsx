@@ -110,7 +110,7 @@ export default function SettingsPage() {
     return (
         <div className="max-w-4xl space-y-8 pb-24">
             <div>
-                <h1 className="text-2xl font-black text-gray-900 leading-tight tracking-tight">
+                <h1 className="text-2xl font-semibold text-gray-900 leading-tight tracking-tight">
                     Settings
                 </h1>
                 <p className="text-gray-500 text-sm font-medium">
@@ -130,11 +130,11 @@ export default function SettingsPage() {
                                 <Sparkles className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <p className="font-bold text-gray-900">Complete your setup</p>
+                                <p className="font-semibold text-gray-900">Complete your setup</p>
                                 <p className="text-sm text-gray-600">Finish onboarding to set your income, goals, and spending categories.</p>
                             </div>
                         </div>
-                        <span className="text-blue-600 font-bold flex items-center gap-1 shrink-0">
+                        <span className="text-blue-600 font-semibold flex items-center gap-1 shrink-0">
                             Continue
                             <ChevronRight className="w-4 h-4" />
                         </span>
@@ -150,7 +150,7 @@ export default function SettingsPage() {
                             key={item.key}
                             onClick={() => setSection(item.key)}
                             className={cn(
-                                "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all",
+                                "w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl font-semibold text-sm transition-all",
                                 section === item.key
                                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
                                     : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-gray-100"
@@ -182,69 +182,69 @@ export default function SettingsPage() {
                                             <User className="w-8 h-8" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-gray-900">Personal Information</h3>
+                                            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
                                             <p className="text-xs text-gray-400 font-medium mt-1">Update your details</p>
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6">
                                         <div className="space-y-2">
-                                            <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Full Name</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Full Name</Label>
                                             <Input
                                                 value={profile.name}
                                                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                                                className="h-12 rounded-xl border-gray-100 font-bold"
+                                                className="h-12 rounded-xl border-gray-100 font-semibold"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Email</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Email</Label>
                                             <Input
                                                 type="email"
                                                 value={profile.email}
                                                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                                className="h-12 rounded-xl border-gray-100 font-bold"
+                                                className="h-12 rounded-xl border-gray-100 font-semibold"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Age</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Age</Label>
                                             <Input
                                                 value={profile.age}
                                                 onChange={(e) => setProfile({ ...profile, age: e.target.value })}
-                                                className="h-12 rounded-xl border-gray-100 font-bold"
+                                                className="h-12 rounded-xl border-gray-100 font-semibold"
                                             />
                                         </div>
                                         <div className="space-y-2 sm:col-span-2">
-                                            <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">School / Institution</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">School / Institution</Label>
                                             <Input
                                                 value={profile.school}
                                                 onChange={(e) => setProfile({ ...profile, school: e.target.value })}
-                                                className="h-12 rounded-xl border-gray-100 font-bold"
+                                                className="h-12 rounded-xl border-gray-100 font-semibold"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="pt-6 flex justify-end">
-                                        <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 h-12 rounded-xl shadow-lg shadow-blue-200 flex items-center gap-2">
+                                        <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 h-12 rounded-xl shadow-lg shadow-blue-200 flex items-center gap-2">
                                             <Save className="w-4 h-4" /> Save Changes
                                         </Button>
                                     </div>
                                 </section>
 
                                 <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-4">Financial Preferences</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Preferences</h3>
                                     <div className="space-y-4">
-                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Default Monthly Income (Rp)</Label>
+                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Default Monthly Income (Rp)</Label>
                                         <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">Rp</span>
                                             <Input
                                                 value={profile.income.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
                                                 onChange={(e) => setProfile({ ...profile, income: e.target.value.replace(/\D/g, "") })}
-                                                className="pl-12 h-12 rounded-xl border-gray-100 font-bold"
+                                                className="pl-12 h-12 rounded-xl border-gray-100 font-semibold"
                                             />
                                         </div>
                                     </div>
                                     <div className="pt-4 flex justify-end">
-                                        <Button onClick={handleSave} className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-6 h-11 rounded-xl">
+                                        <Button onClick={handleSave} className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 h-11 rounded-xl">
                                             Save
                                         </Button>
                                     </div>
@@ -260,11 +260,11 @@ export default function SettingsPage() {
                                 exit={{ opacity: 0, x: -8 }}
                                 className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
                             >
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">Subscriptions</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Subscriptions</h3>
                                 <p className="text-sm text-gray-500 mb-6">Manage your recurring payments and plans.</p>
                                 <Link
                                     href="/dashboard/subscriptions"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
                                 >
                                     Go to Subscriptions
                                     <ChevronRight className="w-4 h-4" />
@@ -280,7 +280,7 @@ export default function SettingsPage() {
                                 exit={{ opacity: 0, x: -8 }}
                                 className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
                             >
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">Notifications</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Notifications</h3>
                                 <p className="text-sm text-gray-500 mb-6">Choose what updates you receive (billing, challenges, tips).</p>
                                 <div className="space-y-4">
                                     {["Billing reminders", "Challenge updates", "Weekly summary"].map((label) => (
@@ -291,7 +291,7 @@ export default function SettingsPage() {
                                     ))}
                                 </div>
                                 <div className="pt-6 flex justify-end">
-                                    <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 h-11 rounded-xl">Save</Button>
+                                    <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 h-11 rounded-xl">Save</Button>
                                 </div>
                             </motion.div>
                         )}
@@ -304,11 +304,11 @@ export default function SettingsPage() {
                                 exit={{ opacity: 0, x: -8 }}
                                 className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
                             >
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">Security</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Security</h3>
                                 <p className="text-sm text-gray-500 mb-6">Password and security options.</p>
                                 <div className="space-y-4 text-gray-900">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">New password</Label>
+                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">New password</Label>
                                         <div className="relative">
                                             <Input
                                                 type={showPassword ? "text" : "password"}
@@ -327,7 +327,7 @@ export default function SettingsPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold uppercase tracking-widest text-gray-400">Confirm new password</Label>
+                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Confirm new password</Label>
                                         <Input
                                             type="password"
                                             placeholder="••••••••"
@@ -341,7 +341,7 @@ export default function SettingsPage() {
                                     <Button
                                         onClick={handleUpdatePassword}
                                         disabled={passwordLoading}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 px-8 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
+                                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12 px-8 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
                                     >
                                         {passwordLoading ? "Updating…" : "Update password"}
                                     </Button>

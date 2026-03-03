@@ -66,10 +66,10 @@ export const CTA = () => {
                                             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                                             className="flex flex-col"
                                         >
-                                            <span className="text-base md:text-lg font-bold text-blue-600 tracking-tight h-6 md:h-7 flex items-center">
+                                            <span className="text-base md:text-lg font-semibold text-blue-600 tracking-tight h-6 md:h-7 flex items-center">
                                                 Get Started
                                             </span>
-                                            <span className="text-base md:text-lg font-bold text-blue-600 tracking-tight h-6 md:h-7 flex items-center">
+                                            <span className="text-base md:text-lg font-semibold text-blue-600 tracking-tight h-6 md:h-7 flex items-center">
                                                 Get Started
                                             </span>
                                         </motion.div>

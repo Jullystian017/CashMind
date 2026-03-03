@@ -68,14 +68,14 @@ export function ResetPasswordForm() {
                         className="object-contain"
                     />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-gray-900 font-inter">
+                <span className="text-xl font-semibold tracking-tight text-gray-900 font-inter">
                     CashMind
                 </span>
             </Link>
 
             {/* Header */}
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">Set New Password</h1>
+                <h1 className="text-2xl font-semibold text-gray-900 mb-1">Set New Password</h1>
                 <p className="text-gray-500 text-xs">
                     Please enter your new password below.
                 </p>
@@ -87,12 +87,12 @@ export function ResetPasswordForm() {
                     <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-start gap-3">
                         <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
                         <div>
-                            <p className="font-bold mb-1">Password updated</p>
+                            <p className="font-semibold mb-1">Password updated</p>
                             <p className="text-emerald-700/80">Your password has been reset successfully. Redirecting you to login...</p>
                         </div>
                     </div>
                     <Link href="/login" className="block">
-                        <Button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl">
+                        <Button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">
                             Go to Sign In
                         </Button>
                     </Link>
@@ -140,7 +140,7 @@ export function ResetPasswordForm() {
                         />
                     </div>
 
-                    <Button type="submit" disabled={loading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70">
+                    <Button type="submit" disabled={loading} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70">
                         {loading ? "Updating…" : "Update Password"}
                     </Button>
                 </form>
