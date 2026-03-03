@@ -62,21 +62,21 @@ export function Footer() {
                     <div className="md:col-span-4 lg:col-span-3">
                         <h4 className="font-semibold text-gray-900 mb-6">Contact</h4>
                         <ul className="space-y-4">
-                            <li className="flex items-center gap-3 text-gray-500 text-sm font-medium group">
-                                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                    <Mail className="w-4 h-4 text-blue-600 group-hover:text-white transition-colors" />
+                            <li className="flex items-center gap-3 text-gray-500 text-sm font-medium">
+                                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                                    <Mail className="w-4 h-4 text-blue-600" />
                                 </div>
                                 jullystian01@gmail.com
                             </li>
-                            <li className="flex items-center gap-3 text-gray-500 text-sm font-medium group">
-                                <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                                    <Phone className="w-4 h-4 text-emerald-600 group-hover:text-white transition-colors" />
+                            <li className="flex items-center gap-3 text-gray-500 text-sm font-medium">
+                                <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                                    <Phone className="w-4 h-4 text-emerald-600" />
                                 </div>
                                 +62 857-9805-1625
                             </li>
-                            <li className="flex items-center gap-3 text-gray-500 text-sm font-medium group">
-                                <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                    <MapPin className="w-4 h-4 text-indigo-600 group-hover:text-white transition-colors" />
+                            <li className="flex items-center gap-3 text-gray-500 text-sm font-medium">
+                                <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
+                                    <MapPin className="w-4 h-4 text-indigo-600" />
                                 </div>
                                 Banyumas, Jawa Tengah
                             </li>
