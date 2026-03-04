@@ -61,20 +61,20 @@ type Milestone = {
 // ─── CONSTANTS ────────────────────────────────────────────────────
 
 const goalPresets = [
-    { label: "Dana Darurat", icon: ShieldAlert, value: "emergency", amount: 15000000 },
-    { label: "DP Motor", icon: Bike, value: "motor", amount: 8000000 },
-    { label: "DP Rumah", icon: Home, value: "house", amount: 50000000 },
-    { label: "Investasi Rutin", icon: TrendingUp, value: "invest", amount: 20000000 },
-    { label: "Pendidikan", icon: GraduationCap, value: "education", amount: 30000000 },
+    { label: "Emergency Fund", icon: ShieldAlert, value: "emergency", amount: 15000000 },
+    { label: "Motorcycle DP", icon: Bike, value: "motor", amount: 8000000 },
+    { label: "House DP", icon: Home, value: "house", amount: 50000000 },
+    { label: "Routine Investment", icon: TrendingUp, value: "invest", amount: 20000000 },
+    { label: "Education", icon: GraduationCap, value: "education", amount: 30000000 },
 ]
 
 const defaultLifestyleItems: LifestyleItem[] = [
-    { id: "coffee", label: "Kopi Harian", icon: Coffee, emoji: "☕", costPerMonth: 750000, description: "Rp 25.000/hari × 30 hari", concept: "Opportunity Cost", enabled: false },
-    { id: "gadget", label: "Upgrade Gadget", icon: Gamepad2, emoji: "🎮", costPerMonth: 416667, description: "Rp 5.000.000/tahun", concept: "Depreciation Cost", enabled: false },
-    { id: "motor", label: "Kredit Motor", icon: Car, emoji: "🚗", costPerMonth: 800000, description: "Rp 800.000/bulan cicilan", concept: "Debt Liability", enabled: false },
-    { id: "invest", label: "Invest 500k/bulan", icon: TrendingUp, emoji: "📈", costPerMonth: -500000, description: "Return ~8%/tahun", concept: "Compound Growth", enabled: false },
-    { id: "eating", label: "Makan Luar 3x/minggu", icon: ShoppingBag, emoji: "🍔", costPerMonth: 480000, description: "Rp 40.000 × 12x/bulan", concept: "Lifestyle Inflation", enabled: false },
-    { id: "streaming", label: "Streaming Subs", icon: Film, emoji: "🎬", costPerMonth: 150000, description: "Netflix + Spotify + dll", concept: "Recurring Cost", enabled: false },
+    { id: "coffee", label: "Daily Coffee", icon: Coffee, emoji: "☕", costPerMonth: 750000, description: "Rp 25.000/day × 30 days", concept: "Opportunity Cost", enabled: false },
+    { id: "gadget", label: "Gadget Upgrade", icon: Gamepad2, emoji: "🎮", costPerMonth: 416667, description: "Rp 5.000.000/year", concept: "Depreciation Cost", enabled: false },
+    { id: "motor", label: "Motorcycle Credit", icon: Car, emoji: "🚗", costPerMonth: 800000, description: "Rp 800.000/mo installment", concept: "Debt Liability", enabled: false },
+    { id: "invest", label: "Invest 500k/mo", icon: TrendingUp, emoji: "📈", costPerMonth: -500000, description: "Return ~8%/year", concept: "Compound Growth", enabled: false },
+    { id: "eating", label: "Eat Out 3x/week", icon: ShoppingBag, emoji: "🍔", costPerMonth: 480000, description: "Rp 40.000 × 12x/mo", concept: "Lifestyle Inflation", enabled: false },
+    { id: "streaming", label: "Streaming Subs", icon: Film, emoji: "🎬", costPerMonth: 150000, description: "Netflix + Spotify + etc", concept: "Recurring Cost", enabled: false },
 ]
 
 const formatRp = (val: number) =>
@@ -83,9 +83,9 @@ const formatRp = (val: number) =>
         .replace("Rp", "Rp ")
 
 const formatRpCompact = (val: number) => {
-    if (Math.abs(val) >= 1_000_000_000) return `Rp ${(val / 1_000_000_000).toFixed(1)}M`
-    if (Math.abs(val) >= 1_000_000) return `Rp ${(val / 1_000_000).toFixed(1)}jt`
-    if (Math.abs(val) >= 1_000) return `Rp ${(val / 1_000).toFixed(0)}rb`
+    if (Math.abs(val) >= 1_000_000_000) return `Rp ${(val / 1_000_000_000).toFixed(1)}B`
+    if (Math.abs(val) >= 1_000_000) return `Rp ${(val / 1_000_000).toFixed(1)}M`
+    if (Math.abs(val) >= 1_000) return `Rp ${(val / 1_000).toFixed(0)}K`
     return `Rp ${val}`
 }
 
@@ -311,7 +311,7 @@ export default function SimulationPage() {
 
         // One-line insight — now includes income growth info
         const insight = useProgressiveIncome
-            ? `With income growing from ${formatRp(income)} → ${formatRp(targetIncome)}/bulan, you will accumulate ${formatRp(finalNetWorth)} in ${projectionYears} years. Savings rate improves from ${savingsRate.toFixed(0)}% to ${finalSavingsRate.toFixed(0)}%.`
+            ? `With income growing from ${formatRp(income)} → ${formatRp(targetIncome)}/mo, you will accumulate ${formatRp(finalNetWorth)} in ${projectionYears} years. Savings rate improves from ${savingsRate.toFixed(0)}% to ${finalSavingsRate.toFixed(0)}%.`
             : `At current behavior, you will accumulate ${formatRp(finalNetWorth)} in ${projectionYears} years with a ${savingsRate.toFixed(0)}% savings rate.`
 
         return { yearlyData, finalNetWorth, savingsRate, monthlySavings: income - expense, status, statusLabel, statusColor, statusBg, statusEmoji, goalReachable, goalAmount, realityChecks, insight }
@@ -351,8 +351,8 @@ export default function SimulationPage() {
             .reduce((sum, i) => sum + i.costPerMonth, 0)
 
         const comparisonData = [
-            { name: "Tanpa Lifestyle", netWorth: Math.round(withoutNW), fill: "#3b82f6" },
-            { name: "Dengan Lifestyle", netWorth: Math.round(withNW), fill: difference >= 0 ? "#10b981" : "#ef4444" },
+            { name: "Without Lifestyle", netWorth: Math.round(withoutNW), fill: "#3b82f6" },
+            { name: "With Lifestyle", netWorth: Math.round(withNW), fill: difference >= 0 ? "#10b981" : "#ef4444" },
         ]
 
         const realityChecks: string[] = []
@@ -372,10 +372,10 @@ export default function SimulationPage() {
         const currentYear = new Date().getFullYear()
 
         const milestones: Milestone[] = [
-            { id: "emergency", label: "Dana Darurat Tercapai", emoji: "🛡️", amount: 15000000, year: null, reached: false },
-            { id: "dp-motor", label: "Bisa DP Motor", emoji: "🏍️", amount: 8000000, year: null, reached: false },
-            { id: "invest", label: "Investasi Rutin Stabil", emoji: "💰", amount: 20000000, year: null, reached: false },
-            { id: "dp-rumah", label: "DP Rumah", emoji: "🏠", amount: 50000000, year: null, reached: false },
+            { id: "emergency", label: "Emergency Fund Reached", emoji: "🛡️", amount: 15000000, year: null, reached: false },
+            { id: "dp-motor", label: "Can Afford Motorcycle DP", emoji: "🏍️", amount: 8000000, year: null, reached: false },
+            { id: "invest", label: "Stable Routine Investment", emoji: "💰", amount: 20000000, year: null, reached: false },
+            { id: "dp-rumah", label: "House DP", emoji: "🏠", amount: 50000000, year: null, reached: false },
         ]
 
         milestones.forEach(m => {
@@ -421,7 +421,7 @@ export default function SimulationPage() {
             <div className="flex flex-col @md/main:flex-row @md/main:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-2xl @md/main:text-3xl font-semibold text-gray-900 tracking-tight">Future Growth Simulation</h2>
-                    <p className="text-gray-500 text-xs @md/main:text-sm mt-1 font-medium italic">Simulasi masa depan finansialmu berdasarkan data nyata.</p>
+                    <p className="text-gray-500 text-xs @md/main:text-sm mt-1 font-medium italic">Simulate your financial future based on real data.</p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                     <ConceptBadge label="Compound Growth" />
@@ -433,8 +433,8 @@ export default function SimulationPage() {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 @sm/main:grid-cols-2 @lg/main:grid-cols-4 gap-4">
                 {[
-                    { label: "Income/bulan", value: formatRp(income), icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50" },
-                    { label: "Expense/bulan", value: formatRp(expense), icon: Wallet, color: "text-red-500", bg: "bg-red-50" },
+                    { label: "Income/mo", value: formatRp(income), icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50" },
+                    { label: "Expense/mo", value: formatRp(expense), icon: Wallet, color: "text-red-500", bg: "bg-red-50" },
                     { label: "Savings Rate", value: `${futureProjection.savingsRate.toFixed(1)}%`, icon: PiggyBank, color: "text-blue-600", bg: "bg-blue-50" },
                     { label: "Balance", value: formatRp(simData?.totalBalance || 0), icon: BarChart3, color: "text-purple-600", bg: "bg-purple-50" },
                 ].map((card, i) => (
@@ -494,7 +494,7 @@ export default function SimulationPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-slate-800">Future Me {new Date().getFullYear() + projectionYears}</h3>
-                                    <p className="text-xs text-slate-400">Isi data untuk melihat proyeksi masa depanmu</p>
+                                    <p className="text-xs text-slate-400">Fill in your data to see your future projection</p>
                                 </div>
                                 <div className="ml-auto">
                                     <ConceptBadge label="Net Worth Projection" />
@@ -502,9 +502,9 @@ export default function SimulationPage() {
                             </div>
 
                             <div className="grid grid-cols-1 @md/main:grid-cols-2 gap-4 mb-6">
-                                <CurrencyInput label="Income Bulanan" value={income} onChange={setIncome} />
+                                <CurrencyInput label="Monthly Income" value={income} onChange={setIncome} />
                                 <CurrencyInput label="Target Income" value={targetIncome} onChange={setTargetIncome} />
-                                <CurrencyInput label="Pengeluaran Rata-Rata" value={expense} onChange={setExpense} />
+                                <CurrencyInput label="Average Expense" value={expense} onChange={setExpense} />
                                 <div>
                                     <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Projection Period</label>
                                     <select
@@ -512,16 +512,16 @@ export default function SimulationPage() {
                                         onChange={e => setProjectionYears(Number(e.target.value))}
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
                                     >
-                                        <option value={3}>3 Tahun</option>
-                                        <option value={5}>5 Tahun</option>
-                                        <option value={10}>10 Tahun</option>
+                                        <option value={3}>3 Years</option>
+                                        <option value={5}>5 Years</option>
+                                        <option value={10}>10 Years</option>
                                     </select>
                                 </div>
                             </div>
 
                             {/* Goal Selection */}
                             <div className="mb-6">
-                                <label className="text-xs font-semibold text-slate-500 mb-3 block">Target Finansial</label>
+                                <label className="text-xs font-semibold text-slate-500 mb-3 block">Financial Target</label>
                                 <div className="grid grid-cols-2 @md/main:grid-cols-5 gap-2">
                                     {goalPresets.map(goal => (
                                         <button
@@ -608,8 +608,8 @@ export default function SimulationPage() {
                                         }
                                         <p className="text-xs font-medium">
                                             {futureProjection.goalReachable
-                                                ? `✅ Target "${goalPresets.find(g => g.value === selectedGoal)?.label}" (${formatRp(futureProjection.goalAmount)}) tercapai dalam ${projectionYears} tahun!`
-                                                : `❌ Target "${goalPresets.find(g => g.value === selectedGoal)?.label}" (${formatRp(futureProjection.goalAmount)}) belum tercapai. Pertimbangkan untuk meningkatkan savings rate.`
+                                                ? `✅ Target "${goalPresets.find(g => g.value === selectedGoal)?.label}" (${formatRp(futureProjection.goalAmount)}) reached in ${projectionYears} years!`
+                                                : `❌ Target "${goalPresets.find(g => g.value === selectedGoal)?.label}" (${formatRp(futureProjection.goalAmount)}) not reached. Consider increasing your savings rate.`
                                             }
                                         </p>
                                     </motion.div>
@@ -624,7 +624,7 @@ export default function SimulationPage() {
                                         <div className="flex items-center justify-between mb-4">
                                             <div>
                                                 <h4 className="font-semibold text-slate-800">📈 Growth Path</h4>
-                                                <p className="text-[11px] text-slate-400">Proyeksi pertumbuhan net worth</p>
+                                                <p className="text-[11px] text-slate-400">Net worth growth projection</p>
                                             </div>
                                             <ConceptBadge label="Compound Growth" />
                                         </div>
@@ -680,7 +680,7 @@ export default function SimulationPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-slate-800">Lifestyle Trade-Off Simulator</h3>
-                                    <p className="text-xs text-slate-400">Toggle kebiasaan dan lihat dampaknya ke masa depan</p>
+                                    <p className="text-xs text-slate-400">Toggle habits and see their impact on your future</p>
                                 </div>
                                 <div className="ml-auto">
                                     <ConceptBadge label="Opportunity Cost" />
@@ -717,7 +717,7 @@ export default function SimulationPage() {
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className={`text-xs font-semibold ${item.costPerMonth < 0 ? "text-emerald-600" : "text-red-500"}`}>
-                                                {item.costPerMonth < 0 ? "+" : "-"}{formatRpCompact(Math.abs(item.costPerMonth))}/bln
+                                                {item.costPerMonth < 0 ? "+" : "-"}{formatRpCompact(Math.abs(item.costPerMonth))}/mo
                                             </span>
                                             <div className={`w-11 h-6 rounded-full transition-all flex items-center px-0.5 ${item.enabled
                                                 ? item.costPerMonth < 0 ? "bg-emerald-500" : "bg-red-500"
@@ -770,20 +770,20 @@ export default function SimulationPage() {
                                     <h4 className="font-semibold text-slate-800 text-sm mb-4">💡 Impact Analysis</h4>
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs text-slate-500">Biaya Bulanan Lifestyle</span>
+                                            <span className="text-xs text-slate-500">Monthly Lifestyle Cost</span>
                                             <span className={`text-sm font-semibold ${tradeOffResult.totalEnabledCost > 0 ? "text-red-500" : tradeOffResult.totalEnabledCost < 0 ? "text-emerald-600" : "text-slate-400"}`}>
                                                 {tradeOffResult.totalEnabledCost > 0 ? "-" : tradeOffResult.totalEnabledCost < 0 ? "+" : ""}{formatRp(Math.abs(tradeOffResult.totalEnabledCost))}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs text-slate-500">Savings Tersisa/bulan</span>
+                                            <span className="text-xs text-slate-500">Remaining Savings/mo</span>
                                             <span className={`text-sm font-semibold ${tradeOffResult.adjustedSavings >= 0 ? "text-blue-600" : "text-red-500"}`}>
                                                 {formatRp(tradeOffResult.adjustedSavings)}
                                             </span>
                                         </div>
                                         <div className="h-px bg-slate-100" />
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs text-slate-500 font-semibold">Dampak 5 Tahun</span>
+                                            <span className="text-xs text-slate-500 font-semibold">5-Year Impact</span>
                                             <span className={`text-lg font-semibold ${tradeOffResult.difference >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                                                 {tradeOffResult.difference >= 0 ? "+" : ""}{formatRp(tradeOffResult.difference)}
                                             </span>
@@ -795,8 +795,8 @@ export default function SimulationPage() {
                                         <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                                         <p className="text-[11px] text-slate-500 leading-relaxed">
                                             {tradeOffResult.difference >= 0
-                                                ? `Pilihan lifestyle ini menambah ${formatRp(tradeOffResult.difference)} ke net worth dalam 5 tahun. Smart choice!`
-                                                : `Pilihan lifestyle ini mengurangi ${formatRp(Math.abs(tradeOffResult.difference))} dari potensi net worth. Pertimbangkan trade-off-nya.`
+                                                ? `This lifestyle choice adds ${formatRp(tradeOffResult.difference)} to your net worth in 5 years. Smart choice!`
+                                                : `This lifestyle choice reduces your potential net worth by ${formatRp(Math.abs(tradeOffResult.difference))}. Consider the trade-off.`
                                             }
                                         </p>
                                     </div>
@@ -825,7 +825,7 @@ export default function SimulationPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-slate-800">Wealth Timeline</h3>
-                                    <p className="text-xs text-slate-400">Kapan milestone finansialmu tercapai?</p>
+                                    <p className="text-xs text-slate-400">When will your financial milestones be reached?</p>
                                 </div>
                                 <div className="ml-auto">
                                     <ConceptBadge label="Compound Growth" />
@@ -898,12 +898,12 @@ export default function SimulationPage() {
                                                     </div>
                                                 </div>
                                                 {isReached ? (
-                                                    <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">TERCAPAI ✅</span>
+                                                    <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">REACHED ✅</span>
                                                 ) : hasYear ? (
                                                     <span className="text-[10px] font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-lg">{milestone.year}</span>
                                                 ) : (
                                                     <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
-                                                        <Lock className="w-3 h-3" /> 10+ TAHUN
+                                                        <Lock className="w-3 h-3" /> 10+ YEARS
                                                     </span>
                                                 )}
                                             </div>
@@ -920,13 +920,13 @@ export default function SimulationPage() {
                                                         />
                                                     </div>
                                                     <p className="text-[10px] text-slate-400 mt-1">
-                                                        ~{yearsAway} tahun lagi dengan savings rate saat ini
+                                                        ~{yearsAway} years left with current savings rate
                                                     </p>
                                                 </div>
                                             )}
                                             {isReached && (
                                                 <p className="text-[10px] text-emerald-600 font-medium">
-                                                    🎉 Milestone ini sudah tercapai berdasarkan saldo saat ini!
+                                                    🎉 This milestone has been reached based on current balance!
                                                 </p>
                                             )}
                                         </motion.div>
@@ -945,8 +945,8 @@ export default function SimulationPage() {
                                     <Info className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
                                     <p className="text-xs text-indigo-700 font-medium leading-relaxed">
                                         {timelineMilestones.filter(m => m.year !== null).length === 0
-                                            ? "Tingkatkan savings rate untuk mulai mencapai milestone finansial. Gunakan Trade-Off Simulator untuk melihat dampak perubahan kebiasaan."
-                                            : `Dengan savings rate saat ini, ${timelineMilestones.filter(m => m.reached).length} milestone sudah tercapai dan ${timelineMilestones.filter(m => m.year !== null && !m.reached).length} milestone bisa tercapai dalam ${Math.max(...timelineMilestones.filter(m => m.year !== null).map(m => m.year!)) - new Date().getFullYear()} tahun.`
+                                            ? "Increase your savings rate to start reaching your financial milestones. Use the Trade-Off Simulator to see the impact of changing habits."
+                                            : `With your current savings rate, ${timelineMilestones.filter(m => m.reached).length} milestone(s) are already reached and ${timelineMilestones.filter(m => m.year !== null && !m.reached).length} milestone(s) can be reached in ${Math.max(...timelineMilestones.filter(m => m.year !== null).map(m => m.year!)) - new Date().getFullYear()} years.`
                                         }
                                     </p>
                                 </div>
@@ -955,8 +955,8 @@ export default function SimulationPage() {
 
                         {/* Reality Check */}
                         <RealityCheck messages={[
-                            "Timeline milestones dihitung berdasarkan savings rate konstan. Perubahan income atau expense akan menggeser timeline.",
-                            "Belum memperhitungkan inflasi (~3-5%/tahun) yang mengurangi daya beli.",
+                            "Timeline milestones are calculated based on a constant savings rate. Changes in income or expenses will shift the timeline.",
+                            "Does not account for inflation (~3-5%/year) which reduces purchasing power.",
                         ]} />
                     </motion.div>
                 )}
