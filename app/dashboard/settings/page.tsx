@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { User, Wallet, Bell, Shield, Save, ChevronRight, Sparkles } from "lucide-react"
+import { User, Wallet, Bell, Shield, Save, ChevronRight, Sparkles, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getProfile, updateProfile } from "@/app/actions/profile"
 import { updateUserPassword } from "@/app/actions/auth"
@@ -14,10 +14,11 @@ import { Eye, EyeOff } from "lucide-react"
 
 const ONBOARDING_COMPLETED_KEY = "cashmind_onboarding_completed"
 
-type SettingsSection = "profile" | "subscriptions" | "notifications" | "security"
+type SettingsSection = "profile" | "subscriptions" | "notifications" | "security" | "language"
 
 export default function SettingsPage() {
     const [section, setSection] = useState<SettingsSection>("profile")
+    const [language, setLanguage] = useState<"en" | "id">("en")
     const [toast, setToast] = useState<string | null>(null)
     const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null)
     const [profile, setProfile] = useState({
@@ -50,6 +51,9 @@ export default function SettingsPage() {
                 setOnboardingCompleted(data.onboarding_completed)
             }
         })
+        // Load saved language preference
+        const savedLang = localStorage.getItem("cashmind_language")
+        if (savedLang === "en" || savedLang === "id") setLanguage(savedLang)
         return () => { mounted.current = false }
     }, [])
     useEffect(() => {
@@ -100,11 +104,19 @@ export default function SettingsPage() {
         }
     }
 
+    const handleLanguageChange = (lang: "en" | "id") => {
+        setLanguage(lang)
+        localStorage.setItem("cashmind_language", lang)
+        setToast(lang === "en" ? "Language set to English" : "Bahasa diubah ke Indonesia")
+        setTimeout(() => setToast(null), 2000)
+    }
+
     const navItems: { key: SettingsSection; name: string; icon: typeof User }[] = [
         { key: "profile", name: "My Profile", icon: User },
         { key: "subscriptions", name: "Subscriptions", icon: Wallet },
         { key: "notifications", name: "Notifications", icon: Bell },
         { key: "security", name: "Security", icon: Shield },
+        { key: "language", name: "Language", icon: Globe },
     ]
 
     return (
@@ -345,6 +357,61 @@ export default function SettingsPage() {
                                     >
                                         {passwordLoading ? "Updating…" : "Update password"}
                                     </Button>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {section === "language" && (
+                            <motion.div
+                                key="language"
+                                initial={{ opacity: 0, x: 8 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -8 }}
+                                className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
+                            >
+                                <div className="flex items-center gap-4 border-b border-gray-50 pb-6">
+                                    <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600">
+                                        <Globe className="w-8 h-8" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900">Language</h3>
+                                        <p className="text-xs text-gray-400 font-medium mt-1">Choose your preferred language</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6">
+                                    {[
+                                        { code: "en" as const, label: "English", flag: "🇺🇸", desc: "English (US)" },
+                                        { code: "id" as const, label: "Indonesia", flag: "🇮🇩", desc: "Bahasa Indonesia" },
+                                    ].map((lang) => (
+                                        <button
+                                            key={lang.code}
+                                            onClick={() => handleLanguageChange(lang.code)}
+                                            className={cn(
+                                                "relative p-5 rounded-2xl border-2 transition-all text-left group",
+                                                language === lang.code
+                                                    ? "border-blue-500 bg-blue-50/60 shadow-lg shadow-blue-100"
+                                                    : "border-gray-100 hover:border-gray-200 hover:bg-gray-50/50"
+                                            )}
+                                        >
+                                            {language === lang.code && (
+                                                <div className="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                            <span className="text-3xl mb-3 block">{lang.flag}</span>
+                                            <p className="font-semibold text-gray-900 text-sm">{lang.label}</p>
+                                            <p className="text-xs text-gray-400 mt-0.5">{lang.desc}</p>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="mt-6 p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                                    <p className="text-xs text-amber-700 font-medium leading-relaxed">
+                                        ⚠️ Language switching is currently in development. Changing this setting will be applied across the app in a future update.
+                                    </p>
                                 </div>
                             </motion.div>
                         )}
