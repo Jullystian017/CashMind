@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-
+import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -32,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
-        {children}
+        <LanguageProvider>
+  {children}
+</LanguageProvider>
       </body>
     </html>
   );

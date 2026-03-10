@@ -7,13 +7,14 @@ import { ArrowRight, LayoutDashboard } from "lucide-react"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [isAboutSection, setIsAboutSection] = useState(false)
   const [user, setUser] = useState<any>(null)
   const supabase = createClient()
-
+  const { t } = useTranslation();
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
@@ -78,10 +79,10 @@ export function Navbar() {
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-1 text-sm font-semibold text-gray-500">
           {[
-            { name: "About", href: "/about" },
-            { name: "Features", href: "/features" },
-            { name: "Pricing", href: "/pricing" },
-            { name: "Contact Us", href: "/contact" },
+            { name: "{t('nav.About')}", href: "/about" },
+            { name: "{t('nav.About')}", href: "/features" },
+            { name: "{t('nav.About')}", href: "/pricing" },
+            { name: "{t('nav.About')}", href: "/contact" },
           ].map((item) => (
             <Link
               key={item.name}
