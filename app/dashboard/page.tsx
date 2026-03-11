@@ -89,9 +89,9 @@ const formatRp = (val: number) =>
         .format(val)
         .replace("Rp", "Rp ")
 
-const formatAmountCompact = (val: number) => {
+const formatAmountCompact = (val: number, millionLabel: string = 'M') => {
     if (Math.abs(val) >= 1000000) {
-        return (val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt'
+        return (val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' ' + millionLabel
     }
     if (Math.abs(val) >= 1000) {
         return (val / 1000).toLocaleString('id-ID', { maximumFractionDigits: 0 }) + 'k'
@@ -101,7 +101,7 @@ const formatAmountCompact = (val: number) => {
 
 
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, t }: any) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload
         const income = data.income || 0
@@ -117,7 +117,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                            <span className="text-[10px] font-semibold text-gray-400">Income</span>
+                            <span className="text-[10px] font-semibold text-gray-400">{t ? t("dashboard.tooltipIncome") : "Income"}</span>
                         </div>
                         <span className="text-xs font-semibold text-white">Rp {income.toLocaleString('id-ID')},000</span>
                     </div>
@@ -125,13 +125,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                            <span className="text-[10px] font-semibold text-gray-400">Expense</span>
+                            <span className="text-[10px] font-semibold text-gray-400">{t ? t("dashboard.tooltipExpense") : "Expense"}</span>
                         </div>
                         <span className="text-xs font-semibold text-white">Rp {expense.toLocaleString('id-ID')},000</span>
                     </div>
 
                     <div className="pt-2 mt-2 border-t border-gray-800 flex items-center justify-between">
-                        <span className="text-[10px] font-semibold text-gray-500 uppercase">Savings Gap</span>
+                        <span className="text-[10px] font-semibold text-gray-500 uppercase">{t ? t("dashboard.savingsGap") : "Savings Gap"}</span>
                         <span className={cn(
                             "text-xs font-semibold",
                             isPositive ? "text-emerald-400" : "text-rose-400"
@@ -280,20 +280,21 @@ export default function DashboardOverview() {
             const deadline = new Date(deadlineStr)
             const diffTime = deadline.getTime() - now.getTime()
 
-            if (diffTime < 0) return "Terminated"
+            if (diffTime < 0) return t("dashboard.terminated")
 
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-            if (diffDays < 30) return `${diffDays} days left`
+            if (diffDays < 30) return t("dashboard.daysLeft", { days: diffDays })
 
             const diffMonths = Math.ceil(diffDays / 30)
-            return `${diffMonths} months left`
+            return t("dashboard.monthsLeft", { months: diffMonths })
         } catch {
-            return "No deadline"
+            return t("dashboard.noDeadline")
         }
     }
 
     const stats = [
         {
+            id: "financialScore",
             label: t("dashboard.financialScore"),
             amount: financialScore ? `${financialScore.score}/100` : "0/100",
             subLabel: financialScore ? `Status: ${financialScore.status}` : "Status: Beginner",
@@ -303,9 +304,10 @@ export default function DashboardOverview() {
             color: "text-blue-600 bg-blue-50"
         },
         {
+            id: "totalBalance",
             label: t("dashboard.totalBalance"),
             amount: statsData ? formatRp(statsData.totalBalance) : "Rp 0",
-            subLabel: "Updated just now",
+            subLabel: t("dashboard.updatedJustNow"),
             trend: statsData?.trends?.balance?.isNew ? "New" : statsData?.trends?.balance?.value ?? "0.0%",
             sentiment: statsData?.trends?.balance?.isPositive ? "good" : "bad",
             isUp: statsData?.trends?.balance?.isNew || statsData?.trends?.balance?.isPositive,
@@ -313,9 +315,10 @@ export default function DashboardOverview() {
             color: "text-blue-600 bg-blue-50"
         },
         {
+            id: "income",
             label: t("transactions.income"),
             amount: statsData ? formatRp(statsData.totalIncome) : "Rp 0",
-            subLabel: "Total earned",
+            subLabel: t("dashboard.totalEarned"),
             trend: statsData?.trends?.income?.isNew ? "New" : statsData?.trends?.income?.value ?? "0.0%",
             sentiment: statsData?.trends?.income?.isPositive ? "good" : "bad",
             isUp: statsData?.trends?.income?.isNew || statsData?.trends?.income?.isPositive,
@@ -323,9 +326,10 @@ export default function DashboardOverview() {
             color: "text-blue-600 bg-blue-50"
         },
         {
+            id: "expense",
             label: t("transactions.expense"),
             amount: statsData ? formatRp(statsData.totalExpense) : "Rp 0",
-            subLabel: "This month",
+            subLabel: t("dashboard.thisMonth"),
             trend: statsData?.trends?.expense?.isNew ? "New" : statsData?.trends?.expense?.value ?? "0.0%",
             sentiment: statsData?.trends?.expense?.isNew ? "neutral" : (statsData?.trends?.expense?.isPositive ? "bad" : "good"),
             isUp: statsData?.trends?.expense?.isPositive,
@@ -348,8 +352,8 @@ export default function DashboardOverview() {
             {/* Header Section */}
             <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">Financial Overview</h2>
-                    <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Welcome back! Here's what's happening with your money today.</p>
+                    <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">{t("dashboard.financialOverview")}</h2>
+                    <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">{t("dashboard.welcomeSubtitle")}</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
@@ -358,7 +362,7 @@ export default function DashboardOverview() {
                         className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 group"
                     >
                         <Calendar className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                        <span>Financial Calendar</span>
+                        <span>{t("dashboard.financialCalendar")}</span>
                     </button>
                 </div>
             </div>
@@ -366,7 +370,7 @@ export default function DashboardOverview() {
             {/* Stat Cards */}
             <div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-4 gap-6">
                 {stats.map((stat, i) => {
-                    const isSpecial = stat.label === "Financial Score"
+                    const isSpecial = stat.id === "financialScore"
                     return (
                         <motion.div
                             key={stat.label}
@@ -421,7 +425,7 @@ export default function DashboardOverview() {
                                             className="flex items-center gap-1 text-[9px] @md:text-[10px] font-semibold cursor-pointer transition-all hover:translate-x-0.5 text-white/80 hover:text-white"
                                             suppressHydrationWarning={true}
                                         >
-                                            View Details <ChevronRight className="w-2.5 h-2.5" />
+                                            {t("dashboard.viewDetails")} <ChevronRight className="w-2.5 h-2.5" />
                                         </div>
                                     ) : (
                                         <div className={cn(
@@ -453,9 +457,9 @@ export default function DashboardOverview() {
                     >
                         <div className="flex flex-col @md:flex-row justify-between items-start @md:items-center gap-4 mb-4">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 leading-none">Spending Analytics</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 leading-none">{t("dashboard.spendingAnalytics")}</h3>
                                 <p className="text-xs text-gray-500 font-medium mt-1.5">
-                                    {chartView === 'weekly' ? 'Weekly expenses trend' : 'Monthly expenses trend'}
+                                    {chartView === 'weekly' ? t("dashboard.weeklyTrend") : t("dashboard.monthlyTrend")}
                                 </p>
                             </div>
                             <div className="flex bg-gray-50 p-1 rounded-xl w-full @md:w-auto">
@@ -467,7 +471,7 @@ export default function DashboardOverview() {
                                         chartView === 'weekly' ? "text-blue-600 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"
                                     )}
                                 >
-                                    Weekly
+                                    {t("dashboard.weekly")}
                                 </button>
                                 <button
                                     onClick={() => setChartView('monthly')}
@@ -477,7 +481,7 @@ export default function DashboardOverview() {
                                         chartView === 'monthly' ? "text-blue-600 bg-white shadow-sm" : "text-gray-400 hover:text-gray-600"
                                     )}
                                 >
-                                    Monthly
+                                    {t("dashboard.monthly")}
                                 </button>
                             </div>
                         </div>
@@ -512,7 +516,7 @@ export default function DashboardOverview() {
                                             />
                                             <Tooltip
                                                 cursor={{ fill: '#f8fafc' }}
-                                                content={<CustomTooltip />}
+                                                content={<CustomTooltip t={t} />}
                                             />
                                             <ReferenceLine
                                                 y={targetLimit}
@@ -520,7 +524,7 @@ export default function DashboardOverview() {
                                                 strokeDasharray="4 4"
                                                 label={{
                                                     position: 'right',
-                                                    value: 'Budget Limit',
+                                                    value: t("dashboard.budgetLimit"),
                                                     fill: '#10b981',
                                                     fontSize: 9,
                                                     fontWeight: 700,
@@ -550,11 +554,11 @@ export default function DashboardOverview() {
                                             <Zap className="w-4 h-4 text-white" />
                                         </div>
                                         <div>
-                                            <p className="text-[11px] font-semibold text-blue-900 leading-tight">Mindy's Logic Insight</p>
+                                            <p className="text-[11px] font-semibold text-blue-900 leading-tight">{t("dashboard.mindyInsight")}</p>
                                             <p className="text-[10px] font-medium text-blue-700/80 mt-1 leading-relaxed">
                                                 {chartView === 'weekly'
-                                                    ? "Your spending increased by 18% compared to last week. Try to reduce your 'Entertainment' expenses to stay within your budget limit."
-                                                    : "You've exceeded your budget cap in 4 out of 12 months this year. However, your Income-to-Savings ratio remains healthy at 24%."}
+                                                    ? t("dashboard.insightWeekly")
+                                                    : t("dashboard.insightMonthly")}
                                             </p>
                                         </div>
                                     </div>
@@ -565,8 +569,8 @@ export default function DashboardOverview() {
                                 <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
                                     <BarChart3 className="w-6 h-6 text-gray-300" />
                                 </div>
-                                <p className="text-sm font-semibold text-gray-400">No spending data yet</p>
-                                <p className="text-xs text-gray-400 mt-1">Add transactions to see your spending analytics.</p>
+                                <p className="text-sm font-semibold text-gray-400">{t("dashboard.noSpendingData")}</p>
+                                <p className="text-xs text-gray-400 mt-1">{t("dashboard.addTransactionsHint")}</p>
                             </div>
                         )}
                     </motion.div>
@@ -576,7 +580,7 @@ export default function DashboardOverview() {
                         <div className="p-6 border-b border-[#E5E7EB] flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-semibold tracking-tight text-gray-900">{t("dashboard.recentTransactions")}</h3>
-                                <p className="text-xs text-gray-500 font-semibold tracking-wide">Last activities this week</p>
+                                <p className="text-xs text-gray-500 font-semibold tracking-wide">{t("dashboard.lastActivities")}</p>
                             </div>
                             <Link
                                 href="/dashboard/transactions"
@@ -592,10 +596,10 @@ export default function DashboardOverview() {
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Transaction</th>
-                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Category</th>
-                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Date</th>
-                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Amount</th>
+                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">{t("transactions.title")}</th>
+                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">{t("common.category")}</th>
+                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">{t("common.date")}</th>
+                                            <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">{t("common.amount")}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[#E5E7EB]">
@@ -647,8 +651,8 @@ export default function DashboardOverview() {
                                     <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
                                         <CreditCard className="w-6 h-6 text-gray-300" />
                                     </div>
-                                    <p className="text-sm font-semibold text-gray-400">No transactions yet</p>
-                                    <p className="text-xs text-gray-400 mt-1">Start adding transactions to see them here.</p>
+                                    <p className="text-sm font-semibold text-gray-400">{t("dashboard.noTransactions")}</p>
+                                    <p className="text-xs text-gray-400 mt-1">{t("dashboard.startAddingTransactions")}</p>
                                 </div>
                             )}
                         </div>
@@ -689,8 +693,8 @@ export default function DashboardOverview() {
                                     <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
                                         <CreditCard className="w-5 h-5 text-gray-300" />
                                     </div>
-                                    <p className="text-sm font-semibold text-gray-400">No transactions yet</p>
-                                    <p className="text-xs text-gray-400 mt-1">Start adding transactions to see them here.</p>
+                                    <p className="text-sm font-semibold text-gray-400">{t("dashboard.noTransactions")}</p>
+                                    <p className="text-xs text-gray-400 mt-1">{t("dashboard.startAddingTransactions")}</p>
                                 </div>
                             )}
                         </div>
@@ -703,14 +707,14 @@ export default function DashboardOverview() {
                     <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm">
                         <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 leading-none">Top Categories</h3>
-                                <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">Monthly spending</p>
+                                <h3 className="text-lg font-semibold text-gray-900 leading-none">{t("dashboard.topCategories")}</h3>
+                                <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">{t("dashboard.monthlySpending")}</p>
                             </div>
                             <Link
                                 href="/dashboard/transactions"
                                 className="text-[10px] font-semibold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
                             >
-                                Details <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                                {t("dashboard.details")} <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                             </Link>
                         </div>
 
@@ -736,9 +740,9 @@ export default function DashboardOverview() {
                                     </ResponsiveContainer>
                                 </div>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-[8px] @md:text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">Total Spent</span>
+                                    <span className="text-[8px] @md:text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] leading-none mb-1">{t("dashboard.totalSpent")}</span>
                                     <span className="text-lg @md:text-2xl font-semibold text-gray-900 tracking-tight">
-                                        {formatAmountCompact(categoriesData.reduce((a, b) => a + b.value, 0))}
+                                        {formatAmountCompact(categoriesData.reduce((a, b) => a + b.value, 0), t("dashboard.million"))}
                                     </span>
                                 </div>
                             </div>
@@ -746,7 +750,7 @@ export default function DashboardOverview() {
                             <div className="flex flex-col items-center justify-center py-8 text-center">
                                 <div className="w-32 h-32 @md:w-48 @md:h-48 rounded-full border-[12px] border-gray-100 flex items-center justify-center">
                                     <div className="text-center">
-                                        <span className="text-[8px] @md:text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] leading-none block mb-1">Total Spent</span>
+                                        <span className="text-[8px] @md:text-[9px] font-semibold text-gray-400 uppercase tracking-[0.2em] leading-none block mb-1">{t("dashboard.totalSpent")}</span>
                                         <span className="text-lg @md:text-2xl font-semibold text-gray-900 tracking-tight">Rp 0</span>
                                     </div>
                                 </div>
@@ -766,7 +770,7 @@ export default function DashboardOverview() {
                                         </div>
                                         <div className="min-w-0">
                                             <span className="text-[11px] font-semibold text-gray-800 block truncate">{item.name}</span>
-                                            <span className="text-[9px] font-semibold text-gray-400 uppercase">Rp {formatAmountCompact(item.value)}</span>
+                                            <span className="text-[9px] font-semibold text-gray-400 uppercase">Rp {formatAmountCompact(item.value, t("dashboard.million"))}</span>
                                         </div>
                                     </div>
                                     <div className="text-right">
@@ -784,8 +788,8 @@ export default function DashboardOverview() {
                     <div className="bg-white @md:p-8 p-6 rounded-[32px] border border-gray-100 shadow-sm transition-all min-h-[395px]">
                         <div className="flex items-center justify-between mb-9">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 tracking-tight leading-none">Goal Spotlight</h3>
-                                <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">Fueling your future</p>
+                                <h3 className="text-lg font-semibold text-gray-900 tracking-tight leading-none">{t("dashboard.goalSpotlight")}</h3>
+                                <p className="text-xs font-semibold text-gray-500 tracking-wide mt-1  w-fit">{t("dashboard.fuelingFuture")}</p>
                             </div>
 
                             <div className="flex gap-2">
@@ -794,7 +798,7 @@ export default function DashboardOverview() {
                                     suppressHydrationWarning={true}
                                     className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors group"
                                 >
-                                    <span className="text-[10px] font-semibold uppercase tracking-widest">View All</span>
+                                    <span className="text-[10px] font-semibold uppercase tracking-widest">{t("dashboard.viewAll")}</span>
                                     <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             </div>
@@ -806,7 +810,7 @@ export default function DashboardOverview() {
                                 const remaining = goal.targetAmount - goal.currentAmount
 
                                 const formatJt = (val: number) => {
-                                    return (val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt'
+                                    return (val / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' ' + t("dashboard.million")
                                 }
 
                                 return (
@@ -855,10 +859,10 @@ export default function DashboardOverview() {
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-1.5">
                                                     <div className={cn("w-1 h-1 rounded-full shadow-sm", goal.color)}></div>
-                                                    <span className="text-[10px] font-semibold text-gray-900 uppercase tracking-widest">{Math.round(progress)}% SAVED</span>
+                                                    <span className="text-[10px] font-semibold text-gray-900 uppercase tracking-widest">{Math.round(progress)}% {t("dashboard.saved")}</span>
                                                 </div>
                                                 <div className="flex items-center gap-1 text-black">
-                                                    <span className="text-[10px] font-semibold uppercase tracking-widest">Need {formatJt(remaining)} more</span>
+                                                    <span className="text-[10px] font-semibold uppercase tracking-widest">{t("dashboard.needMore", { amount: formatJt(remaining) })}</span>
                                                     <ChevronRight className="w-2 h-2 group-hover:translate-x-0.5 transition-transform" />
                                                 </div>
                                             </div>
@@ -873,13 +877,13 @@ export default function DashboardOverview() {
                                 <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
                                     <Target className="w-8 h-8 text-gray-300" />
                                 </div>
-                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">No goals set</p>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{t("dashboard.noGoalsSet")}</p>
                                 <button
                                     onClick={() => setIsGoalModalOpen(true)}
                                     suppressHydrationWarning={true}
                                     className="mt-4 text-[10px] font-semibold text-blue-600 uppercase tracking-widest hover:underline"
                                 >
-                                    Create one now
+                                    {t("dashboard.createOneNow")}
                                 </button>
                             </div>
                         )}

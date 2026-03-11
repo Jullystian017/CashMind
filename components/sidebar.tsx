@@ -32,13 +32,13 @@ import { useTranslation } from "@/lib/i18n/useTranslation"
 
 const getMenuCategories = (t: (key: string) => string) => [
     {
-        title: "Overview",
+        title: t("dashboard.sidebarOverview"),
         items: [
             { name: t("nav.dashboard"), icon: LayoutDashboard, href: "/dashboard" },
         ]
     },
     {
-        title: "Financial Management",
+        title: t("dashboard.sidebarFinancial"),
         items: [
             { name: t("nav.transactions"), icon: ReceiptText, href: "/dashboard/transactions" },
             { name: t("nav.budgets"), icon: Wallet, href: "/dashboard/budgets" },
@@ -47,15 +47,15 @@ const getMenuCategories = (t: (key: string) => string) => [
         ]
     },
     {
-        title: "Growth & Simulation",
+        title: t("dashboard.sidebarGrowth"),
         items: [
-            { name: "Future Simulator", icon: Sparkles, href: "/dashboard/simulation" },
+            { name: t("dashboard.futureSimulator"), icon: Sparkles, href: "/dashboard/simulation" },
             { name: t("nav.challenges"), icon: Trophy, href: "/dashboard/challenges" },
             { name: t("nav.aiAdvisor"), icon: Bot, href: "/dashboard/ai" },
         ]
     },
     {
-        title: "Utilities",
+        title: t("dashboard.sidebarUtilities"),
         items: [
             { name: t("nav.splitBill"), icon: TrendingUp, href: "/dashboard/split-bill" },
             { name: t("nav.export"), icon: ReceiptText, href: "/dashboard/export" },
@@ -130,7 +130,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobile
                                 onClick={() => setIsCollapsed(true)}
                                 suppressHydrationWarning
                                 className="p-2 hover:bg-blue-50 rounded-xl text-gray-400 hover:text-blue-600 transition-all group lg:flex hidden"
-                                title="Collapse Sidebar"
+                                title={t("dashboard.collapseSidebar")}
                             >
                                 <PanelLeftClose className="w-5 h-5 group-hover:scale-110 transition-transform" />
                             </button>
