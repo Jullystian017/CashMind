@@ -28,42 +28,44 @@ import {
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
-const menuCategories = [
+const getMenuCategories = (t: (key: string) => string) => [
     {
         title: "Overview",
         items: [
-            { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+            { name: t("nav.dashboard"), icon: LayoutDashboard, href: "/dashboard" },
         ]
     },
     {
         title: "Financial Management",
         items: [
-            { name: "Transactions", icon: ReceiptText, href: "/dashboard/transactions" },
-            { name: "Budgets", icon: Wallet, href: "/dashboard/budgets" },
-            { name: "Subscriptions", icon: Repeat, href: "/dashboard/subscriptions" },
+            { name: t("nav.transactions"), icon: ReceiptText, href: "/dashboard/transactions" },
+            { name: t("nav.budgets"), icon: Wallet, href: "/dashboard/budgets" },
+            { name: t("nav.subscriptions"), icon: Repeat, href: "/dashboard/subscriptions" },
+            { name: t("nav.goals"), icon: Target, href: "/dashboard/goals" },
         ]
     },
     {
         title: "Growth & Simulation",
         items: [
             { name: "Future Simulator", icon: Sparkles, href: "/dashboard/simulation" },
-            { name: "Challenges", icon: Trophy, href: "/dashboard/challenges" },
-            { name: "Mindy AI", icon: Bot, href: "/dashboard/ai" },
+            { name: t("nav.challenges"), icon: Trophy, href: "/dashboard/challenges" },
+            { name: t("nav.aiAdvisor"), icon: Bot, href: "/dashboard/ai" },
         ]
     },
     {
         title: "Utilities",
         items: [
-            { name: "Split Bill", icon: TrendingUp, href: "/dashboard/split-bill" },
-            { name: "Export", icon: ReceiptText, href: "/dashboard/export" },
+            { name: t("nav.splitBill"), icon: TrendingUp, href: "/dashboard/split-bill" },
+            { name: t("nav.export"), icon: ReceiptText, href: "/dashboard/export" },
         ]
     }
 ]
 
-const bottomMenuItems = [
-    { name: "Profile", icon: User, href: "/dashboard/profile" },
-    { name: "Settings", icon: Settings, href: "/dashboard/settings" },
+const getBottomMenuItems = (t: (key: string) => string) => [
+    { name: t("nav.profile"), icon: User, href: "/dashboard/profile" },
+    { name: t("nav.settings"), icon: Settings, href: "/dashboard/settings" },
 ]
 
 interface SidebarProps {
@@ -75,6 +77,7 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }: SidebarProps) {
     const pathname = usePathname()
+    const { t } = useTranslation()
 
     // On mobile, sidebar is always full width — never icon-only
     const [isMobile, setIsMobile] = useState(false)
@@ -163,7 +166,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobile
 
             {/* Menu Sections */}
             <div className="flex-1 overflow-y-auto px-4 no-scrollbar pt-4">
-                {menuCategories.map((category) => (
+                {getMenuCategories(t).map((category) => (
                     <div key={category.title} className="mb-8">
                         {!effectiveCollapsed && (
                             <h4 className="px-3 mb-4 text-xs font-medium text-gray-400">

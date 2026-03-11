@@ -34,7 +34,11 @@
     "export": "Ekspor Data",
     "settings": "Pengaturan",
     "profile": "Profil",
-    "logout": "Keluar"
+    "logout": "Keluar",
+    "about": "Tentang",
+    "features": "Fitur",
+    "pricing": "Harga",
+    "contact": "Kontak"
   },
   "auth": {
     "login": "Masuk",

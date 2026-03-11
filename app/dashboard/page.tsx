@@ -48,6 +48,7 @@ import { getGoals } from "@/app/actions/goals"
 import { getDashboardStats, getRecentTransactions, getChartData, getCategorySpending } from "@/app/actions/transactions"
 import { getFinancialScore, type FinancialScoreData } from "@/app/actions/financial-score"
 import { Loader2 } from "lucide-react"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 export interface Goal {
     id: string;
@@ -147,6 +148,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function DashboardOverview() {
+    const { t } = useTranslation()
     const [chartView, setChartView] = useState<'weekly' | 'monthly'>('weekly')
     const [realChartData, setRealChartData] = useState<any[]>([])
     const chartData = realChartData
@@ -292,7 +294,7 @@ export default function DashboardOverview() {
 
     const stats = [
         {
-            label: "Financial Score",
+            label: t("dashboard.financialScore"),
             amount: financialScore ? `${financialScore.score}/100` : "0/100",
             subLabel: financialScore ? `Status: ${financialScore.status}` : "Status: Beginner",
             trend: financialScore ? financialScore.trend : "+0.0%",
@@ -301,7 +303,7 @@ export default function DashboardOverview() {
             color: "text-blue-600 bg-blue-50"
         },
         {
-            label: "Total Balance",
+            label: t("dashboard.totalBalance"),
             amount: statsData ? formatRp(statsData.totalBalance) : "Rp 0",
             subLabel: "Updated just now",
             trend: statsData?.trends?.balance?.isNew ? "New" : statsData?.trends?.balance?.value ?? "0.0%",
@@ -311,7 +313,7 @@ export default function DashboardOverview() {
             color: "text-blue-600 bg-blue-50"
         },
         {
-            label: "Income",
+            label: t("transactions.income"),
             amount: statsData ? formatRp(statsData.totalIncome) : "Rp 0",
             subLabel: "Total earned",
             trend: statsData?.trends?.income?.isNew ? "New" : statsData?.trends?.income?.value ?? "0.0%",
@@ -321,7 +323,7 @@ export default function DashboardOverview() {
             color: "text-blue-600 bg-blue-50"
         },
         {
-            label: "Expenses",
+            label: t("transactions.expense"),
             amount: statsData ? formatRp(statsData.totalExpense) : "Rp 0",
             subLabel: "This month",
             trend: statsData?.trends?.expense?.isNew ? "New" : statsData?.trends?.expense?.value ?? "0.0%",
@@ -573,14 +575,14 @@ export default function DashboardOverview() {
                     <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
                         <div className="p-6 border-b border-[#E5E7EB] flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-semibold tracking-tight text-gray-900">Recent Transactions</h3>
+                                <h3 className="text-lg font-semibold tracking-tight text-gray-900">{t("dashboard.recentTransactions")}</h3>
                                 <p className="text-xs text-gray-500 font-semibold tracking-wide">Last activities this week</p>
                             </div>
                             <Link
                                 href="/dashboard/transactions"
                                 className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest flex items-center gap-1 group"
                             >
-                                View All <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                                {t("dashboard.viewAll")} <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                             </Link>
                         </div>
 

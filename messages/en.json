@@ -34,7 +34,11 @@
     "export": "Export Data",
     "settings": "Settings",
     "profile": "Profile",
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "about": "About",
+    "features": "Features",
+    "pricing": "Pricing",
+    "contact": "Contact"
   },
   "auth": {
     "login": "Log In",

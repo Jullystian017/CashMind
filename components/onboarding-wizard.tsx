@@ -66,7 +66,6 @@ export function OnboardingWizard({ isOpen, onClose }: OnboardingWizardProps) {
                         date: new Date().toISOString().split('T')[0],
                         type: "income",
                         status: "success",
-                        plan: formData.incomeType === "monthly" ? "Monthly" : "Daily",
                         paymentMethod: "Cash",
                         note: `Onboarding income: ${formData.incomeType}`
                     })

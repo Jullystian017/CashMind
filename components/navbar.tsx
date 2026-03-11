@@ -79,10 +79,10 @@ export function Navbar() {
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-1 text-sm font-semibold text-gray-500">
           {[
-            { name: "{t('nav.About')}", href: "/about" },
-            { name: "{t('nav.About')}", href: "/features" },
-            { name: "{t('nav.About')}", href: "/pricing" },
-            { name: "{t('nav.About')}", href: "/contact" },
+            { name: t('nav.about'), href: "/about" },
+            { name: t('nav.features'), href: "/features" },
+            { name: t('nav.pricing'), href: "/pricing" },
+            { name: t('nav.contact'), href: "/contact" },
           ].map((item) => (
             <Link
               key={item.name}
