@@ -43,7 +43,6 @@ const getMenuCategories = (t: (key: string) => string) => [
             { name: t("nav.transactions"), icon: ReceiptText, href: "/dashboard/transactions" },
             { name: t("nav.budgets"), icon: Wallet, href: "/dashboard/budgets" },
             { name: t("nav.subscriptions"), icon: Repeat, href: "/dashboard/subscriptions" },
-            { name: t("nav.goals"), icon: Target, href: "/dashboard/goals" },
         ]
     },
     {
