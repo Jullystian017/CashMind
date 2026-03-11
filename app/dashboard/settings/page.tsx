@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils"
 import { getProfile, updateProfile } from "@/app/actions/profile"
 import { updateUserPassword } from "@/app/actions/auth"
 import { Eye, EyeOff } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/LanguageContext"
+import type { Locale } from "@/lib/i18n/i18n-config"
 
 const ONBOARDING_COMPLETED_KEY = "cashmind_onboarding_completed"
 
@@ -18,7 +20,7 @@ type SettingsSection = "profile" | "subscriptions" | "notifications" | "security
 
 export default function SettingsPage() {
     const [section, setSection] = useState<SettingsSection>("profile")
-    const [language, setLanguage] = useState<"en" | "id">("en")
+    const { locale, setLocale } = useLanguage()
     const [toast, setToast] = useState<string | null>(null)
     const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null)
     const [profile, setProfile] = useState({
@@ -51,9 +53,6 @@ export default function SettingsPage() {
                 setOnboardingCompleted(data.onboarding_completed)
             }
         })
-        // Load saved language preference
-        const savedLang = localStorage.getItem("cashmind_language")
-        if (savedLang === "en" || savedLang === "id") setLanguage(savedLang)
         return () => { mounted.current = false }
     }, [])
     useEffect(() => {
@@ -104,9 +103,8 @@ export default function SettingsPage() {
         }
     }
 
-    const handleLanguageChange = (lang: "en" | "id") => {
-        setLanguage(lang)
-        localStorage.setItem("cashmind_language", lang)
+    const handleLanguageChange = (lang: Locale) => {
+        setLocale(lang)
         setToast(lang === "en" ? "Language set to English" : "Bahasa diubah ke Indonesia")
         setTimeout(() => setToast(null), 2000)
     }
@@ -389,12 +387,12 @@ export default function SettingsPage() {
                                             onClick={() => handleLanguageChange(lang.code)}
                                             className={cn(
                                                 "relative p-5 rounded-2xl border-2 transition-all text-left group",
-                                                language === lang.code
+                                                locale === lang.code
                                                     ? "border-blue-500 bg-blue-50/60 shadow-lg shadow-blue-100"
                                                     : "border-gray-100 hover:border-gray-200 hover:bg-gray-50/50"
                                             )}
                                         >
-                                            {language === lang.code && (
+                                            {locale === lang.code && (
                                                 <div className="absolute top-3 right-3 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
                                                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -408,9 +406,9 @@ export default function SettingsPage() {
                                     ))}
                                 </div>
 
-                                <div className="mt-6 p-4 bg-amber-50 border border-amber-100 rounded-xl">
-                                    <p className="text-xs text-amber-700 font-medium leading-relaxed">
-                                        ⚠️ Language switching is currently in development. Changing this setting will be applied across the app in a future update.
+                                <div className="mt-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
+                                    <p className="text-xs text-emerald-700 font-medium leading-relaxed">
+                                        ✅ Language switching is now active! Changes will be applied across the dashboard instantly.
                                     </p>
                                 </div>
                             </motion.div>
