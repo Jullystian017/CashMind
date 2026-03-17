@@ -81,14 +81,13 @@ export default function PricingPage() {
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {[
-                                    { name: "Connected Accounts", free: "1 Account", pro: "Unlimited" },
-                                    { name: "Expense Tracking", free: true, pro: true },
-                                    { name: "Basic Health Score", free: true, pro: true },
-                                    { name: "Community Support", free: true, pro: true },
-                                    { name: "Advanced AI Analytics", free: false, pro: true },
-                                    { name: "AI Financial Coach (Chatbot)", free: false, pro: true },
-                                    { name: "Automated Budget Planner", free: false, pro: true },
-                                    { name: "Priority 24/7 Support", free: false, pro: true },
+                                    { name: "Expense & Income Tracking", free: true, pro: true },
+                                    { name: "Number of Accounts", free: "Unlimited", pro: "Unlimited" },
+                                    { name: "Automated Budget Planner", free: true, pro: true },
+                                    { name: "Split Bill & Community Tasks", free: true, pro: true },
+                                    { name: "Monthly AI Chat Limits", free: "50 Queries/mo", pro: "Unlimited" },
+                                    { name: "AI Insight Deep-Dive", free: false, pro: true },
+                                    { name: "Priority AI Processing Speed", free: false, pro: true },
                                     { name: "Export to PDF/CSV", free: false, pro: true },
                                 ].map((feature, idx) => (
                                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors">

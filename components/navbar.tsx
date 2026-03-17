@@ -7,14 +7,12 @@ import { ArrowRight, LayoutDashboard } from "lucide-react"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [isAboutSection, setIsAboutSection] = useState(false)
   const [user, setUser] = useState<any>(null)
   const supabase = createClient()
-  const { t } = useTranslation();
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
@@ -58,7 +56,7 @@ export function Navbar() {
           : "bg-transparent border-b border-transparent"
         }`}
     >
-      <nav className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex items-center justify-between">
+      <nav className="max-w-[1440px] w-full mx-auto px-6 md:px-12 lg:px-16 py-5 flex items-center justify-between">
         {/* Logo Section */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative w-10 h-10 transition-transform group-hover:scale-105">
@@ -79,10 +77,11 @@ export function Navbar() {
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-1 text-sm font-semibold text-gray-500">
           {[
-            { name: t('nav.about'), href: "/about" },
-            { name: t('nav.features'), href: "/features" },
-            { name: t('nav.pricing'), href: "/pricing" },
-            { name: t('nav.contact'), href: "/contact" },
+            { name: "Home", href: "/" },
+            { name: "About", href: "/about" },
+            { name: "Features", href: "/features" },
+            { name: "Pricing", href: "/pricing" },
+            { name: "Contact", href: "/contact" },
           ].map((item) => (
             <Link
               key={item.name}

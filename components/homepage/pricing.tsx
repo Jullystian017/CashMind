@@ -9,16 +9,16 @@ const plans = [
     {
         name: "Starter",
         price: "Free",
-        description: "Perfect for students managing their daily allowances and tracking basic expenses.",
-        features: ["Standard Expense Tracking", "1 Connected Account", "Basic Health Score", "Community Support"],
+        description: "Perfect for students managing daily allowances. Full financial tools included.",
+        features: ["All core financial tools", "Unlimited Connected Accounts", "50 AI Queries / month", "Standard AI Insights"],
         buttonText: "Get Started Free",
         popular: false,
     },
     {
         name: "Pro",
-        price: "Rp 19k",
-        description: "Unlock the full power of AI-driven insights and automated budget planning.",
-        features: ["Advanced AI Analytics & Chatbot", "Unlimited Accounts", "Automated Budget Planner", "Priority 24/7 Support", "Export to PDF/CSV"],
+        price: "Rp 15k",
+        description: "Unlock the full potential of your wealth with unrestricted AI capabilities.",
+        features: ["Unlimited AI Queries", "Advanced AI Investment Insights", "Priority Server Processing", "Export to PDF/CSV"],
         buttonText: "Upgrade to Pro",
         popular: true,
     }
