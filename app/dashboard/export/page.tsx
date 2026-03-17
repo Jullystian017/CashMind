@@ -33,7 +33,7 @@ export default function ExportPage() {
     const { t, locale } = useTranslation();
     const now = new Date();
     const [selectedDate, setSelectedDate] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
-    const [reportType, setReportType] = useState('Full History');
+    const [reportType, setReportType] = useState(t("export.fullHistory") || 'Full History');
     const [format, setFormat] = useState('CSV');
     const [isGenerating, setIsGenerating] = useState(false);
     const [hasDownloaded, setHasDownloaded] = useState(false);
@@ -436,7 +436,7 @@ export default function ExportPage() {
                                     : "hover:bg-blue-50 active:scale-[0.98] shadow-lg"
                             )}
                         >
-                                {isGenerating ? t("export.generating") : hasDownloaded ? "Done ✓" : t("export.download")}
+                                {isGenerating ? t("export.generating") : hasDownloaded ? t("common.done") + " ✓" : t("export.download")}
                             {!isGenerating && !hasDownloaded && <Download className="w-4 h-4" />}
                         </button>
                     </div>

@@ -129,6 +129,7 @@ function ConceptBadge({ label }: { label: string }) {
 // ─── REALITY CHECK BANNER ─────────────────────────────────────────
 
 function RealityCheck({ messages }: { messages: string[] }) {
+    const { t } = useTranslation()
     if (messages.length === 0) return null
     return (
         <motion.div
@@ -140,7 +141,7 @@ function RealityCheck({ messages }: { messages: string[] }) {
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
             </div>
             <div>
-                <p className="text-xs font-semibold text-amber-800 mb-1">⚠️ Reality Check</p>
+                <p className="text-xs font-semibold text-amber-800 mb-1">⚠️ {t("simulation.realityCheck")}</p>
                 {messages.map((msg, i) => (
                     <p key={i} className="text-[11px] text-amber-700 leading-relaxed">{msg}</p>
                 ))}
@@ -299,9 +300,9 @@ export default function SimulationPage() {
         }
 
         const realityChecks: string[] = []
-        if (savingsRate > 50) realityChecks.push("Projection assumes very high savings rate. Ensure expenses are realistic.")
-        if (income > 0 && targetIncome > income * 3) realityChecks.push("Target income is 3x+ current income. This requires significant growth.")
-        realityChecks.push("Real-world uncertainty, inflation, and emergencies are not included.")
+        if (savingsRate > 50) realityChecks.push(t("simulation.realityCheckHighSavings"))
+        if (income > 0 && targetIncome > income * 3) realityChecks.push(t("simulation.realityCheckHighTarget"))
+        realityChecks.push(t("simulation.realityCheckDisclaimer"))
 
         const insight = useProgressiveIncome
             ? t("simulation.insights.progressive", { from: formatRp(income), to: formatRp(targetIncome), years: projectionYears.toString(), netWorth: formatRp(finalNetWorth), fromRate: savingsRate.toFixed(0), toRate: finalSavingsRate.toFixed(0) })
@@ -494,9 +495,9 @@ export default function SimulationPage() {
                                         onChange={e => setProjectionYears(Number(e.target.value))}
                                         className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
                                     >
-                                        <option value={3}>3 {locale === 'id' ? 'Tahun' : 'Years'}</option>
-                                        <option value={5}>5 {locale === 'id' ? 'Tahun' : 'Years'}</option>
-                                        <option value={10}>10 {locale === 'id' ? 'Tahun' : 'Years'}</option>
+                                        <option value={3}>{t("simulation.years", { count: "3" })}</option>
+                                        <option value={5}>{t("simulation.years", { count: "5" })}</option>
+                                        <option value={10}>{t("simulation.years", { count: "10" })}</option>
                                     </select>
                                 </div>
                             </div>
@@ -526,7 +527,7 @@ export default function SimulationPage() {
                                 className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20"
                             >
                                 <Play className="w-4 h-4" />
-                                {t("simulation.calculate")}
+                                {t("simulation.calculation")}
                             </button>
                         </div>
 
@@ -585,8 +586,15 @@ export default function SimulationPage() {
                                         }
                                         <p className="text-xs font-medium">
                                             {futureProjection.goalReachable
-                                                ? `✅ Target "${goalPresets.find(g => g.value === selectedGoal)?.label}" (${formatRp(futureProjection.goalAmount)}) tercapai dalam ${projectionYears} tahun!`
-                                                : `❌ Target "${goalPresets.find(g => g.value === selectedGoal)?.label}" (${formatRp(futureProjection.goalAmount)}) tidak tercapai. Pertimbangkan untuk meningkatkan rasio tabungan.`
+                                                ? t("simulation.goalReached", {
+                                                    goal: goalPresets.find(g => g.value === selectedGoal)?.label || "",
+                                                    amount: formatRp(futureProjection.goalAmount),
+                                                    years: projectionYears.toString()
+                                                })
+                                                : t("simulation.goalNotReached", {
+                                                    goal: goalPresets.find(g => g.value === selectedGoal)?.label || "",
+                                                    amount: formatRp(futureProjection.goalAmount)
+                                                })
                                             }
                                         </p>
                                     </motion.div>
@@ -748,7 +756,7 @@ export default function SimulationPage() {
                                 </div>
                                 <div className="flex-1">
                                     <h3 className="font-semibold text-slate-800">{t("simulation.timeline")}</h3>
-                                    <p className="text-xs text-slate-400">Kapan milestone finansialmu akan tercapai?</p>
+                                    <p className="text-xs text-slate-400">{t("simulation.timelineMilestoneDesc")}</p>
                                 </div>
                                 <ConceptBadge label={t("concepts.compoundGrowth")} />
                             </div>
@@ -790,7 +798,7 @@ export default function SimulationPage() {
                             <div className="mt-16 bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex items-start gap-3">
                                 <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                                 <p className="text-[11px] text-blue-700 leading-relaxed font-medium">
-                                    Proyeksi timeline ini menggunakan "Effective Savings" (Tabungan Bulanan - Pilihan Gaya Hidup) dan berasumsi bunga 6% per tahun.
+                                    {t("simulation.timelineDisclaimer")}
                                 </p>
                             </div>
                         </div>

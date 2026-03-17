@@ -47,7 +47,7 @@
     "contact": "Kontak"
   },
   "header": {
-    "searchPlaceholder": "Cari transaksi, target, tantangan... (⌘K)",
+    "searchPlaceholder": "Cari transaksi, target, tantangan...",
     "searchResults": "Hasil pencarian",
     "noResults": "Tidak ada hasil ditemukan",
     "aiAssistant": "AI Asisten",
@@ -170,8 +170,11 @@
       "travel": "Travel",
       "utilities": "Utilitas",
       "salary": "Gaji",
-      "freelance": "Freelance",
+      "bonus": "Bonus",
+      "partTime": "Kerja Sampingan",
+      "pocketMoney": "Uang Jajan",
       "investment": "Investasi",
+      "gift": "Hadiah",
       "other": "Lainnya"
     }
   },
@@ -280,7 +283,8 @@
     "dueToday": "JATUH TEMPO HARI INI",
     "dueTomorrow": "JATUH TEMPO BESOK",
     "inDays": "DALAM {days} HARI",
-    "deleteConfirm": "Batalkan langganan ini?"
+    "deleteConfirm": "Batalkan langganan ini?",
+    "estimatedAnnual": "Estimasi Tahunan"
   },
   "concepts": {
     "opportunity": "Biaya Peluang",
@@ -306,14 +310,23 @@
     "targetIncome": "Target Pendapatan",
     "projectionYears": "Tahun Proyeksi",
     "goal": "Tujuan Finansial",
-    "calculate": "Hitung Simulasi",
+    "calculation": "Hitung Simulasi",
     "growthPath": "Jalur Pertumbuhan",
     "netWorthGrowthProjection": "Proyeksi Pertumbuhan Kekayaan Bersih",
     "lifestyleChoices": "Pilihan Gaya Hidup",
-    "impactOnFuture": "Dampak ke Masa Depan",
+    "impactOnFuture": "Dampak di Masa Depan",
     "withLifestyle": "Dengan Gaya Hidup",
     "withoutLifestyle": "Tanpa Gaya Hidup",
     "monthlySavings": "Tabungan Bulanan",
+    "realityCheck": "Reality Check",
+    "realityCheckHighSavings": "Proyeksi mengasumsikan rasio tabungan yang sangat tinggi. Pastikan pengeluaran realistis.",
+    "realityCheckHighTarget": "Target pendapatan 3x+ dari pendapatan saat ini. Ini membutuhkan pertumbuhan signifikan.",
+    "realityCheckDisclaimer": "Ketidakpastian dunia nyata, inflasi, dan keadaan darurat tidak termasuk.",
+    "goalReached": "Target \"{goal}\" ({amount}) tercapai dalam {years} tahun!",
+    "goalNotReached": "Target \"{goal}\" ({amount}) tidak tercapai. Pertimbangkan untuk meningkatkan rasio tabungan.",
+    "timelineMilestoneDesc": "Kapan milestone finansialmu akan tercapai?",
+    "timelineDisclaimer": "Proyeksi timeline ini menggunakan \"Effective Savings\" (Tabungan Bulanan - Pilihan Gaya Hidup) dan berasumsi bunga 6% per tahun.",
+    "years": "{count} Tahun",
     "status": {
       "stable": "Stabil & Sehat",
       "moderate": "Perlu Optimasi",
@@ -353,7 +366,8 @@
     "collected": "Terkumpul",
     "pending": "Pending",
     "activeSplits": "Split Aktif",
-    "noSplits": "Belum ada split. Buat split pertamamu untuk mulai melacak.",
+    "noSplits": "Belum ada split. Buat tagihan split pertamamu untuk mulai melacak.",
+    "noSplitsTitle": "Belum ada split",
     "ongoing": "Berlangsung",
     "settled": "Lunas",
     "people": "ORANG",

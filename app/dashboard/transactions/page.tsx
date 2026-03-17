@@ -731,7 +731,6 @@ export default function TransactionsPage() {
                                         <h2 className="text-xl font-semibold text-gray-900 tracking-tight leading-none">
                                             {editingTransaction ? t("common.edit") + " " + t("transactions.title") : t("transactions.addTransaction")}
                                         </h2>
-                                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-1.5">{t("common.loading")}</p>
                                     </div>
                                     <button
                                         onClick={() => { setIsModalOpen(false); resetForm(); }}

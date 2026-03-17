@@ -11,7 +11,10 @@ import {
   PenTool,
   X,
   Pencil,
-  Trash2
+  Trash2,
+  CreditCard,
+  ArrowUpRight,
+  Sparkles
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSubscriptions, createSubscription, deleteSubscription } from "@/app/actions/subscriptions";
@@ -116,39 +119,55 @@ export default function SubscriptionsPage() {
         </button>
       </div>
 
-      {/* Alert Banner - Redundant but matching design */}
-      <div className="bg-orange-50 border border-orange-100 p-4 rounded-2xl flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-orange-100 p-2 rounded-lg">
-            <AlertTriangle className="text-orange-600 w-5 h-5" />
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-orange-900">{t("common.confirm")}: {t("dashboard.budgetLimit")}</h4>
-            <p className="text-xs text-orange-700">Netflix {t("common.at")} {formatRp(186000)}</p>
-          </div>
-        </div>
-        <button
-          onClick={handleTopUp}
-          className="text-xs font-semibold text-orange-900 uppercase tracking-widest hover:underline active:opacity-80"
-        >
-          {t("header.aiAssistant")}
-        </button>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         {/* Left Side: Active Subscriptions */}
         <div className="lg:col-span-2 space-y-6">
           {/* Total Recurring Card */}
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-8 rounded-3xl shadow-xl shadow-blue-100 relative overflow-hidden">
-            <div className="relative z-10">
-              <p className="text-blue-100 text-xs font-medium mb-1">{t("subscriptions.recurringTotal")}</p>
-              <h2 className="text-4xl font-semibold text-white mb-6">{formatRp(totalRecurring)} <span className="text-lg font-normal text-blue-200">/{t("subscriptions.monthly").toLowerCase()}</span></h2>
-              <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold px-4 py-2 rounded-full border border-white/20">
-                {subscriptions.length} {t("subscriptions.active")}
-              </span>
+          <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-8 rounded-[32px] shadow-2xl shadow-blue-50/20 relative overflow-hidden group">
+            {/* Decorative Background Elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-24 translate-x-24 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+            <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl"></div>
+            
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-blue-100/80 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">{t("subscriptions.recurringTotal")}</p>
+                  <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight flex items-baseline gap-2">
+                    {formatRp(totalRecurring)}
+                    <span className="text-lg font-medium text-blue-200/60 opacity-80">/{t("subscriptions.monthly").toLowerCase()}</span>
+                  </h2>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <span className="bg-white/10 backdrop-blur-md text-white text-[10px] font-bold px-4 py-2 rounded-xl border border-white/10 shadow-sm flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                    {subscriptions.length} {t("subscriptions.active")}
+                  </span>
+                  
+                  <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/20 border border-blue-400/10">
+                    <Sparkles className="w-3 h-3 text-blue-200" />
+                    <span className="text-[10px] font-semibold text-blue-100">AI Tracked</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Enhanced Right Side Element */}
+              <div className="flex flex-col gap-3 min-w-[200px]">
+                <div className="bg-white/5 backdrop-blur-xl rounded-[24px] p-5 border border-white/10 hover:bg-white/10 transition-all group/info cursor-default">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="p-2 rounded-lg bg-blue-400/20 text-blue-100 group-hover/info:scale-110 transition-transform">
+                      <CreditCard className="w-4 h-4" />
+                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-blue-200/50 group-hover/info:text-white transition-colors" />
+                  </div>
+                  <p className="text-blue-200/70 text-[10px] font-bold uppercase tracking-wider mb-1">{t("subscriptions.estimatedAnnual")}</p>
+                  <p className="text-white text-xl font-bold tracking-tight">
+                    {formatRp(totalRecurring * 12)}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
           </div>
 
           <div className="space-y-4">
@@ -299,7 +318,8 @@ export default function SubscriptionsPage() {
             onAdded={() => {
               fetchSubscriptions();
               setIsAddModalOpen(false);
-              setToast(t("common.at"));
+              setIsAddModalOpen(false);
+              setToast(t("common.done"));
               setTimeout(() => setToast(null), 2000);
             }}
           />
@@ -397,7 +417,7 @@ function AddSubscriptionModal({ onClose, onAdded }: { onClose: () => void; onAdd
   };
 
   const iconOptions: { key: Subscription["icon"]; Icon: typeof Music; label: string }[] = [
-    { key: "music", Icon: Music, label: t("transactions.categories.bill") || "Bill" },
+    { key: "music", Icon: Music, label: t("transactions.categories.homeBills") },
     { key: "tv", Icon: Tv, label: t("transactions.categories.entertainment") || "Stream" },
     { key: "gym", Icon: Dumbbell, label: t("transactions.categories.health") || "Health" },
     { key: "adobe", Icon: PenTool, label: t("transactions.categories.other") || "Other" },
