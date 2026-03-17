@@ -127,7 +127,7 @@ export default function ChallengesPage() {
   }
 
   return (
-    <div className="space-y-8 pb-24" suppressHydrationWarning={true}>
+    <div className="space-y-8 pb-24 @container" suppressHydrationWarning={true}>
       {/* Header */}
       <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
         <div>
@@ -137,9 +137,9 @@ export default function ChallengesPage() {
       </div>
 
       {/* Level Progress Card */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-6">
-        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center border-2 border-blue-100 shrink-0">
-          <Trophy className="text-blue-600 w-8 h-8" />
+      <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 flex flex-col @md:flex-row @md:items-center gap-6 group hover:shadow-xl hover:shadow-blue-500/5 transition-all">
+        <div className="w-16 h-16 bg-blue-600 rounded-[24px] flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-transform">
+          <Trophy className="text-white w-8 h-8" />
         </div>
         <div className="flex-1">
           <div className="flex justify-between items-end mb-2">
@@ -170,19 +170,23 @@ export default function ChallengesPage() {
       </div>
 
       {/* AI Banner */}
-      <div className="bg-gradient-to-r from-purple-100 to-blue-50 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between border border-purple-100 gap-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-white rounded-xl shadow-sm">
-            <Sparkles className="text-purple-600 w-6 h-6" />
+      <div className="bg-gradient-to-br from-indigo-600 via-blue-700 to-blue-800 p-8 rounded-[32px] flex flex-col @md:flex-row items-center justify-between border border-blue-400/20 gap-6 relative overflow-hidden group shadow-2xl shadow-blue-500/10">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-24 translate-x-24 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+        <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl"></div>
+
+        <div className="flex items-center gap-5 relative z-10 w-full @md:w-auto">
+          <div className="p-4 bg-white/10 backdrop-blur-xl rounded-2xl shadow-sm border border-white/20">
+            <Sparkles className="text-blue-100 w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-semibold text-slate-800">{t("challenges.mindyTitle")}</h4>
-            <p className="text-sm text-slate-600 max-w-md">{t("challenges.mindySubtitle")}</p>
+            <h4 className="font-bold text-white text-lg tracking-tight">{t("challenges.mindyTitle")}</h4>
+            <p className="text-sm text-blue-100/70 max-w-md font-medium">{t("challenges.mindySubtitle")}</p>
           </div>
         </div>
         <button
           onClick={() => setIsGenerateModalOpen(true)}
-          className="bg-slate-900 text-white hover:bg-slate-800 transition-colors rounded-full px-6 py-2.5 text-sm font-semibold shrink-0 active:scale-[0.98]"
+          className="bg-white text-blue-700 hover:bg-blue-50 transition-all rounded-2xl px-8 py-3.5 text-sm font-bold shrink-0 active:scale-95 shadow-lg shadow-black/10 relative z-10 w-full @md:w-auto"
         >
           {t("challenges.generate")}
         </button>
@@ -213,7 +217,7 @@ export default function ChallengesPage() {
         {tab === "active" && (
           <>
             {/* Available Challenges */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 @lg:grid-cols-2 @[1200px]:grid-cols-3 gap-6">
               {templates.map((tpl) => {
                 const isActive = isTemplateActive(tpl.id);
                 return (
@@ -280,46 +284,65 @@ export default function ChallengesPage() {
                       key={ac.id}
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 hover:border-slate-200 transition-colors cursor-pointer"
+                      className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col @md:flex-row items-center justify-between gap-6 hover:shadow-xl hover:shadow-blue-500/5 hover:border-blue-100 transition-all cursor-pointer"
                       onClick={() => setSelectedChallenge({ type: "active", ...ac })}
                     >
-                      <div className="flex items-center gap-4 w-full">
-                        <div className="p-4 bg-orange-50 rounded-2xl shrink-0">
+                      <div className="flex items-center gap-5 w-full">
+                        <div className="w-14 h-14 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl flex items-center justify-center shrink-0 border border-orange-200/50">
                           <Icon className="text-orange-500 w-6 h-6" />
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-slate-800">{ac.template?.title}</h4>
-                          <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                            <span>🕒</span> {t("dashboard.daysLeft", { days: ac.daysLeft.toString() })}
-                            {ac.consumedPercent >= 80 && <span className="ml-2 text-red-500 font-semibold">⚠️ {t("challenges.atRisk")}</span>}
-                          </p>
-                          <div className="mt-3 max-w-xs">
-                            <div className="w-full bg-slate-100 rounded-full h-2">
-                              <div className={`${progressColor} h-2 rounded-full transition-all`} style={{ width: `${ac.consumedPercent}%` }} />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-slate-900 text-lg tracking-tight truncate">{ac.template?.title}</h4>
+                          <div className="flex flex-wrap items-center gap-3 mt-1.5">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                              <Clock size={12} className="text-slate-300" /> {t("dashboard.daysLeft", { days: ac.daysLeft.toString() })}
+                            </span>
+                            {ac.consumedPercent >= 80 && (
+                              <span className="text-[10px] bg-red-50 text-red-600 px-2.5 py-1 rounded-full font-bold uppercase tracking-widest flex items-center gap-1.5 border border-red-100 animate-pulse">
+                                <AlertTriangle size={10} /> {t("challenges.atRisk")}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="mt-4 w-full @md:max-w-xs">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className={cn("text-[9px] font-bold uppercase tracking-widest", ac.consumedPercent >= 80 ? "text-red-500" : "text-blue-600")}>
+                                    {ac.consumedPercent}% {t("challenges.consumed")}
+                                </span>
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                    {formatRp(ac.remaining)} {t("challenges.remaining")}
+                                </span>
                             </div>
-                            <div className="flex justify-between mt-2 text-[9px] font-semibold tracking-wider">
-                              <span className="text-orange-500 uppercase">{ac.consumedPercent}% {t("challenges.consumed")}</span>
-                              <span className="text-slate-400 uppercase font-medium">{formatRp(ac.remaining)} {t("challenges.remaining")}</span>
+                            <div className="w-full bg-slate-100 rounded-full h-2 padding-[1px]">
+                              <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${ac.consumedPercent}%` }}
+                                className={cn("h-full rounded-full relative overflow-hidden", progressColor)} 
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite]"></div>
+                              </motion.div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-end gap-3 w-full md:w-auto">
-                        <div className="text-right">
-                          <p className="text-xl font-semibold text-slate-900">{formatRp(ac.spent)}</p>
-                          <p className="text-[10px] text-slate-400 font-medium">{t("challenges.limit")}: {formatRp(ac.template?.limit_amount ?? 0)}</p>
+                      <div className="flex flex-col @md:items-end gap-5 w-full @md:w-auto pt-4 @md:pt-0 border-t border-slate-50 @md:border-t-0">
+                        <div className="@md:text-right">
+                          <p className="text-2xl font-bold text-slate-900 tracking-tight">{formatRp(ac.spent)}</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 opacity-70">
+                            {t("challenges.limit")}: {formatRp(ac.template?.limit_amount ?? 0)}
+                          </p>
                         </div>
-                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex gap-2 w-full @md:w-auto" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleCancel(ac.id)}
-                            className="px-4 py-2 rounded-full border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 transition-colors"
+                            className="flex-1 @md:flex-none px-6 py-2.5 rounded-2xl border-2 border-slate-100 text-slate-500 text-xs font-bold hover:bg-red-50 hover:border-red-100 hover:text-red-500 transition-all active:scale-95"
                           >
                             {t("common.cancel")}
                           </button>
                           <button
                             onClick={() => handleComplete(ac.id)}
-                            className="px-5 py-2 rounded-full bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-colors"
+                            className="flex-1 @md:flex-none px-8 py-2.5 rounded-2xl bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-100 active:scale-95"
                           >
                             {t("challenges.completeChallenge")}
                           </button>
