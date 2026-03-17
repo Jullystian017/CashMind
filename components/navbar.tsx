@@ -190,7 +190,7 @@ export function Navbar() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`md:hidden p-2 rounded-xl transition-all z-20 ${isAboutSection || scrolled || isMobileMenuOpen ? "text-black bg-gray-100 hover:bg-gray-200" : "text-white bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20"
+              className={`md:hidden p-2 rounded-xl transition-all z-20 ${isAboutSection || scrolled || isMobileMenuOpen ? "text-black bg-gray-100 hover:bg-gray-200" : "text-gray-900 bg-gray-50 border border-gray-100 hover:bg-gray-100"
                 }`}
             >
               <AnimatePresence mode="wait">

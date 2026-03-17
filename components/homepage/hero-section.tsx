@@ -70,12 +70,13 @@ export const HeroSection = () => {
                                     AI-Powered Finance Platform
                                 </span>
                             </div>
-                            <h1 className="text-5xl md:text-7xl font-semibold tracking-tight text-gray-900 mb-6 leading-[1.1]">
+                            <h1 className="text-4xl sm:text-5xl md:text-7xl font-semibold tracking-tight text-gray-900 mb-6 leading-[1.1] px-4 sm:px-0">
                                 Smart Solutions to{" "}
                                 <span className="inline-flex items-center text-blue-600">
-                                    <Zap className="fill-current w-8 h-8 md:w-12 md:h-12 mr-1" />
+                                    <Zap className="fill-current w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 mr-1" />
                                 </span>
-                                Boost <br />
+                                <br className="sm:hidden" />
+                                Boost <br className="hidden sm:block" />
                                 Your Financial Life.
                             </h1>
                             <p className="text-base md:text-lg text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
