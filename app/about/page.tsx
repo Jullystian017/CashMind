@@ -80,7 +80,7 @@ export default function AboutPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-                        className="text-5xl md:text-7xl font-semibold text-gray-900 mb-6 tracking-tight leading-[1.1]"
+                        className="text-4xl sm:text-5xl md:text-7xl font-semibold text-gray-900 mb-6 tracking-tight leading-[1.1]"
                     >
                         Democratizing <br className="hidden md:block" />
                         <span className="text-blue-600">Financial Intelligence</span>
@@ -90,7 +90,7 @@ export default function AboutPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-                        className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed font-medium mb-12"
+                        className="text-base sm:text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed font-medium mb-12"
                     >
                         CashMind was born from a simple belief: everyone deserves access to the same caliber of financial analysis and strategic planning that the wealthy have enjoyed for decades.
                     </motion.p>
@@ -102,7 +102,7 @@ export default function AboutPage() {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16">
                         <SectionBadge label="Mission" className="mb-6 mx-auto" />
-                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 tracking-tight leading-tight">
                             The Principles That Drive Us
                         </h2>
                     </div>

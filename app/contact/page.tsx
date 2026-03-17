@@ -76,7 +76,7 @@ export default function ContactPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-                        className="text-5xl md:text-7xl font-semibold text-gray-900 mb-6 tracking-tight leading-[1.1]"
+                        className="text-4xl sm:text-5xl md:text-7xl font-semibold text-gray-900 mb-6 tracking-tight leading-[1.1]"
                     >
                         We'd Love to <br className="hidden md:block" />
                         <span className="text-blue-600">Hear From You</span>
@@ -86,7 +86,7 @@ export default function ContactPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-                        className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed font-medium mb-12"
+                        className="text-base sm:text-lg md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed font-medium mb-12"
                     >
                         Whether you have a question about features, pricing, or anything else, our team is ready to answer all your questions.
                     </motion.p>
@@ -135,7 +135,7 @@ export default function ContactPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4, duration: 0.6 }}
-                            className="lg:col-span-3 bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-blue-900/5 relative overflow-hidden"
+                            className="lg:col-span-3 bg-white p-6 sm:p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-blue-900/5 relative overflow-hidden"
                         >
                             {/* Decorative background glow inside form card */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-[80px] pointer-events-none" />
@@ -144,7 +144,7 @@ export default function ContactPage() {
                                 <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
                                     <MessageSquare className="w-5 h-5 text-white" />
                                 </div>
-                                <h3 className="text-2xl font-semibold text-gray-900">Send a Message</h3>
+                                <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">Send a Message</h3>
                             </div>
 
                             <form onSubmit={handleSubmit} className="relative z-10 space-y-6">
