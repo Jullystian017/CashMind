@@ -27,8 +27,10 @@ import { cn } from "@/lib/utils";
 import { getExportData, type ExportTransaction } from "@/app/actions/export";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function ExportPage() {
+    const { t, locale } = useTranslation();
     const now = new Date();
     const [selectedDate, setSelectedDate] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
     const [reportType, setReportType] = useState('Full History');
@@ -63,7 +65,7 @@ export default function ExportPage() {
     }, [data]);
 
     const formatRp = (val: number) => {
-        return new Intl.NumberFormat('id-ID', {
+        return new Intl.NumberFormat(locale === 'id' ? 'id-ID' : 'en-US', {
             style: 'currency',
             currency: 'IDR',
             minimumFractionDigits: 0
@@ -76,7 +78,16 @@ export default function ExportPage() {
     };
 
     const convertToCSV = (transactions: ExportTransaction[]) => {
-        const headers = ["Date", "Description", "Type", "Category", "Amount", "Method", "Status", "Note"];
+        const headers = [
+            t("export.table_date") || "Date",
+            t("export.table_desc") || "Description",
+            t("export.table_type") || "Type",
+            t("export.table_category") || "Category",
+            t("export.table_amount") || "Amount",
+            t("export.table_method") || "Method",
+            t("export.table_status") || "Status",
+            t("common.note") || "Note"
+        ];
         const rows = transactions.map(t => [
             t.date,
             `"${t.description.replace(/"/g, '""')}"`,
@@ -110,16 +121,16 @@ export default function ExportPage() {
         // Summary Section
         doc.setFontSize(14);
         doc.setTextColor(15, 23, 42);
-        doc.text("Financial Summary", 14, 48);
+        doc.text(t("export.summary"), 14, 48);
 
         autoTable(doc, {
             startY: 53,
-            head: [['Indicator', 'Value']],
+            head: [[t("export.indicator"), t("export.value")]],
             body: [
-                ['Total Income', formatRp(stats.income)],
-                ['Total Expense', formatRp(stats.expense)],
-                ['Net Balance', formatRp(stats.balance)],
-                ['Total Transactions', `${stats.count} items`]
+                [t("export.indicator_income"), formatRp(stats.income)],
+                [t("export.indicator_expense"), formatRp(stats.expense)],
+                [t("export.indicator_balance"), formatRp(stats.balance)],
+                [t("export.indicator_count"), `${stats.count} ${t("export.items")}`]
             ],
             theme: 'striped',
             headStyles: { fillColor: [15, 23, 42] }
@@ -140,7 +151,7 @@ export default function ExportPage() {
             const chartStartY = (doc as any).lastAutoTable.finalY + 15;
             doc.setFontSize(14);
             doc.setTextColor(15, 23, 42);
-            doc.text("Top Categories (Spending)", 14, chartStartY);
+            doc.text(t("export.topCategories"), 14, chartStartY);
 
             let currentY = chartStartY + 10;
             const maxSpent = sortedCategories[0][1];
@@ -173,19 +184,25 @@ export default function ExportPage() {
         // Transactions Table
         doc.setFontSize(14);
         doc.setTextColor(15, 23, 42);
-        doc.text("Detailed Transactions", 14, (doc as any).lastAutoTable.finalY + 10);
+        doc.text(t("export.details"), 14, (doc as any).lastAutoTable.finalY + 10);
 
-        const tableData = transactions.map(t => [
-            new Date(t.date).toLocaleDateString('id-ID'),
-            t.description,
-            t.category,
-            t.type.toUpperCase(),
-            formatRp(t.amount)
+        const tableData = transactions.map(t_row => [
+            new Date(t_row.date).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US'),
+            t_row.description,
+            t_row.category,
+            t_row.type.toUpperCase(),
+            formatRp(t_row.amount)
         ]);
 
         autoTable(doc, {
             startY: (doc as any).lastAutoTable.finalY + 15,
-            head: [['Date', 'Description', 'Category', 'Type', 'Amount']],
+            head: [[
+                t("export.table_date") || "Date",
+                t("export.table_desc") || "Description",
+                t("export.table_category") || "Category",
+                t("export.table_type") || "Type",
+                t("export.table_amount") || "Amount"
+            ]],
             body: tableData,
             headStyles: { fillColor: [59, 130, 246] },
             alternateRowStyles: { fillColor: [248, 250, 252] }
@@ -230,9 +247,9 @@ export default function ExportPage() {
     };
 
     const formats = [
-        { id: 'CSV', name: 'CSV', desc: 'Spreadsheet', icon: FileSpreadsheet, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        { id: 'JSON', name: 'JSON', desc: 'Raw Data', icon: FileJson, color: 'text-amber-600', bg: 'bg-amber-50' },
-        { id: 'PDF', name: 'PDF', desc: 'Report', icon: FileCheck, color: 'text-rose-600', bg: 'bg-rose-50' },
+        { id: 'CSV', name: 'CSV', desc: t("export.spreadsheet"), icon: FileSpreadsheet, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { id: 'JSON', name: 'JSON', desc: t("export.rawData"), icon: FileJson, color: 'text-amber-600', bg: 'bg-amber-50' },
+        { id: 'PDF', name: 'PDF', desc: t("export.report"), icon: FileCheck, color: 'text-rose-600', bg: 'bg-rose-50' },
     ];
 
     const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
@@ -242,13 +259,13 @@ export default function ExportPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">Export Data</h2>
-                    <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium italic">Download your financial records for offline analysis or backup.</p>
+                    <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">{t("export.title")}</h2>
+                    <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium italic">{t("export.subtitle")}</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-700 text-xs font-semibold">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        Connected
+                        {t("export.connected")}
                     </div>
                 </div>
             </div>
@@ -257,7 +274,7 @@ export default function ExportPage() {
             <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-semibold">1</div>
-                    <h3 className="text-base font-semibold text-gray-900">Select Period</h3>
+                    <h3 className="text-base font-semibold text-gray-900">{t("export.selectPeriod")}</h3>
                 </div>
                 <div className="flex items-center gap-4">
                     <button
@@ -287,7 +304,7 @@ export default function ExportPage() {
             <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                     <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-semibold">2</div>
-                    <h3 className="text-base font-semibold text-gray-900">Choose Format</h3>
+                    <h3 className="text-base font-semibold text-gray-900">{t("export.chooseFormat")}</h3>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                     {formats.map((f) => (
@@ -325,7 +342,7 @@ export default function ExportPage() {
                     <div className="p-6 md:p-8 flex justify-between items-center border-b border-gray-50">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-sm font-semibold">3</div>
-                            <h3 className="text-base font-semibold text-gray-900">Preview</h3>
+                            <h3 className="text-base font-semibold text-gray-900">{t("export.preview")}</h3>
                         </div>
                         <span className="text-[11px] font-semibold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg uppercase tracking-wider">
                             {selectedDate.toLocaleString('default', { month: 'short' })} {selectedDate.getFullYear()}
@@ -335,16 +352,16 @@ export default function ExportPage() {
                     {loading ? (
                         <div className="p-16 flex flex-col items-center justify-center gap-3 text-gray-400">
                             <Loader2 className="w-7 h-7 animate-spin" />
-                            <p className="text-xs font-medium">Loading data...</p>
+                            <p className="text-xs font-medium">{t("export.loading")}</p>
                         </div>
                     ) : (
                         <div className="p-6 md:p-8">
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                 {[
-                                    { label: "Income", val: formatRp(stats.income), icon: ArrowUpCircle, color: "text-emerald-600", bg: "bg-emerald-50" },
-                                    { label: "Expense", val: formatRp(stats.expense), icon: ArrowDownCircle, color: "text-rose-500", bg: "bg-rose-50" },
-                                    { label: "Net Balance", val: formatRp(stats.balance), icon: Wallet, color: "text-blue-600", bg: "bg-blue-50" },
-                                    { label: "Transactions", val: `${stats.count}`, icon: FileText, color: "text-gray-600", bg: "bg-gray-50" }
+                                    { label: t("export.income"), val: formatRp(stats.income), icon: ArrowUpCircle, color: "text-emerald-600", bg: "bg-emerald-50" },
+                                    { label: t("export.expense"), val: formatRp(stats.expense), icon: ArrowDownCircle, color: "text-rose-500", bg: "bg-rose-50" },
+                                    { label: t("export.balance"), val: formatRp(stats.balance), icon: Wallet, color: "text-blue-600", bg: "bg-blue-50" },
+                                    { label: t("export.transactions"), val: `${stats.count}`, icon: FileText, color: "text-gray-600", bg: "bg-gray-50" }
                                 ].map((stat) => (
                                     <div key={stat.label} className="p-4 rounded-2xl bg-gray-50/70 border border-gray-100/80">
                                         <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center mb-3", stat.bg)}>
@@ -361,11 +378,11 @@ export default function ExportPage() {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2 text-xs text-gray-400">
                                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                                            <span className="font-medium">{data.length} transactions ready for export</span>
+                                            <span className="font-medium">{t("export.transactionsReady", { count: data.length.toString() }) || `${data.length} transactions ready for export`}</span>
                                         </div>
                                         <div className="flex items-center gap-1.5 text-[10px] font-semibold text-gray-300 uppercase tracking-wider">
                                             <Shield className="w-3 h-3" />
-                                            Verified
+                                            {t("export.verified")}
                                         </div>
                                     </div>
                                 </div>
@@ -373,7 +390,7 @@ export default function ExportPage() {
 
                             {data.length === 0 && (
                                 <div className="mt-5 pt-5 border-t border-gray-100 text-center">
-                                    <p className="text-sm text-gray-400 font-medium">No transactions found for this period.</p>
+                                    <p className="text-sm text-gray-400 font-medium">{t("export.noData")}</p>
                                 </div>
                             )}
                         </div>
@@ -398,14 +415,14 @@ export default function ExportPage() {
 
                         <div>
                             <h3 className="text-lg font-semibold text-white">
-                                {isGenerating ? "Processing..." : hasDownloaded ? "Downloaded!" : "Ready to Export"}
+                                {isGenerating ? t("export.processing") : hasDownloaded ? t("export.downloaded") : t("export.readyToExport")}
                             </h3>
                             <p className="text-blue-100/70 text-xs font-medium mt-1.5 max-w-[180px] mx-auto leading-relaxed">
                                 {isGenerating
-                                    ? "Generating your file..."
+                                    ? t("export.generatingFile")
                                     : data.length === 0
-                                        ? "Select a period with transactions"
-                                        : `${data.length} transactions as ${format}`}
+                                        ? t("export.selectPeriodWithData")
+                                        : t("export.transactionsAs", { count: data.length.toString(), format: format })}
                             </p>
                         </div>
 
@@ -419,14 +436,14 @@ export default function ExportPage() {
                                     : "hover:bg-blue-50 active:scale-[0.98] shadow-lg"
                             )}
                         >
-                            {isGenerating ? "Generating..." : hasDownloaded ? "Done ✓" : "Download"}
+                                {isGenerating ? t("export.generating") : hasDownloaded ? "Done ✓" : t("export.download")}
                             {!isGenerating && !hasDownloaded && <Download className="w-4 h-4" />}
                         </button>
                     </div>
 
                     <div className="relative z-10 flex items-center justify-center gap-3 mt-6 pt-5 border-t border-white/15">
                         <span className="text-[10px] text-blue-100/40 font-semibold flex items-center gap-1">
-                            <Shield size={10} /> Encrypted
+                            <Shield size={10} /> {t("export.encrypted")}
                         </span>
                         <span className="w-0.5 h-0.5 rounded-full bg-white/20" />
                         <span className="text-[10px] text-blue-100/40 font-semibold uppercase">

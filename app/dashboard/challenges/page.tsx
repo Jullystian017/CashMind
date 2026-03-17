@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Utensils, Trophy, Target, Star, X, Loader2, Ban, Car, ShoppingBag, Gamepad2, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,6 +14,8 @@ import {
   type ChallengeTemplate,
   type UserBadge,
 } from "@/app/actions/challenges";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import { formatRp } from "@/lib/utils";
 
 type Tab = "active" | "completed" | "badges";
 
@@ -32,12 +34,8 @@ const difficultyColors: Record<string, string> = {
   HARD: "text-red-600 bg-red-50",
 };
 
-const formatRp = (val: number) =>
-  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 })
-    .format(val)
-    .replace("Rp", "Rp ");
-
 export default function ChallengesPage() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("active");
   const [templates, setTemplates] = useState<ChallengeTemplate[]>([]);
   const [activeChallenges, setActiveChallenges] = useState<any[]>([]);
@@ -84,7 +82,7 @@ export default function ChallengesPage() {
     if (error) {
       showToast(`❌ ${error}`);
     } else {
-      showToast("✅ Challenge accepted!");
+      showToast(`✅ ${t("challenges.accepted")}`);
       await fetchAll();
     }
   };
@@ -94,9 +92,9 @@ export default function ChallengesPage() {
     if (error) {
       showToast(`❌ ${error}`);
     } else {
-      let msg = "🎉 Challenge completed!";
+      let msg = `🎉 ${t("challenges.congrats")}`;
       if (badgesEarned && badgesEarned.length > 0) {
-        msg += ` + Badge: ${badgesEarned.join(", ")}`;
+        msg += ` + ${t("challenges.badgeEarned")}: ${badgesEarned.join(", ")}`;
       }
       showToast(msg);
       setSelectedChallenge(null);
@@ -109,7 +107,7 @@ export default function ChallengesPage() {
     if (error) {
       showToast(`❌ ${error}`);
     } else {
-      showToast("Challenge cancelled.");
+      showToast(t("common.cancel"));
       setSelectedChallenge(null);
       await fetchAll();
     }
@@ -133,8 +131,8 @@ export default function ChallengesPage() {
       {/* Header */}
       <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">CashMind Challenges</h2>
-          <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">Level up your financial habits with fun challenges.</p>
+          <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">{t("challenges.title")}</h2>
+          <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium italic">{t("challenges.subtitle")}</p>
         </div>
       </div>
 
@@ -147,14 +145,14 @@ export default function ChallengesPage() {
           <div className="flex justify-between items-end mb-2">
             <div>
               <h3 className="font-semibold text-lg text-slate-800">
-                Level {xpData?.level ?? 1} – {xpData?.title ?? "Beginner Saver"}
+                {t("challenges.level")} {xpData?.level ?? 1} – {xpData?.title ?? "Beginner Saver"}
               </h3>
               <p className="text-xs text-slate-400">
-                {activeChallenges.length} Active Challenge{activeChallenges.length !== 1 ? "s" : ""} • {badges.length} Badge{badges.length !== 1 ? "s" : ""} Earned
+                {activeChallenges.length} {t("challenges.active")} • {badges.length} {t("challenges.badges")} {t("common.verified")}
               </p>
             </div>
             <span className="text-sm font-semibold text-slate-700">
-              {xpData?.totalXp ?? 0} <span className="text-slate-400 font-normal">/ {xpData?.xpForNext ?? 200} XP</span>
+              {xpData?.totalXp ?? 0} <span className="text-slate-400 font-normal">/ {xpData?.xpForNext ?? 200} {t("challenges.xp")}</span>
             </span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2.5">
@@ -166,7 +164,7 @@ export default function ChallengesPage() {
             />
           </div>
           <p className="text-[10px] text-right text-slate-400 mt-1">
-            {(xpData?.xpForNext ?? 200) - (xpData?.totalXp ?? 0)} XP to Level {(xpData?.level ?? 1) + 1}
+            {t("challenges.xpToNext", { xp: ((xpData?.xpForNext ?? 200) - (xpData?.totalXp ?? 0)).toString() })}
           </p>
         </div>
       </div>
@@ -178,29 +176,33 @@ export default function ChallengesPage() {
             <Sparkles className="text-purple-600 w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-semibold text-slate-800">Mindy AI Personalized Challenge</h4>
-            <p className="text-sm text-slate-600 max-w-md">Generate challenges based on your spending behavior.</p>
+            <h4 className="font-semibold text-slate-800">{t("challenges.mindyTitle")}</h4>
+            <p className="text-sm text-slate-600 max-w-md">{t("challenges.mindySubtitle")}</p>
           </div>
         </div>
         <button
           onClick={() => setIsGenerateModalOpen(true)}
           className="bg-slate-900 text-white hover:bg-slate-800 transition-colors rounded-full px-6 py-2.5 text-sm font-semibold shrink-0 active:scale-[0.98]"
         >
-          Generate Challenge
+          {t("challenges.generate")}
         </button>
       </div>
 
       {/* Tabs */}
       <div className="space-y-6">
         <div className="flex gap-6 border-b border-slate-200">
-          {(["active", "completed", "badges"] as const).map((t) => (
+          {[
+            { key: "active", label: t("challenges.active") },
+            { key: "completed", label: t("challenges.completed") },
+            { key: "badges", label: t("challenges.badges") }
+          ].map((tab_item) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`text-sm font-semibold pb-3 border-b-2 transition-colors capitalize ${tab === t ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"
+              key={tab_item.key}
+              onClick={() => setTab(tab_item.key as Tab)}
+              className={`text-sm font-semibold pb-3 border-b-2 transition-colors ${tab === tab_item.key ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"
                 }`}
             >
-              {t} {t === "active" && activeChallenges.length > 0 && (
+              {tab_item.label} {tab_item.key === "active" && activeChallenges.length > 0 && (
                 <span className="ml-1 text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-semibold">{activeChallenges.length}</span>
               )}
             </button>
@@ -213,7 +215,6 @@ export default function ChallengesPage() {
             {/* Available Challenges */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {templates.map((tpl) => {
-                const Icon = categoryIcons[tpl.category] || Target;
                 const isActive = isTemplateActive(tpl.id);
                 return (
                   <motion.div
@@ -226,23 +227,25 @@ export default function ChallengesPage() {
                   >
                     {tpl.is_recommended && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-semibold tracking-widest shadow-md">
-                        RECOMMENDED
+                        {t("challenges.recommended")}
                       </div>
                     )}
                     <div>
                       <div className="flex justify-between items-center mb-5">
-                        <span className={`text-[10px] font-semibold px-2 py-1 rounded-md tracking-wider ${difficultyColors[tpl.difficulty]}`}>{tpl.difficulty}</span>
+                        <span className={`text-[10px] font-semibold px-2 py-1 rounded-md tracking-wider ${difficultyColors[tpl.difficulty]}`}>
+                          {(t(`challenges.difficultyLevels.${tpl.difficulty}`) as string) || tpl.difficulty}
+                        </span>
                         <span className="text-blue-600 text-[11px] font-semibold flex items-center gap-1">
-                          <Star size={12} fill="currentColor" /> +{tpl.xp_reward} XP
+                          <Star size={12} fill="currentColor" /> +{tpl.xp_reward} {t("challenges.xp")}
                         </span>
                       </div>
                       <h4 className="font-semibold text-slate-800 text-base leading-tight mb-4">{tpl.title}</h4>
                       <div className="space-y-2 text-slate-500 text-[11px] font-medium">
                         <p className="flex items-center gap-2">
-                          <Target size={14} className="text-slate-400" /> {tpl.limit_amount > 0 ? `Max ${formatRp(tpl.limit_amount)}` : "Zero spending"}
+                          <Target size={14} className="text-slate-400" /> {tpl.limit_amount > 0 ? `${t("challenges.max")} ${formatRp(tpl.limit_amount)}` : t("challenges.zeroSpending")}
                         </p>
                         <p className="flex items-center gap-2">
-                          <span>🕒</span> {tpl.duration_days} days duration
+                          <span>🕒</span> {t("challenges.daysDuration", { days: tpl.duration_days.toString() })}
                         </p>
                       </div>
                     </div>
@@ -254,7 +257,7 @@ export default function ChallengesPage() {
                         : "border-slate-100 text-slate-800 hover:bg-blue-600 hover:border-blue-600 hover:text-white"
                         }`}
                     >
-                      {isActive ? "Already Active" : "Accept Challenge"}
+                      {isActive ? t("challenges.alreadyActive") : t("challenges.startChallenge")}
                     </button>
                   </motion.div>
                 );
@@ -263,10 +266,10 @@ export default function ChallengesPage() {
 
             {/* Active Tracking */}
             <div className="space-y-4 pt-4">
-              <h3 className="font-semibold text-slate-800">Active Tracking</h3>
+              <h3 className="font-semibold text-slate-800">{t("challenges.activeTracking")}</h3>
               {activeChallenges.length === 0 ? (
                 <div className="bg-white p-8 rounded-2xl border border-slate-100 text-center">
-                  <p className="text-slate-500 text-sm">No active challenges. Accept a challenge above to start!</p>
+                  <p className="text-slate-500 text-sm">{t("challenges.noActive")}</p>
                 </div>
               ) : (
                 activeChallenges.map((ac: any) => {
@@ -287,16 +290,16 @@ export default function ChallengesPage() {
                         <div className="flex-1">
                           <h4 className="font-semibold text-slate-800">{ac.template?.title}</h4>
                           <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
-                            <span>🕒</span> {ac.daysLeft} day{ac.daysLeft !== 1 ? "s" : ""} left
-                            {ac.consumedPercent >= 80 && <span className="ml-2 text-red-500 font-semibold">⚠️ AT RISK</span>}
+                            <span>🕒</span> {t("dashboard.daysLeft", { days: ac.daysLeft.toString() })}
+                            {ac.consumedPercent >= 80 && <span className="ml-2 text-red-500 font-semibold">⚠️ {t("challenges.atRisk")}</span>}
                           </p>
                           <div className="mt-3 max-w-xs">
                             <div className="w-full bg-slate-100 rounded-full h-2">
                               <div className={`${progressColor} h-2 rounded-full transition-all`} style={{ width: `${ac.consumedPercent}%` }} />
                             </div>
                             <div className="flex justify-between mt-2 text-[9px] font-semibold tracking-wider">
-                              <span className="text-orange-500 uppercase">{ac.consumedPercent}% CONSUMED</span>
-                              <span className="text-slate-400 uppercase font-medium">{formatRp(ac.remaining)} REMAINING</span>
+                              <span className="text-orange-500 uppercase">{ac.consumedPercent}% {t("challenges.consumed")}</span>
+                              <span className="text-slate-400 uppercase font-medium">{formatRp(ac.remaining)} {t("challenges.remaining")}</span>
                             </div>
                           </div>
                         </div>
@@ -305,20 +308,20 @@ export default function ChallengesPage() {
                       <div className="flex flex-col items-end gap-3 w-full md:w-auto">
                         <div className="text-right">
                           <p className="text-xl font-semibold text-slate-900">{formatRp(ac.spent)}</p>
-                          <p className="text-[10px] text-slate-400 font-medium">Limit: {formatRp(ac.template?.limit_amount ?? 0)}</p>
+                          <p className="text-[10px] text-slate-400 font-medium">{t("challenges.limit")}: {formatRp(ac.template?.limit_amount ?? 0)}</p>
                         </div>
                         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleCancel(ac.id)}
                             className="px-4 py-2 rounded-full border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 transition-colors"
                           >
-                            Cancel
+                            {t("common.cancel")}
                           </button>
                           <button
                             onClick={() => handleComplete(ac.id)}
                             className="px-5 py-2 rounded-full bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-colors"
                           >
-                            Complete
+                            {t("challenges.completeChallenge")}
                           </button>
                         </div>
                       </div>
@@ -335,7 +338,7 @@ export default function ChallengesPage() {
           <div className="space-y-4">
             {completedChallenges.length === 0 && failedChallenges.length === 0 ? (
               <div className="bg-white p-8 rounded-2xl border border-slate-100 text-center">
-                <p className="text-slate-500 text-sm">No completed or failed challenges yet.</p>
+                <p className="text-slate-500 text-sm">{t("challenges.noHistory")}</p>
               </div>
             ) : (
               <>
@@ -349,10 +352,10 @@ export default function ChallengesPage() {
                     <div>
                       <h4 className="font-semibold text-slate-800">{ch.template?.title}</h4>
                       <span className="text-blue-600 text-xs font-semibold flex items-center gap-1 mt-1">
-                        <Star size={12} fill="currentColor" /> +{ch.xp_earned} XP earned
+                        <Star size={12} fill="currentColor" /> +{ch.xp_earned} {t("challenges.xp")} {t("common.verified")}
                       </span>
                     </div>
-                    <span className="text-[10px] font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">DONE</span>
+                    <span className="text-[10px] font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">{t("challenges.done")}</span>
                   </motion.div>
                 ))}
                 {failedChallenges.map((ch: any) => (
@@ -365,11 +368,11 @@ export default function ChallengesPage() {
                     <div>
                       <h4 className="font-semibold text-slate-800">{ch.template?.title}</h4>
                       <span className="text-red-500 text-xs font-medium flex items-center gap-1 mt-1">
-                        <Ban size={12} /> {ch.failure_reason === "over_spending" ? "Over spending limit" : ch.failure_reason === "user_cancelled" ? "Cancelled" : "Time expired"}
+                        <Ban size={12} /> {ch.failure_reason === "over_spending" ? t("challenges.overSpending") : ch.failure_reason === "user_cancelled" ? t("challenges.userCancelled") : t("challenges.timeExpired")}
                       </span>
                     </div>
                     <span className="text-[10px] font-semibold text-red-600 bg-red-50 px-2 py-1 rounded">
-                      {ch.status === "cancelled" ? "CANCELLED" : "FAILED"}
+                      {ch.status === "cancelled" ? t("challenges.cancelledCapital") : t("challenges.failedCapital")}
                     </span>
                   </motion.div>
                 ))}
@@ -383,7 +386,7 @@ export default function ChallengesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {badges.length === 0 ? (
               <div className="col-span-full bg-white p-8 rounded-2xl border border-slate-100 text-center">
-                <p className="text-slate-500 text-sm">No badges earned yet. Complete challenges to earn badges!</p>
+                <p className="text-slate-500 text-sm">{t("challenges.noBadges")}</p>
               </div>
             ) : (
               badges.map((b) => (
@@ -405,148 +408,170 @@ export default function ChallengesPage() {
         )}
       </div>
 
-      {/* Toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] px-5 py-3 bg-gray-900 text-white text-sm font-medium rounded-xl shadow-xl"
-          >
-            {toast}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Challenge Detail Modal */}
       <AnimatePresence>
         {selectedChallenge && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setSelectedChallenge(null)}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedChallenge(null)}
-              className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              initial={{ y: 50, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 50, opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-8 w-full max-w-md relative shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative z-10"
             >
-              <button onClick={() => setSelectedChallenge(null)} className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-100 text-slate-400">
-                <X className="w-5 h-5" />
+              <button
+                onClick={() => setSelectedChallenge(null)}
+                className="absolute top-6 right-6 p-2 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-all"
+              >
+                <X size={20} />
               </button>
-
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center">
-                  <Target className="text-orange-500 w-6 h-6" />
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className={`p-4 rounded-2xl ${selectedChallenge.type === 'active' ? 'bg-orange-50 text-orange-500' : 'bg-blue-50 text-blue-500'}`}>
+                  <Target size={32} />
                 </div>
                 <div>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${difficultyColors[selectedChallenge.difficulty] || ""}`}>
-                    {selectedChallenge.difficulty}
+                   <h3 className="font-bold text-slate-900 text-xl tracking-tight leading-tight">
+                    {selectedChallenge.title || selectedChallenge.template?.title}
+                  </h3>
+                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider inline-block mt-1 ${difficultyColors[selectedChallenge.difficulty || selectedChallenge.template?.difficulty]}`}>
+                    {(t(`challenges.difficultyLevels.${selectedChallenge.difficulty || selectedChallenge.template?.difficulty}`) as string) || (selectedChallenge.difficulty || selectedChallenge.template?.difficulty)}
                   </span>
-                  <h3 className="font-semibold text-slate-900 text-lg">{selectedChallenge.title || selectedChallenge.template?.title}</h3>
                 </div>
               </div>
 
-              <div className="space-y-3 mb-6 text-sm text-slate-600">
-                <p className="flex items-center gap-2">
-                  <Target size={16} />
-                  {(selectedChallenge.limit_amount ?? selectedChallenge.template?.limit_amount ?? 0) > 0
-                    ? `Max ${formatRp(selectedChallenge.limit_amount ?? selectedChallenge.template?.limit_amount)}`
-                    : "Zero spending"}
-                </p>
-                <p className="flex items-center gap-2">🕒 {selectedChallenge.duration_days ?? selectedChallenge.template?.duration_days} days</p>
-                <p className="flex items-center gap-2">
-                  <Star size={16} className="text-blue-500" fill="currentColor" />
-                  +{selectedChallenge.xp_reward ?? selectedChallenge.template?.xp_reward} XP reward
-                </p>
+              <div className="space-y-4 mb-8">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                  <div className="flex justify-between items-center text-sm font-medium">
+                    <span className="text-slate-500 flex items-center gap-2"><Target size={16} /> {t("challenges.max")}</span>
+                    <span className="text-slate-900">{(selectedChallenge.limit_amount ?? selectedChallenge.template?.limit_amount ?? 0) > 0 ? formatRp(selectedChallenge.limit_amount ?? selectedChallenge.template?.limit_amount) : t("challenges.zeroSpending")}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm font-medium">
+                    <span className="text-slate-500 flex items-center gap-2">🕒 {t("challenges.duration")}</span>
+                    <span className="text-slate-900">{t("challenges.daysDuration", { days: (selectedChallenge.duration_days ?? selectedChallenge.template?.duration_days).toString() })}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm font-medium">
+                    <span className="text-slate-500 flex items-center gap-2"><Star size={16} className="text-blue-500" fill="currentColor" /> {t("challenges.reward")}</span>
+                    <span className="text-blue-600 font-bold">+{selectedChallenge.xp_reward ?? selectedChallenge.template?.xp_reward} {t("challenges.xp")}</span>
+                  </div>
+                </div>
+
                 {selectedChallenge.type === "active" && (
-                  <div className="pt-3 border-t space-y-1">
-                    <p className="font-medium">Progress: {selectedChallenge.consumedPercent ?? 0}% consumed</p>
-                    <p className="text-xs text-slate-500">Spent: {formatRp(selectedChallenge.spent ?? 0)} / {formatRp(selectedChallenge.template?.limit_amount ?? 0)}</p>
-                    <p className="text-xs text-slate-500">{selectedChallenge.daysLeft} day{selectedChallenge.daysLeft !== 1 ? "s" : ""} left</p>
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1">
+                      <span className="text-orange-500">{selectedChallenge.consumedPercent}% {t("challenges.consumed")}</span>
+                      <span className="text-slate-400">{selectedChallenge.daysLeft} {t("challenges.days")} {t("challenges.remaining")}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all ${selectedChallenge.consumedPercent >= 80 ? 'bg-red-500' : 'bg-orange-500'}`} 
+                        style={{ width: `${selectedChallenge.consumedPercent}%` }} 
+                      />
+                    </div>
                   </div>
                 )}
-                {selectedChallenge.description && (
-                  <p className="text-xs text-slate-400 italic pt-2">{selectedChallenge.description}</p>
+                
+                {(selectedChallenge.description || selectedChallenge.template?.description) && (
+                  <p className="text-xs text-slate-400 italic text-center px-4 leading-relaxed">
+                    {selectedChallenge.description || selectedChallenge.template?.description}
+                  </p>
                 )}
               </div>
 
               <div className="flex gap-3">
-                {selectedChallenge.type === "template" && !isTemplateActive(selectedChallenge.id) && (
-                  <button
+                {selectedChallenge.type === "template" && (
+                   <button
                     onClick={() => { handleAccept(selectedChallenge.id); setSelectedChallenge(null); }}
-                    className="flex-1 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+                    disabled={isTemplateActive(selectedChallenge.id)}
+                    className={`flex-1 py-4 rounded-2xl text-sm font-bold transition-all shadow-lg ${isTemplateActive(selectedChallenge.id) 
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-100'}`}
                   >
-                    Accept Challenge
+                    {isTemplateActive(selectedChallenge.id) ? t("challenges.alreadyActive") : t("challenges.startChallenge")}
                   </button>
                 )}
                 {selectedChallenge.type === "active" && (
                   <>
                     <button
                       onClick={() => handleCancel(selectedChallenge.id)}
-                      className="flex-1 py-3 rounded-xl border border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 transition-colors"
+                      className="flex-1 py-4 rounded-2xl border-2 border-slate-100 text-slate-500 text-sm font-bold hover:bg-slate-50 transition-all"
                     >
-                      Cancel
+                      {t("common.cancel")}
                     </button>
                     <button
                       onClick={() => handleComplete(selectedChallenge.id)}
-                      className="flex-1 py-3 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-colors"
+                      className="flex-1 py-4 rounded-2xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-100"
                     >
-                      Complete
+                      {t("challenges.completeChallenge")}
                     </button>
                   </>
                 )}
-                <button onClick={() => setSelectedChallenge(null)} className="py-3 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors">
-                  Close
-                </button>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Generate Modal */}
+      {/* Mindy AI Modal Placeholder */}
       <AnimatePresence>
         {isGenerateModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setIsGenerateModalOpen(false)}
+          >
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsGenerateModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
+              initial={{ y: 50, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 50, opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-[40px] p-10 w-full max-w-sm relative text-center shadow-2xl"
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative z-10"
             >
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-slate-900">Generate AI Challenge</h3>
-                <button onClick={() => setIsGenerateModalOpen(false)} className="p-2 rounded-lg hover:bg-slate-100">
-                  <X className="w-5 h-5 text-slate-400" />
-                </button>
+              <div className="w-24 h-24 bg-purple-50 rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-inner">
+                <Sparkles className="text-purple-600 w-12 h-12" />
               </div>
-              <p className="text-sm text-slate-600 mb-6">Mindy will analyze your spending and suggest a personalized challenge.</p>
-              <div className="flex gap-3">
-                <button onClick={() => setIsGenerateModalOpen(false)} className="flex-1 py-3 rounded-xl border border-slate-200 font-semibold">Cancel</button>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{t("challenges.mindyTitle")}</h3>
+              <p className="text-slate-500 text-sm mb-10 leading-relaxed px-2">
+                {t("challenges.mindySubtitle")}
+              </p>
+              <div className="space-y-4">
                 <button
-                  onClick={() => { setIsGenerateModalOpen(false); showToast("AI challenge generated! (Coming soon)"); }}
-                  className="flex-1 py-3 rounded-xl bg-slate-900 text-white font-semibold"
+                  onClick={() => { setIsGenerateModalOpen(false); showToast("✨ " + t("ai.thinking")); }}
+                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl active:scale-[0.98]"
                 >
-                  Generate
+                  {t("challenges.generate")}
+                </button>
+                <button
+                  onClick={() => setIsGenerateModalOpen(false)}
+                  className="w-full py-4 text-slate-400 font-bold hover:text-slate-600 transition-colors"
+                >
+                  {t("common.back")}
                 </button>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl text-sm font-semibold flex items-center gap-3"
+          >
+            {toast}
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

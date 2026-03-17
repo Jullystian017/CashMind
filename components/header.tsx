@@ -18,6 +18,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import type { User as AuthUser } from "@supabase/supabase-js"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 
 interface HeaderProps {
@@ -38,7 +39,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
     const searchRef = useRef<HTMLInputElement>(null)
     const notifRef = useRef<HTMLDivElement>(null)
     const profileRef = useRef<HTMLDivElement>(null)
-
+    const { t } = useTranslation()
     const [searchValue, setSearchValue] = useState(searchParams.get('q') || "")
     const [searchResults, setSearchResults] = useState<SearchResult[]>([])
     const [isSearching, setIsSearching] = useState(false)
@@ -207,7 +208,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                             <input
                                 ref={searchRef}
                                 type="text"
-                                placeholder="Search transactions, goals..."
+                                placeholder={t("header.searchPlaceholder")}
                                 value={searchValue}
                                 onChange={(e) => handleSearchInput(e.target.value)}
                                 onFocus={() => searchValue.length >= 2 && setShowResults(true)}
@@ -233,8 +234,8 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                     className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl z-50 overflow-hidden max-h-[480px] flex flex-col"
                                 >
                                     <div className="p-3 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
-                                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">Results for "{searchValue}"</span>
-                                        {searchResults.length > 0 && <span className="text-[10px] font-medium text-gray-400">{searchResults.length} found</span>}
+                                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">{t("header.searchResults")} "{searchValue}"</span>
+                                        {searchResults.length > 0 && <span className="text-[10px] font-medium text-gray-400">{searchResults.length} {t("common.done").toLowerCase()}</span>}
                                     </div>
 
                                     <div className="overflow-y-auto py-2">
@@ -243,8 +244,8 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                                 <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
                                                     <Search className="w-6 h-6 text-gray-300" />
                                                 </div>
-                                                <p className="text-sm font-medium text-gray-500">No results found</p>
-                                                <p className="text-xs text-gray-400 mt-1">Try another keyword</p>
+                                                <p className="text-sm font-medium text-gray-500">{t("header.noResults")}</p>
+                                                <p className="text-xs text-gray-400 mt-1">{t("header.noResults")}</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-1">
@@ -295,11 +296,11 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                                 <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-semibold text-gray-400">↑</kbd>
                                                 <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-semibold text-gray-400">↓</kbd>
                                             </div>
-                                            <span className="text-[10px] text-gray-400 font-medium">to navigate</span>
+                                            <span className="text-[10px] text-gray-400 font-medium">{t("header.toNavigate")}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-semibold text-gray-400">Enter</kbd>
-                                            <span className="text-[10px] text-gray-400 font-medium">to select</span>
+                                            <span className="text-[10px] text-gray-400 font-medium">{t("header.toSelect")}</span>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -315,8 +316,8 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                     <button
                         onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
                         className={cn(
-                            "p-2.5 rounded-full transition-all lg:hidden",
-                            isMobileSearchOpen ? "bg-blue-50 text-blue-600" : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                            "w-10 h-10 flex items-center justify-center rounded-full transition-all lg:hidden flex-shrink-0",
+                            isMobileSearchOpen ? "bg-blue-50 text-blue-600 shadow-inner" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         )}
                         aria-label="Toggle search"
                     >
@@ -328,16 +329,17 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                         onClick={onAIPanelToggle}
                         suppressHydrationWarning
                         className={cn(
-                            "flex items-center gap-2 py-1.5 rounded-full border transition-all duration-300 group hover:scale-105 active:scale-95",
+                            "flex items-center gap-2 rounded-full border transition-all duration-300 group hover:scale-105 active:scale-95 flex-shrink-0",
+                            "w-10 h-10 lg:w-auto lg:py-1.5",
                             isAIPanelOpen
-                                ? "bg-blue-600 border-blue-500 shadow-lg shadow-blue-500/20 pl-3 pr-1.5 flex-row-reverse"
-                                : "bg-gray-100 border-gray-200 hover:bg-gray-200 pl-1.5 pr-3"
+                                ? "bg-blue-600 border-blue-500 shadow-lg shadow-blue-500/20 lg:pl-3 lg:pr-1.5 flex-row-reverse"
+                                : "bg-gray-100 border-gray-200 hover:bg-gray-200 lg:pl-1.5 lg:pr-3"
                         )}
                         title="AI Assistant"
                         aria-label="Toggle AI Assistant"
                     >
                         <div className={cn(
-                            "w-7 h-7 rounded-full flex items-center justify-center shadow-md flex-shrink-0",
+                            "w-7 h-7 rounded-full flex items-center justify-center shadow-md flex-shrink-0 mx-auto lg:mx-0",
                             isAIPanelOpen
                                 ? "bg-white/20 backdrop-blur"
                                 : "bg-gradient-to-br from-blue-400 via-blue-500 to-indigo-600"
@@ -348,7 +350,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                             "text-xs font-semibold tracking-tight transition-colors hidden lg:block",
                             isAIPanelOpen ? "text-white" : "text-gray-600 group-hover:text-gray-900"
                         )}>
-                            Assistant
+                            {t("header.aiAssistant")}
                         </span>
                     </button>
 
@@ -381,13 +383,13 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                     className="absolute right-0 top-full mt-2 w-[360px] max-h-[400px] bg-white rounded-2xl border border-gray-100 shadow-xl z-50 overflow-hidden"
                                 >
                                     <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                                        <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                                        <h3 className="text-sm font-semibold text-gray-900">{t("header.notifications")}</h3>
                                         {unreadCount > 0 && (
                                             <button
                                                 onClick={handleMarkAllRead}
                                                 className="text-xs font-medium text-blue-600 hover:text-blue-700"
                                             >
-                                                Mark all read
+                                                {t("notifications.markAllRead")}
                                             </button>
                                         )}
                                     </div>
@@ -397,7 +399,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                                 <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
                                             </div>
                                         ) : notifications.length === 0 ? (
-                                            <div className="p-8 text-center text-sm text-gray-500">No notifications</div>
+                                            <div className="p-8 text-center text-sm text-gray-500">{t("notifications.noNotifications")}</div>
                                         ) : (
                                             notifications.map((n) => (
                                                 <div
@@ -439,7 +441,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                             onClick={() => { setNotifOpen(false); router.push("/dashboard/transactions"); }}
                                             className="w-full py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
                                         >
-                                            View all activity
+                                            {t("dashboard.viewAll")}
                                         </button>
                                     </div>
                                 </motion.div>
@@ -452,7 +454,8 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                         <button
                             onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
                             className={cn(
-                                "flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-all duration-200 group",
+                                "flex items-center gap-2 rounded-full border transition-all duration-200 group flex-shrink-0",
+                                "w-10 h-10 lg:w-auto lg:pl-1 lg:pr-3 lg:py-1",
                                 profileOpen ? "bg-blue-50 border-blue-200" : "bg-gray-100 border-gray-200 hover:bg-gray-200"
                             )}
                             title="Profile"
@@ -460,18 +463,18 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                             suppressHydrationWarning
                         >
                             <div className={cn(
-                                "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border",
+                                "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border mx-auto lg:mx-0",
                                 profileOpen ? "bg-blue-100 border-blue-200 text-blue-600" : "bg-gray-100 border-gray-200 text-gray-500"
                             )}>
                                 <User className="w-4 h-4" />
                             </div>
-                            <div className="hidden sm:flex flex-col items-start leading-none">
+                            <div className="hidden lg:flex flex-col items-start leading-none">
                                 <span className="text-xs font-semibold text-gray-700 group-hover:text-gray-900 transition-colors truncate max-w-[120px]">
                                     {user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}
                                 </span>
                                 <span className="text-[10px] text-gray-400 font-medium mt-0.5 truncate max-w-[120px]">{user?.email ?? ""}</span>
                             </div>
-                            <ChevronDown className={cn("w-3 h-3 text-gray-400 hidden sm:block transition-transform", profileOpen && "rotate-180 text-blue-600")} suppressHydrationWarning />
+                            <ChevronDown className={cn("w-3 h-3 text-gray-400 hidden lg:block transition-transform", profileOpen && "rotate-180 text-blue-600")} suppressHydrationWarning />
                         </button>
 
                         <AnimatePresence>
@@ -499,14 +502,14 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                             className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                         >
                                             <User className="w-4 h-4 text-gray-400" />
-                                            My profile
+                                            {t("header.viewProfile")}
                                         </button>
                                         <button
                                             onClick={() => { setProfileOpen(false); router.push("/dashboard/settings"); }}
                                             className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                         >
                                             <Settings className="w-4 h-4 text-gray-400" />
-                                            Settings
+                                            {t("nav.settings")}
                                         </button>
                                     </div>
                                     <div className="p-2 border-t border-gray-100">
@@ -515,7 +518,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                             className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                                         >
                                             <LogOut className="w-4 h-4" />
-                                            Log out
+                                            {t("nav.logout")}
                                         </button>
                                     </div>
                                 </motion.div>
@@ -542,7 +545,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                     autoFocus
                                     ref={searchRef}
                                     type="text"
-                                    placeholder="Search transactions, goals..."
+                                    placeholder={t("header.searchPlaceholder")}
                                     value={searchValue}
                                     onChange={(e) => handleSearchInput(e.target.value)}
                                     suppressHydrationWarning
@@ -562,12 +565,12 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                             {showResults && (
                                 <div className="mt-4 bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-xl max-h-[350px] overflow-y-auto">
                                     <div className="p-3 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
-                                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">Results for "{searchValue}"</span>
+                                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">{t("header.searchResults")} "{searchValue}"</span>
                                     </div>
                                     <div className="py-2">
                                         {searchResults.length === 0 && !isSearching ? (
                                             <div className="py-6 px-4 text-center">
-                                                <p className="text-sm font-medium text-gray-500">No results found</p>
+                                                <p className="text-sm font-medium text-gray-500">{t("header.noResults")}</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-1">

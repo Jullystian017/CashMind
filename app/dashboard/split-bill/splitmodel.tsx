@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { createSplitBill } from "@/app/actions/split-bill"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 interface Participant {
   name: string
@@ -23,6 +24,7 @@ export function CreateSplitModal({
   onClose: () => void
   onCreated?: () => void
 }) {
+  const { t } = useTranslation()
   const [eventName, setEventName] = useState("")
   const [totalAmount, setTotalAmount] = useState("")
   const [payer, setPayer] = useState("you")
@@ -48,7 +50,7 @@ export function CreateSplitModal({
       if (i < participants.length) {
         newParticipants.push(participants[i])
       } else {
-        newParticipants.push({ name: `Orang ${i + 1}`, amount: 0 })
+        newParticipants.push({ name: `${t("splitBill.person")} ${i + 1}`, amount: 0 })
       }
     }
     setParticipants(newParticipants)
@@ -78,7 +80,7 @@ export function CreateSplitModal({
       totalAmount: total,
       payer,
       participants: participants.map(p => ({
-        name: p.name.trim() || "Tanpa Nama",
+        name: p.name.trim() || t("common.noName") || "No Name",
         amount: splitMode === "equal" ? perPerson : p.amount
       }))
     }
@@ -116,7 +118,7 @@ export function CreateSplitModal({
             {/* Header */}
             <div className="px-8 pt-8 pb-5 shrink-0 border-b border-gray-50">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">Create New Split</h2>
+                <h2 className="text-xl font-semibold text-gray-900">{t("splitBill.createBill")}</h2>
                 <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
@@ -128,10 +130,10 @@ export function CreateSplitModal({
 
               {/* Event Name */}
               <div className="space-y-2">
-                <label className="text-[13px] font-semibold text-gray-700">Event Name</label>
+                <label className="text-[13px] font-semibold text-gray-700">{t("splitBill.eventName")}</label>
                 <Input
                   required
-                  placeholder="e.g. Dinner at Cafe"
+                  placeholder={t("splitBill.exampleEvent")}
                   className="h-12 border-gray-200 rounded-xl focus-visible:ring-blue-600/20"
                   value={eventName}
                   onChange={(e) => setEventName(e.target.value)}
@@ -141,7 +143,7 @@ export function CreateSplitModal({
               {/* Amount, People, Payer */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-gray-700">Total Amount</label>
+                  <label className="text-[13px] font-semibold text-gray-700">{t("splitBill.amount")}</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">Rp</span>
                     <Input
@@ -155,7 +157,7 @@ export function CreateSplitModal({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-gray-700">People</label>
+                  <label className="text-[13px] font-semibold text-gray-700">{t("splitBill.person")}</label>
                   <div className="relative">
                     <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
@@ -169,21 +171,21 @@ export function CreateSplitModal({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[13px] font-semibold text-gray-700">Paid by</label>
+                  <label className="text-[13px] font-semibold text-gray-700">{t("splitBill.paidBy")}</label>
                   <div className="flex bg-gray-50 p-1 rounded-xl h-12 border border-gray-100">
                     <button
                       type="button"
                       onClick={() => setPayer("you")}
                       className={`flex-1 rounded-lg text-sm font-semibold transition-all ${payer === "you" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400"}`}
                     >
-                      You
+                      {t("splitBill.you")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setPayer("friend")}
                       className={`flex-1 rounded-lg text-sm font-semibold transition-all ${payer === "friend" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400"}`}
                     >
-                      Friend
+                      {t("splitBill.friend")}
                     </button>
                   </div>
                 </div>
@@ -192,7 +194,7 @@ export function CreateSplitModal({
               {/* Per-person preview */}
               {total > 0 && splitMode === "equal" && (
                 <div className="bg-blue-50/60 border border-blue-100 rounded-xl px-5 py-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-blue-600">Per person</span>
+                  <span className="text-xs font-medium text-blue-600">{t("splitBill.perPerson")}</span>
                   <span className="text-sm font-semibold text-blue-700">Rp {perPerson.toLocaleString('id-ID')}</span>
                 </div>
               )}
@@ -207,14 +209,14 @@ export function CreateSplitModal({
                       onClick={() => setSplitMode("equal")}
                       className={`px-3 py-1 rounded transition-all ${splitMode === "equal" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400"}`}
                     >
-                      Equal
+                      {t("splitBill.equal")}
                     </button>
                     <button
                       type="button"
                       onClick={() => setSplitMode("custom")}
                       className={`px-3 py-1 rounded transition-all ${splitMode === "custom" ? "bg-white text-blue-600 shadow-sm" : "text-gray-400"}`}
                     >
-                      Custom
+                      {t("splitBill.custom")}
                     </button>
                   </div>
                 </div>
@@ -226,7 +228,7 @@ export function CreateSplitModal({
                       <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-xs">
                         Y
                       </div>
-                      <p className="text-sm font-semibold text-gray-900">You</p>
+                      <p className="text-sm font-semibold text-gray-900">{t("splitBill.you")}</p>
                     </div>
                     <span className="text-sm font-semibold text-blue-600">
                       {total > 0 ? `Rp ${yourShare.toLocaleString('id-ID')}` : "-"}
@@ -241,7 +243,7 @@ export function CreateSplitModal({
                       </div>
                       <div className="flex-1 min-w-0">
                         <Input
-                          placeholder={`Person ${i + 1}`}
+                          placeholder={`${t("splitBill.person")} ${i + 1}`}
                           className="h-8 border-gray-200 rounded-lg text-sm"
                           value={p.name}
                           onChange={(e) => updateParticipantName(i, e.target.value)}
@@ -251,7 +253,7 @@ export function CreateSplitModal({
                         <div className="w-28 shrink-0">
                           <Input
                             type="number"
-                            placeholder="Amount"
+                            placeholder={t("splitBill.amount")}
                             className="h-8 border-gray-200 rounded-lg text-sm"
                             value={p.amount || ""}
                             onChange={(e) => updateParticipantAmount(i, Number(e.target.value))}
@@ -270,17 +272,17 @@ export function CreateSplitModal({
               {/* Summary */}
               {total > 0 && (
                 <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 space-y-3">
-                  <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Summary</h4>
+                  <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">{t("splitBill.summary")}</h4>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Total bill</span>
+                    <span className="text-gray-600">{t("splitBill.totalBill")}</span>
                     <span className="font-semibold text-gray-900">Rp {total.toLocaleString('id-ID')}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Split between {peopleCount} people</span>
-                    <span className="font-semibold text-gray-900">Rp {perPerson.toLocaleString('id-ID')} / person</span>
+                    <span className="text-gray-600">{t("splitBill.splitBetween", { count: peopleCount.toString() })}</span>
+                    <span className="font-semibold text-gray-900">Rp {perPerson.toLocaleString('id-ID')} / {t("splitBill.person")}</span>
                   </div>
                   <div className="flex justify-between items-center pt-2 border-t border-gray-200 mt-1">
-                    <span className="text-sm font-semibold text-gray-900">Your share</span>
+                    <span className="text-sm font-semibold text-gray-900">{t("splitBill.yourShare")}</span>
                     <span className="text-lg font-semibold text-blue-600">Rp {yourShare.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
@@ -290,7 +292,7 @@ export function CreateSplitModal({
             {/* Footer */}
             <div className="p-6 border-t border-gray-50 flex items-center justify-between shrink-0 bg-white">
               <button type="button" onClick={onClose} className="text-sm font-semibold text-gray-400 hover:text-gray-600 transition-colors">
-                Cancel
+                {t("common.cancel")}
               </button>
               <Button
                 type="submit"
@@ -300,10 +302,10 @@ export function CreateSplitModal({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating...
+                    {t("splitBill.creating")}
                   </>
                 ) : (
-                  "Create Split"
+                  t("splitBill.createBill")
                 )}
               </Button>
             </div>

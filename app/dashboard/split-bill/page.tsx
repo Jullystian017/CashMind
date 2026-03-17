@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CreateSplitModal } from "./splitmodel"
 import { getSplitBills, type SplitBill } from "@/app/actions/split-bill"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 const categoryIcons: Record<string, React.ReactNode> = {
   food: <Utensils className="w-5 h-5 text-blue-600" />,
@@ -46,6 +47,7 @@ function getIcon(title: string) {
 }
 
 export default function SplitBillPage() {
+  const { t } = useTranslation()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [bills, setBills] = useState<SplitBill[]>([])
   const [loading, setLoading] = useState(true)
@@ -92,15 +94,15 @@ export default function SplitBillPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">Split Bill</h2>
-          <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium italic">Manage shared expenses with friends easily.</p>
+          <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">{t("splitBill.title")}</h2>
+          <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium italic">{t("splitBill.subtitle")}</p>
         </div>
         <Button
           className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6 h-11 shadow-lg shadow-blue-200 w-fit"
           onClick={() => setIsModalOpen(true)}
         >
           <Plus className="w-5 h-5 mr-2" />
-          New Split
+          {t("splitBill.newSplit")}
         </Button>
       </div>
 
@@ -111,7 +113,7 @@ export default function SplitBillPage() {
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
               <Wallet className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Total Split</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{t("splitBill.totalSplit")}</p>
           </div>
           <p className="text-xl font-semibold text-blue-600">{formatRp(totalSplit)}</p>
         </div>
@@ -120,7 +122,7 @@ export default function SplitBillPage() {
             <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
               <ArrowDownRight className="w-5 h-5 text-emerald-600" />
             </div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Collected</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{t("splitBill.collected")}</p>
           </div>
           <p className="text-xl font-semibold text-emerald-600">{formatRp(totalLunas)}</p>
         </div>
@@ -129,7 +131,7 @@ export default function SplitBillPage() {
             <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
               <ArrowUpRight className="w-5 h-5 text-rose-500" />
             </div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">Pending</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{t("splitBill.pending")}</p>
           </div>
           <p className="text-xl font-semibold text-rose-500">{formatRp(totalBelumLunas)}</p>
         </div>
@@ -138,15 +140,15 @@ export default function SplitBillPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
           <Loader2 className="w-7 h-7 animate-spin" />
-          <p className="text-xs font-medium">Loading splits...</p>
+          <p className="text-xs font-medium">{t("splitBill.loading")}</p>
         </div>
       ) : bills.length === 0 ? (
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 text-center">
           <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Receipt className="w-8 h-8 text-blue-600" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">No splits yet</h3>
-          <p className="text-sm text-gray-400 max-w-sm mx-auto">Create your first split bill to start tracking shared expenses.</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">{t("splitBill.noSplitsTitle") || "No splits yet"}</h3>
+          <p className="text-sm text-gray-400 max-w-sm mx-auto">{t("splitBill.noSplits")}</p>
         </div>
       ) : (
         <>
@@ -154,9 +156,9 @@ export default function SplitBillPage() {
           {activeBills.length > 0 && (
             <section className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-gray-800">Active Splits</h2>
+                <h2 className="font-semibold text-gray-800">{t("splitBill.activeSplits")}</h2>
                 <span className="bg-blue-50 text-blue-600 text-[10px] font-semibold px-2.5 py-1 rounded-lg uppercase tracking-wider">
-                  {activeBills.length} Ongoing
+                  {activeBills.length} {t("splitBill.ongoing")}
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -178,9 +180,9 @@ export default function SplitBillPage() {
           {completedBills.length > 0 && (
             <section className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-gray-400">Completed</h2>
+                <h2 className="font-semibold text-gray-400">{t("splitBill.completed")}</h2>
                 <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                  {completedBills.length} Settled
+                  {completedBills.length} {t("splitBill.settled")}
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-70">
@@ -216,6 +218,7 @@ function BillCard({ bill, status, icon, formatRp, onClick }: {
   formatRp: (val: number) => string
   onClick: () => void
 }) {
+  const { t } = useTranslation()
   const percentage = bill.participant_count > 0
     ? (bill.paid_count / bill.participant_count) * 100
     : 0
@@ -247,13 +250,13 @@ function BillCard({ bill, status, icon, formatRp, onClick }: {
             <span className="text-blue-600 font-semibold text-xl">{formatRp(bill.total_amount)}</span>
           </div>
           <p className="text-[11px] font-semibold text-slate-400 mt-1 uppercase tracking-tighter">
-            {bill.participant_count + 1} PEOPLE
+            {bill.participant_count + 1} {t("splitBill.people") || "PEOPLE"}
           </p>
         </div>
       </CardHeader>
       <CardContent className="pb-6">
         <div className="flex justify-between text-[10px] font-semibold text-slate-500 mb-2.5 uppercase">
-          <span>{bill.paid_count}/{bill.participant_count} Settled</span>
+          <span>{t("splitBill.settledCount", { paid: bill.paid_count.toString(), total: bill.participant_count.toString() })}</span>
           <span className={isActive ? "text-blue-600" : ""}>{Math.round(percentage)}%</span>
         </div>
         <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">

@@ -6,8 +6,10 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { getProfile } from "@/app/actions/profile"
 import type { Profile } from "@/app/actions/profile"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 export default function ProfilePage() {
+  const { t } = useTranslation()
   const [profile, setProfile] = useState<Profile | null>(null)
   const mounted = useRef(true)
   useEffect(() => {
@@ -19,15 +21,15 @@ export default function ProfilePage() {
   }, [])
   const memberSince = "January 2026"
   const stats = [
-    { label: "Challenges completed", value: "12", icon: Trophy },
-    { label: "Active goals", value: "2", icon: Target },
+    { label: t("profile.completedChallenges"), value: "12", icon: Trophy },
+    { label: t("profile.activeGoals"), value: "2", icon: Target },
   ]
 
   return (
     <div className="space-y-8 pb-24" suppressHydrationWarning>
       <div>
-        <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">My Profile</h2>
-        <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium">Your account overview</p>
+        <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">{t("profile.title")}</h2>
+        <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium">{t("profile.subtitle")}</p>
       </div>
 
       <motion.div
@@ -48,14 +50,14 @@ export default function ProfilePage() {
               </p>
               <p className="text-gray-400 text-xs flex items-center gap-2 mt-2">
                 <Calendar className="w-3.5 h-3.5" />
-                Member since {memberSince}
+                {t("profile.memberSince", { date: memberSince })}
               </p>
             </div>
             <Link
               href="/dashboard/settings"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gray-100 text-gray-700 text-sm font-semibold hover:bg-gray-200 transition-colors"
             >
-              Edit profile
+              {t("profile.editProfile")}
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -88,12 +90,12 @@ export default function ProfilePage() {
         transition={{ delay: 0.1 }}
         className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6"
       >
-        <h4 className="font-semibold text-gray-900 mb-4">Quick links</h4>
+        <h4 className="font-semibold text-gray-900 mb-4">{t("profile.quickLinks")}</h4>
         <div className="space-y-2">
           {[
-            { label: "Settings & preferences", href: "/dashboard/settings" },
-            { label: "Transactions", href: "/dashboard/transactions" },
-            { label: "Challenges", href: "/dashboard/challenges" },
+            { label: t("profile.settings"), href: "/dashboard/settings" },
+            { label: t("profile.transactions"), href: "/dashboard/transactions" },
+            { label: t("profile.challenges"), href: "/dashboard/challenges" },
           ].map((link) => (
             <Link
               key={link.href}

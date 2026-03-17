@@ -15,11 +15,11 @@ import {
     Calculator,
     Lightbulb,
     FileText,
-    Loader2,
-    RotateCcw
+    Loader2
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 interface Message {
     id: number
@@ -36,6 +36,7 @@ interface ChatSession {
 }
 
 export default function DeepChatPage() {
+    const { t } = useTranslation();
     const [message, setMessage] = useState("")
     const [messages, setMessages] = useState<Message[]>([])
     const [isLoading, setIsLoading] = useState(false)
@@ -45,10 +46,10 @@ export default function DeepChatPage() {
     const textareaRef = useRef<HTMLTextAreaElement>(null)
 
     const quickActions = [
-        { name: "Analyze My Spending", icon: TrendingUp, desc: "Get insights on your expenses" },
-        { name: "Suggest Budget Plan", icon: Calculator, desc: "Create a personalized budget" },
-        { name: "Saving Tips", icon: Lightbulb, desc: "Ways to save more money" },
-        { name: "Subscription Check", icon: FileText, desc: "Review recurring payments" },
+        { key: "analyze", icon: TrendingUp },
+        { key: "suggest", icon: Calculator },
+        { key: "tips", icon: Lightbulb },
+        { key: "review", icon: FileText },
     ]
 
     useEffect(() => {
@@ -74,7 +75,6 @@ export default function DeepChatPage() {
         setMessage("")
         setIsLoading(true)
 
-        // Reset textarea height
         if (textareaRef.current) {
             textareaRef.current.style.height = "64px"
         }
@@ -100,20 +100,19 @@ export default function DeepChatPage() {
             const finalMessages = [...updatedMessages, aiMsg]
             setMessages(finalMessages)
 
-            // Save to session history
             if (activeSessionId === null) {
                 const newSession: ChatSession = {
                     id: Date.now(),
                     title: text.trim().slice(0, 40) + (text.length > 40 ? "..." : ""),
                     messages: finalMessages,
-                    time: "Just now"
+                    time: t("common.at") + " " + formatTime()
                 }
                 setChatSessions(prev => [newSession, ...prev])
                 setActiveSessionId(newSession.id)
             } else {
                 setChatSessions(prev =>
                     prev.map(s => s.id === activeSessionId
-                        ? { ...s, messages: finalMessages, time: "Just now" }
+                        ? { ...s, messages: finalMessages, time: t("common.at") + " " + formatTime() }
                         : s
                     )
                 )
@@ -122,7 +121,7 @@ export default function DeepChatPage() {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: "model",
-                text: "⚠️ Failed to connect. Please check your connection.",
+                text: "⚠️ " + t("errors.networkError"),
                 time: formatTime()
             }])
         } finally {
@@ -166,19 +165,19 @@ export default function DeepChatPage() {
                         className="w-full flex items-center justify-center gap-2 py-4 px-4 bg-white border border-gray-200 rounded-2xl text-sm font-semibold text-gray-900 hover:bg-gray-50 hover:shadow-md transition-all shadow-sm group"
                     >
                         <Plus className="w-4 h-4 text-blue-600 group-hover:rotate-90 transition-transform" />
-                        New Chat
+                        {t("ai.newChat")}
                     </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-4 no-scrollbar pb-8">
                     <div className="flex items-center justify-between px-2 mb-4">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">HISTORY</p>
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{t("ai.history")}</p>
                         {chatSessions.length > 0 && (
                             <button
                                 onClick={() => { setChatSessions([]); handleNewChat() }}
                                 className="text-[10px] font-semibold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-widest"
                             >
-                                Clear All
+                                {t("ai.clearAll")}
                             </button>
                         )}
                     </div>
@@ -225,8 +224,8 @@ export default function DeepChatPage() {
                                     <div className="w-10 h-10 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400 mb-3">
                                         <History className="w-5 h-5" />
                                     </div>
-                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">No History</p>
-                                    <p className="text-[11px] text-gray-400 mt-1 font-medium">Your chat sessions will appear here.</p>
+                                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{t("ai.noHistory")}</p>
+                                    <p className="text-[11px] text-gray-400 mt-1 font-medium">{t("ai.noHistorySubtitle")}</p>
                                 </div>
                             )}
                         </AnimatePresence>
@@ -244,11 +243,11 @@ export default function DeepChatPage() {
                         </Link>
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
-                                <Sparkles className="w-4 h-4 text-white" />
+                                <Bot className="w-4 h-4 text-white" />
                             </div>
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900 tracking-tight leading-tight">Mindy AI</h2>
-                                <p className="text-[10px] font-semibold text-green-500 uppercase tracking-wider">Online</p>
+                                <p className="text-[10px] font-semibold text-green-500 uppercase tracking-wider">{t("ai.online")}</p>
                             </div>
                         </div>
                     </div>
@@ -263,23 +262,23 @@ export default function DeepChatPage() {
                                 <div className="w-20 h-20 bg-blue-600 rounded-[28px] flex items-center justify-center text-white shadow-2xl shadow-blue-500/20 mb-8">
                                     <Sparkles className="w-10 h-10" />
                                 </div>
-                                <h1 className="text-3xl font-semibold text-gray-900 tracking-tight mb-2">Hi, I'm Mindy! ✨</h1>
+                                <h1 className="text-3xl font-semibold text-gray-900 tracking-tight mb-2">{t("ai.greeting")}</h1>
                                 <p className="text-gray-400 text-sm font-medium mb-12 max-w-md text-center">
-                                    Your smart financial AI assistant. Ask me anything about your spending, budgets, savings, or financial goals.
+                                    {t("ai.greetingSubtitle")}
                                 </p>
 
-                                <div className="grid grid-cols-2 gap-3 w-full max-w-lg">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg pb-12">
                                     {quickActions.map((action) => (
                                         <button
-                                            key={action.name}
-                                            onClick={() => sendMessage(action.name)}
+                                            key={action.key}
+                                            onClick={() => sendMessage(t(`ai.quickActions.${action.key}`))}
                                             className="flex flex-col items-start p-5 rounded-2xl bg-white border border-gray-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-500/5 transition-all text-left group"
                                         >
                                             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-3 group-hover:bg-blue-100 transition-colors">
                                                 <action.icon className="w-5 h-5" />
                                             </div>
-                                            <p className="text-sm font-semibold text-gray-800 mb-0.5">{action.name}</p>
-                                            <p className="text-[11px] text-gray-400 font-medium">{action.desc}</p>
+                                            <p className="text-sm font-semibold text-gray-800 mb-0.5">{t(`ai.quickActions.${action.key}`)}</p>
+                                            <p className="text-[11px] text-gray-400 font-medium">{t(`ai.quickActions.${action.key}Desc`)}</p>
                                         </button>
                                     ))}
                                 </div>
@@ -299,7 +298,7 @@ export default function DeepChatPage() {
                                             )}
                                         >
                                             <div className={cn(
-                                                "max-w-[75%] flex gap-3",
+                                                "max-w-[85%] flex gap-3",
                                                 msg.role === "user" ? "flex-row-reverse" : "flex-row"
                                             )}>
                                                 {msg.role === "model" && (
@@ -337,7 +336,7 @@ export default function DeepChatPage() {
                                             <div className="bg-white border border-gray-100 rounded-[20px] rounded-tl-sm px-5 py-4 shadow-sm">
                                                 <div className="flex items-center gap-2 text-blue-600">
                                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                                    <span className="text-sm font-semibold">Mindy is thinking...</span>
+                                                    <span className="text-sm font-semibold">{t("ai.thinking")}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -362,7 +361,7 @@ export default function DeepChatPage() {
                                         sendMessage(message)
                                     }
                                 }}
-                                placeholder="Ask Mindy anything about your finances..."
+                                placeholder={t("ai.placeholder")}
                                 disabled={isLoading}
                                 className="w-full bg-white border-2 border-gray-100 rounded-[28px] py-5 pl-8 pr-16 text-[15px] font-medium text-gray-900 focus:border-blue-400 focus:shadow-2xl focus:shadow-blue-500/10 transition-all outline-none min-h-[64px] h-[64px] resize-none overflow-hidden placeholder:text-gray-400 shadow-sm disabled:opacity-50"
                                 rows={1}

@@ -33,9 +33,10 @@ import {
     Zap
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { cn } from "@/lib/utils"
+import { cn, formatRp } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction } from "@/app/actions/transactions"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 // Types
 type TransactionStatus = 'success' | 'pending' | 'failed'
@@ -90,6 +91,7 @@ const expenseCategories = ["Food & Drinks", "Transport", "Shopping", "Entertainm
 const incomeCategories = ["Salary", "Bonus", "Part-time Job", "Pocket Money", "Investment", "Gift", "Others"]
 
 export default function TransactionsPage() {
+    const { t } = useTranslation()
     const searchParams = useSearchParams()
     const urlQuery = searchParams.get('q') || ""
 
@@ -107,7 +109,7 @@ export default function TransactionsPage() {
     }
 
     const [isFilterOpen, setIsFilterOpen] = useState(false)
-    const [filterCategory, setFilterCategory] = useState("All Categories")
+    const [filterCategory, setFilterCategory] = useState("All")
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
     const [selectedDetail, setSelectedDetail] = useState<Transaction | null>(null)
@@ -182,12 +184,12 @@ export default function TransactionsPage() {
 
     // Derived Data
     const filteredTransactions = useMemo(() => {
-        return transactions.filter(t => {
+        return transactions.filter(entry => {
             const query = searchQuery.toLowerCase()
             const matchesSearch =
-                t.description.toLowerCase().includes(query)
+                entry.description.toLowerCase().includes(query)
 
-            const matchesCategory = filterCategory === "All Categories" || t.category === filterCategory
+            const matchesCategory = filterCategory === "All" || entry.category === filterCategory
 
             return matchesSearch && matchesCategory
         }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -199,17 +201,9 @@ export default function TransactionsPage() {
         return filteredTransactions.slice(start, start + ITEMS_PER_PAGE)
     }, [filteredTransactions, currentPage])
 
-    const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0)
-    const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0)
+    const totalIncome = transactions.filter(entry => entry.type === 'income').reduce((acc, entry) => acc + entry.amount, 0)
+    const totalExpense = transactions.filter(entry => entry.type === 'expense').reduce((acc, entry) => acc + entry.amount, 0)
     const balance = totalIncome - totalExpense
-
-    const formatRp = (val: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(val).replace('Rp', 'Rp ')
-    }
 
     const formatAmountCompact = (val: number) => {
         if (Math.abs(val) >= 1000000) {
@@ -266,7 +260,7 @@ export default function TransactionsPage() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this transaction?")) return
+        if (!confirm(t("transactions.deleteConfirm"))) return
         const { error } = await deleteTransaction(id)
         if (!error) {
             await fetchTransactions()
@@ -292,7 +286,7 @@ export default function TransactionsPage() {
     }
 
     const handleDeleteSelected = async () => {
-        if (!confirm(`Are you sure you want to delete ${selectedIds.size} transactions?`)) return
+        if (!confirm(`${t("common.delete")} ${selectedIds.size} ${t("transactions.title").toLowerCase()}?`)) return
         for (const id of selectedIds) {
             await deleteTransaction(id)
         }
@@ -300,15 +294,37 @@ export default function TransactionsPage() {
         setSelectedIds(new Set())
     }
 
-
+    const getCategoryLabel = (cat: string) => {
+        const keyMap: Record<string, string> = {
+            "Food & Drinks": "foodDrinks",
+            "Transport": "transport",
+            "Shopping": "shopping",
+            "Entertainment": "entertainment",
+            "Education": "education",
+            "Health": "health",
+            "Home & Bills": "homeBills",
+            "Gadgets": "gadgets",
+            "Travel": "travel",
+            "Utilities": "utilities",
+            "Others": "other",
+            "Salary": "salary",
+            "Bonus": "bonus",
+            "Part-time Job": "partTime",
+            "Pocket Money": "pocketMoney",
+            "Investment": "investment",
+            "Gift": "gift"
+        }
+        const key = keyMap[cat]
+        return key ? t(`transactions.categories.${key}`) : cat
+    }
 
     return (
         <div className="space-y-10 pb-32" suppressHydrationWarning>
             {/* Header Section */}
             <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">Transactions</h2>
-                    <p className="text-gray-500 text-sm mt-2 font-medium">Track your payments and subscription history</p>
+                    <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">{t("transactions.title")}</h2>
+                    <p className="text-gray-500 text-sm mt-2 font-medium">{t("transactions.manageSubtitle")}</p>
                 </div>
                 <div className="flex items-center gap-3">
 
@@ -318,7 +334,7 @@ export default function TransactionsPage() {
                             className="flex items-center gap-3 pl-4 pr-10 py-2.5 bg-white border border-gray-100 rounded-2xl text-xs font-semibold text-gray-600 outline-none hover:border-blue-100 transition-all shadow-sm relative group"
                         >
                             <Filter className={cn("w-4 h-4 transition-colors", isFilterOpen ? "text-blue-600" : "text-gray-400")} />
-                            <span>{filterCategory === "All Categories" ? "All Categories" : filterCategory}</span>
+                            <span>{filterCategory === "All" ? t("transactions.allCategories") : getCategoryLabel(filterCategory)}</span>
                             <ChevronDown className={cn("absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 transition-transform duration-200", isFilterOpen && "rotate-180")} />
                         </button>
 
@@ -334,16 +350,16 @@ export default function TransactionsPage() {
                                     >
                                         <div className="max-h-[360px] overflow-y-auto custom-scrollbar space-y-1">
                                             <button
-                                                onClick={() => { setFilterCategory("All Categories"); setIsFilterOpen(false); }}
+                                                onClick={() => { setFilterCategory("All"); setIsFilterOpen(false); }}
                                                 className={cn(
                                                     "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all",
-                                                    filterCategory === "All Categories" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                                    filterCategory === "All" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                                                 )}
                                             >
-                                                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", filterCategory === "All Categories" ? "bg-white/20" : "bg-gray-100")}>
+                                                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", filterCategory === "All" ? "bg-white/20" : "bg-gray-100")}>
                                                     <FilterX className="w-4 h-4" />
                                                 </div>
-                                                <span>All Categories</span>
+                                                <span>{t("transactions.allCategories")}</span>
                                             </button>
 
                                             <div className="h-px bg-gray-50 my-2 mx-2" />
@@ -370,7 +386,7 @@ export default function TransactionsPage() {
                                                         >
                                                             <Icon className="w-4 h-4" />
                                                         </div>
-                                                        <span className="truncate">{c}</span>
+                                                        <span className="truncate">{getCategoryLabel(c)}</span>
                                                         {isSelected && <Check className="w-3.5 h-3.5 ml-auto" />}
                                                     </button>
                                                 )
@@ -387,7 +403,7 @@ export default function TransactionsPage() {
                                                 <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", filterCategory === "Others" ? "bg-white/20" : "bg-gray-100")}>
                                                     <OthersIcon className="w-4 h-4 text-gray-400" />
                                                 </div>
-                                                <span>Others</span>
+                                                <span>{t("transactions.categories.other")}</span>
                                             </button>
                                         </div>
                                     </motion.div>
@@ -400,7 +416,7 @@ export default function TransactionsPage() {
                         className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-2xl text-xs font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
                     >
                         <Plus className="w-4 h-4" />
-                        <span>Add Transaction</span>
+                        <span>{t("transactions.addTransaction")}</span>
                     </button>
                 </div>
             </div>
@@ -408,9 +424,9 @@ export default function TransactionsPage() {
             {/* Transaction Stats Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                    { label: "Income", value: formatRp(totalIncome), icon: TrendingUp, color: "text-green-600", bg: "bg-green-50" },
-                    { label: "Expenses", value: formatRp(totalExpense), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-50" },
-                    { label: "Current Balance", value: formatRp(balance), icon: Wallet, color: "text-amber-600", bg: "bg-amber-50" }
+                    { label: t("transactions.income"), value: formatRp(totalIncome), icon: TrendingUp, color: "text-green-600", bg: "bg-green-50" },
+                    { label: t("transactions.expense"), value: formatRp(totalExpense), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-50" },
+                    { label: t("dashboard.totalBalance"), value: formatRp(balance), icon: Wallet, color: "text-amber-600", bg: "bg-amber-50" }
                 ].map((stat, i) => (
                     <div key={i} className="p-6 bg-white rounded-[24px] border border-gray-100 shadow-sm flex items-center gap-4">
                         <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center", stat.bg)}>
@@ -431,23 +447,23 @@ export default function TransactionsPage() {
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                                <th className="px-8 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Transaction</th>
-                                <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Category</th>
-                                <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Date</th>
-                                <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">Amount</th>
-                                <th className="px-8 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-right">Action</th>
+                                <th className="px-8 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">{t("common.description")}</th>
+                                <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">{t("common.category")}</th>
+                                <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">{t("common.date")}</th>
+                                <th className="px-6 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-left">{t("common.amount")}</th>
+                                <th className="px-8 py-4 text-[11px] font-medium text-[#6B7280] uppercase tracking-widest text-right">{t("common.actions")}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#E5E7EB]">
-                            {paginatedTransactions.map((t) => (
-                                <tr key={t.id} className="hover:bg-[#F9FAFB] transition-all group">
+                            {paginatedTransactions.map((entry) => (
+                                <tr key={entry.id} className="hover:bg-[#F9FAFB] transition-all group">
                                     <td className="px-8 py-5">
-                                        <p className="text-sm font-normal text-[#1F2937] tracking-tight">{t.description}</p>
+                                        <p className="text-sm font-normal text-[#1F2937] tracking-tight">{entry.description}</p>
                                     </td>
                                     <td className="px-6 py-5">
                                         <div className="flex justify-start">
                                             {(() => {
-                                                const config = categoryConfig[t.category] || categoryConfig["Others"]
+                                                const config = categoryConfig[entry.category] || categoryConfig["Others"]
                                                 const Icon = config.icon
                                                 const color = config.color
                                                 return (
@@ -459,24 +475,24 @@ export default function TransactionsPage() {
                                                         }}
                                                     >
                                                         <Icon className="w-3 h-3" />
-                                                        {t.category}
+                                                        {getCategoryLabel(entry.category)}
                                                     </span>
                                                 )
                                             })()}
                                         </div>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <p className="text-sm font-normal text-[#6B7280]">{new Date(t.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                                        <p className="text-sm font-normal text-[#6B7280]">{new Date(entry.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
                                     </td>
                                     <td className="px-6 py-5">
-                                        <p className="text-sm font-normal text-[#1F2937]">{formatRp(t.amount)}</p>
+                                        <p className="text-sm font-normal text-[#1F2937]">{formatRp(entry.amount)}</p>
                                     </td>
                                     <td className="px-8 py-5 text-right">
                                         <button
-                                            onClick={() => setSelectedDetail(t)}
+                                            onClick={() => setSelectedDetail(entry)}
                                             className="px-4 py-2 bg-slate-50 rounded-xl text-[10px] font-medium text-gray-600 uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                                         >
-                                            View Details
+                                            {t("dashboard.viewDetails")}
                                         </button>
                                     </td>
                                 </tr>
@@ -487,15 +503,15 @@ export default function TransactionsPage() {
 
                 {/* Mobile Card List View */}
                 <div className="md:hidden divide-y divide-[#E5E7EB]">
-                    {paginatedTransactions.map((t) => (
-                        <div key={t.id} className="p-6 space-y-4 hover:bg-[#F9FAFB] transition-all" onClick={() => setSelectedDetail(t)}>
+                    {paginatedTransactions.map((entry) => (
+                        <div key={entry.id} className="p-6 space-y-4 hover:bg-[#F9FAFB] transition-all" onClick={() => setSelectedDetail(entry)}>
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-lg font-normal text-[#1F2937] tracking-tight leading-none">{t.description}</p>
+                                    <p className="text-lg font-normal text-[#1F2937] tracking-tight leading-none">{entry.description}</p>
                                 </div>
                                 <div className="flex justify-start">
                                     {(() => {
-                                        const config = categoryConfig[t.category] || categoryConfig["Others"]
+                                        const config = categoryConfig[entry.category] || categoryConfig["Others"]
                                         const Icon = config.icon
                                         const color = config.color
                                         return (
@@ -507,7 +523,7 @@ export default function TransactionsPage() {
                                                 }}
                                             >
                                                 <Icon className="w-2.5 h-2.5" />
-                                                {t.category}
+                                                {getCategoryLabel(entry.category)}
                                             </span>
                                         )
                                     })()}
@@ -515,8 +531,8 @@ export default function TransactionsPage() {
                             </div>
                             <div className="flex justify-between items-end pt-2">
                                 <div>
-                                    <p className="text-xs text-[#6B7280] font-normal mb-0.5">{new Date(t.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
-                                    <p className="text-base font-normal text-[#1F2937]">{formatRp(t.amount)}</p>
+                                    <p className="text-xs text-[#6B7280] font-normal mb-0.5">{new Date(entry.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
+                                    <p className="text-base font-normal text-[#1F2937]">{formatRp(entry.amount)}</p>
                                 </div>
                                 <button className="w-10 h-10 flex items-center justify-center bg-white border border-[#E5E7EB] rounded-xl text-[#23486A]">
                                     <Plus className="w-5 h-5 rotate-45" />
@@ -531,7 +547,7 @@ export default function TransactionsPage() {
                     totalPages > 1 && (
                         <div className="px-8 py-5 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between">
                             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-                                Showing <span className="text-gray-900">{Math.min(filteredTransactions.length, (currentPage - 1) * ITEMS_PER_PAGE + 1)}-{Math.min(filteredTransactions.length, currentPage * ITEMS_PER_PAGE)}</span> of <span className="text-gray-900">{filteredTransactions.length}</span>
+                                {t("common.showing")} <span className="text-gray-900">{Math.min(filteredTransactions.length, (currentPage - 1) * ITEMS_PER_PAGE + 1)}-{Math.min(filteredTransactions.length, currentPage * ITEMS_PER_PAGE)}</span> {t("common.of")} <span className="text-gray-900">{filteredTransactions.length}</span>
                             </p>
                             <div className="flex items-center gap-2">
                                 <button
@@ -539,7 +555,7 @@ export default function TransactionsPage() {
                                     disabled={currentPage === 1}
                                     className="px-4 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-widest border border-gray-100 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
-                                    Previous
+                                    {t("common.back")}
                                 </button>
                                 <div className="flex items-center gap-1">
                                     {[...Array(totalPages)].map((_, i) => (
@@ -562,7 +578,7 @@ export default function TransactionsPage() {
                                     disabled={currentPage === totalPages}
                                     className="px-4 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-widest border border-gray-100 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
-                                    Next
+                                    {t("common.next")}
                                 </button>
                             </div>
                         </div>
@@ -603,7 +619,7 @@ export default function TransactionsPage() {
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-xl font-semibold text-gray-900 tracking-tight leading-tight">{selectedDetail.description}</h3>
-                                            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-1">Transaction Details</p>
+                                            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-1.5">{t("dashboard.viewDetails")}</p>
                                         </div>
                                         <button
                                             onClick={() => setSelectedDetail(null)}
@@ -625,19 +641,19 @@ export default function TransactionsPage() {
                                             "text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-lg",
                                             isIncome ? "bg-emerald-500/15 text-emerald-600" : "bg-rose-500/15 text-rose-600"
                                         )}>
-                                            {selectedDetail.category}
+                                            {getCategoryLabel(selectedDetail.category)}
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Details grid - fields from Add Transaction */}
                                 <div className="px-6 py-5 space-y-6">
-                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Transaction Details</p>
+                                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{t("dashboard.details")}</p>
                                     <div className="grid grid-cols-2 gap-4">
                                         {[
-                                            { label: "Date", value: new Date(selectedDetail.date).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }), icon: CalendarIcon },
-                                            { label: "Payment Method", value: selectedDetail.paymentMethod, icon: Wallet },
-                                            { label: "Status", value: selectedDetail.status.charAt(0).toUpperCase() + selectedDetail.status.slice(1), statusKey: selectedDetail.status, icon: Check }
+                                            { label: t("common.date"), value: new Date(selectedDetail.date).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }), icon: CalendarIcon },
+                                            { label: t("subscriptions.billingCycle"), value: selectedDetail.paymentMethod, icon: Wallet },
+                                            { label: t("common.status"), value: selectedDetail.status.charAt(0).toUpperCase() + selectedDetail.status.slice(1), statusKey: selectedDetail.status, icon: Check }
                                         ].map((item, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-gray-50/80 border border-gray-100">
                                                 <item.icon className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
@@ -658,7 +674,7 @@ export default function TransactionsPage() {
 
                                     {selectedDetail.note && (
                                         <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100">
-                                            <p className="text-[10px] font-semibold text-amber-700/80 uppercase tracking-wider mb-1">Note</p>
+                                            <p className="text-[10px] font-semibold text-amber-700/80 uppercase tracking-wider mb-1">{t("transactions.note")}</p>
                                             <p className="text-sm font-medium text-gray-700">{selectedDetail.note}</p>
                                         </div>
                                     )}
@@ -672,14 +688,14 @@ export default function TransactionsPage() {
                                             className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                                         >
                                             <Pencil className="w-4 h-4" />
-                                            Edit
+                                            {t("common.edit")}
                                         </button>
                                         <button
                                             onClick={() => { handleDelete(selectedDetail.id); setSelectedDetail(null); }}
                                             className="flex-1 py-3 px-4 bg-rose-50 text-rose-600 rounded-xl text-xs font-semibold uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
                                         >
                                             <Trash2 className="w-4 h-4" />
-                                            Delete
+                                            {t("common.delete")}
                                         </button>
                                     </div>
 
@@ -713,9 +729,9 @@ export default function TransactionsPage() {
                                 <div className="flex items-center justify-between p-6 border-b border-gray-50">
                                     <div>
                                         <h2 className="text-xl font-semibold text-gray-900 tracking-tight leading-none">
-                                            {editingTransaction ? 'Edit Transaction' : 'Add Transaction'}
+                                            {editingTransaction ? t("common.edit") + " " + t("transactions.title") : t("transactions.addTransaction")}
                                         </h2>
-                                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-1.5">Set details below</p>
+                                        <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-1.5">{t("common.loading")}</p>
                                     </div>
                                     <button
                                         onClick={() => { setIsModalOpen(false); resetForm(); }}
@@ -735,7 +751,7 @@ export default function TransactionsPage() {
                                                 type === 'expense' ? "bg-white text-rose-600 shadow-sm border border-rose-100/50" : "text-gray-400 hover:text-gray-600"
                                             )}
                                         >
-                                            Expense
+                                            {t("transactions.expense")}
                                         </button>
                                         <button
                                             onClick={() => setType('income')}
@@ -744,17 +760,17 @@ export default function TransactionsPage() {
                                                 type === 'income' ? "bg-white text-emerald-600 shadow-sm border border-emerald-100/50" : "text-gray-400 hover:text-gray-600"
                                             )}
                                         >
-                                            Income
+                                            {t("transactions.income")}
                                         </button>
                                     </div>
                                 </div>
                                 {/* Description */}
-                                <div className="space-y-6 px-6 py-5"> {/* Added px-6 py-5 for consistent padding */}
+                                <div className="space-y-6 px-6 py-5">
                                     <div>
-                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">Description</label>
+                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">{t("common.description")}</label>
                                         <input
                                             type="text"
-                                            placeholder="e.g. Lunch with friends"
+                                            placeholder="..."
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
                                             className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-semibold text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
@@ -764,7 +780,7 @@ export default function TransactionsPage() {
                                     {/* Amount & Date Grid */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">Amount (Rp)</label>
+                                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">{t("common.amount")} (Rp)</label>
                                             <div className="relative">
                                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400 italic">Rp</span>
                                                 <input
@@ -778,7 +794,7 @@ export default function TransactionsPage() {
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">Date</label>
+                                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">{t("common.date")}</label>
                                             <div className="relative">
                                                 <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                                 <input
@@ -793,7 +809,7 @@ export default function TransactionsPage() {
 
                                     {/* Category Selection */}
                                     <div>
-                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-3 px-1">Select Category</label>
+                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-3 px-1">{t("dashboard.topCategories")}</label>
                                         <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                                             {(type === 'expense' ? expenseCategories : incomeCategories).map((c: string) => {
                                                 const config = categoryConfig[c] || categoryConfig["Others"]
@@ -814,7 +830,7 @@ export default function TransactionsPage() {
                                                     >
                                                         <CatIcon className="w-5 h-5" />
                                                         <span className={cn("text-[8px] font-semibold truncate w-full text-center", isSelected ? "text-white" : "text-gray-500")}>
-                                                            {c.split(' ')[0]}
+                                                            {getCategoryLabel(c).split(' ')[0]}
                                                         </span>
                                                     </button>
                                                 )
@@ -824,10 +840,10 @@ export default function TransactionsPage() {
 
                                     {/* Note */}
                                     <div>
-                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">Note (Optional)</label>
+                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2 px-1">{t("transactions.note")}</label>
                                         <textarea
                                             rows={2}
-                                            placeholder="Add a small detail..."
+                                            placeholder="..."
                                             value={note}
                                             onChange={(e) => setNote(e.target.value)}
                                             className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-medium text-gray-900 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all resize-none"
@@ -845,7 +861,7 @@ export default function TransactionsPage() {
                                             : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/10 hover:-translate-y-0.5"
                                     )}
                                 >
-                                    {editingTransaction ? "Update Transaction" : "Save Transaction"}
+                                    {editingTransaction ? t("common.save") : t("transactions.addTransaction")}
                                 </button>
                             </motion.div>
                         </div>

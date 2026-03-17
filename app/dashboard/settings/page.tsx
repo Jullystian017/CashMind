@@ -12,6 +12,7 @@ import { getProfile, updateProfile } from "@/app/actions/profile"
 import { updateUserPassword } from "@/app/actions/auth"
 import { Eye, EyeOff } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/LanguageContext"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 import type { Locale } from "@/lib/i18n/i18n-config"
 
 const ONBOARDING_COMPLETED_KEY = "cashmind_onboarding_completed"
@@ -19,6 +20,7 @@ const ONBOARDING_COMPLETED_KEY = "cashmind_onboarding_completed"
 type SettingsSection = "profile" | "subscriptions" | "notifications" | "security" | "language"
 
 export default function SettingsPage() {
+    const { t } = useTranslation()
     const [section, setSection] = useState<SettingsSection>("profile")
     const { locale, setLocale } = useLanguage()
     const [toast, setToast] = useState<string | null>(null)
@@ -65,26 +67,26 @@ export default function SettingsPage() {
     const handleSave = async () => {
         const { error } = await updateProfile({ display_name: profile.name || undefined })
         if (!error) {
-            setToast("Settings saved!")
+            setToast(t("settings.saved"))
             setTimeout(() => setToast(null), 2000)
         }
     }
 
     const handleUpdatePassword = async () => {
         if (!passwords.new || !passwords.confirm) {
-            setToast("Please fill in all fields")
+            setToast(t("settings.fillAll"))
             setTimeout(() => setToast(null), 2000)
             return
         }
 
         if (passwords.new !== passwords.confirm) {
-            setToast("Passwords do not match!")
+            setToast(t("settings.passNotMatch"))
             setTimeout(() => setToast(null), 2000)
             return
         }
 
         if (passwords.new.length < 6) {
-            setToast("Password must be at least 6 characters")
+            setToast(t("settings.passTooShort"))
             setTimeout(() => setToast(null), 2000)
             return
         }
@@ -97,7 +99,7 @@ export default function SettingsPage() {
             setToast(`Error: ${error}`)
             setTimeout(() => setToast(null), 2000)
         } else {
-            setToast("Password updated successfully!")
+            setToast(t("settings.passwordUpdated"))
             setPasswords({ new: "", confirm: "" })
             setTimeout(() => setToast(null), 2000)
         }
@@ -105,26 +107,26 @@ export default function SettingsPage() {
 
     const handleLanguageChange = (lang: Locale) => {
         setLocale(lang)
-        setToast(lang === "en" ? "Language set to English" : "Bahasa diubah ke Indonesia")
+        setToast(lang === "en" ? t("settings.langEn") : t("settings.langId"))
         setTimeout(() => setToast(null), 2000)
     }
 
     const navItems: { key: SettingsSection; name: string; icon: typeof User }[] = [
-        { key: "profile", name: "My Profile", icon: User },
-        { key: "subscriptions", name: "Subscriptions", icon: Wallet },
-        { key: "notifications", name: "Notifications", icon: Bell },
-        { key: "security", name: "Security", icon: Shield },
-        { key: "language", name: "Language", icon: Globe },
+        { key: "profile", name: t("settings.profile"), icon: User },
+        { key: "subscriptions", name: t("settings.subscriptions"), icon: Wallet },
+        { key: "notifications", name: t("settings.notifications"), icon: Bell },
+        { key: "security", name: t("settings.security"), icon: Shield },
+        { key: "language", name: t("settings.language"), icon: Globe },
     ]
 
     return (
         <div className="max-w-4xl space-y-8 pb-24">
             <div>
                 <h1 className="text-2xl font-semibold text-gray-900 leading-tight tracking-tight">
-                    Settings
+                    {t("settings.title")}
                 </h1>
                 <p className="text-gray-500 text-sm font-medium">
-                    Manage your personal information and preferences.
+                    {t("settings.subtitle")}
                 </p>
             </div>
 
@@ -140,12 +142,12 @@ export default function SettingsPage() {
                                 <Sparkles className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">Complete your setup</p>
-                                <p className="text-sm text-gray-600">Finish onboarding to set your income, goals, and spending categories.</p>
+                                <p className="font-semibold text-gray-900">{t("settings.completeSetup")}</p>
+                                <p className="text-sm text-gray-600">{t("settings.onboardingNotice")}</p>
                             </div>
                         </div>
                         <span className="text-blue-600 font-semibold flex items-center gap-1 shrink-0">
-                            Continue
+                            {t("settings.continue")}
                             <ChevronRight className="w-4 h-4" />
                         </span>
                     </div>
@@ -192,14 +194,14 @@ export default function SettingsPage() {
                                             <User className="w-8 h-8" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-                                            <p className="text-xs text-gray-400 font-medium mt-1">Update your details</p>
+                                            <h3 className="text-lg font-semibold text-gray-900">{t("settings.personalInfo")}</h3>
+                                            <p className="text-xs text-gray-400 font-medium mt-1">{t("settings.updateDetails")}</p>
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6">
                                         <div className="space-y-2">
-                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Full Name</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t("settings.fullName")}</Label>
                                             <Input
                                                 value={profile.name}
                                                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
@@ -207,7 +209,7 @@ export default function SettingsPage() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Email</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t("settings.email")}</Label>
                                             <Input
                                                 type="email"
                                                 value={profile.email}
@@ -216,7 +218,7 @@ export default function SettingsPage() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Age</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t("settings.age")}</Label>
                                             <Input
                                                 value={profile.age}
                                                 onChange={(e) => setProfile({ ...profile, age: e.target.value })}
@@ -224,7 +226,7 @@ export default function SettingsPage() {
                                             />
                                         </div>
                                         <div className="space-y-2 sm:col-span-2">
-                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">School / Institution</Label>
+                                            <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t("settings.school")}</Label>
                                             <Input
                                                 value={profile.school}
                                                 onChange={(e) => setProfile({ ...profile, school: e.target.value })}
@@ -235,15 +237,15 @@ export default function SettingsPage() {
 
                                     <div className="pt-6 flex justify-end">
                                         <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 h-12 rounded-xl shadow-lg shadow-blue-200 flex items-center gap-2">
-                                            <Save className="w-4 h-4" /> Save Changes
+                                            <Save className="w-4 h-4" /> {t("settings.save")}
                                         </Button>
                                     </div>
                                 </section>
 
                                 <section className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Financial Preferences</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("settings.financialPrefs")}</h3>
                                     <div className="space-y-4">
-                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Default Monthly Income (Rp)</Label>
+                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t("settings.defaultIncome")}</Label>
                                         <div className="relative">
                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-semibold">Rp</span>
                                             <Input
@@ -255,7 +257,7 @@ export default function SettingsPage() {
                                     </div>
                                     <div className="pt-4 flex justify-end">
                                         <Button onClick={handleSave} className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-6 h-11 rounded-xl">
-                                            Save
+                                            {t("common.save")}
                                         </Button>
                                     </div>
                                 </section>
@@ -270,13 +272,13 @@ export default function SettingsPage() {
                                 exit={{ opacity: 0, x: -8 }}
                                 className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
                             >
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Subscriptions</h3>
-                                <p className="text-sm text-gray-500 mb-6">Manage your recurring payments and plans.</p>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("settings.subscriptions")}</h3>
+                                <p className="text-sm text-gray-500 mb-6">{t("settings.manageSubs")}</p>
                                 <Link
                                     href="/dashboard/subscriptions"
                                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
                                 >
-                                    Go to Subscriptions
+                                    {t("settings.goToSubs")}
                                     <ChevronRight className="w-4 h-4" />
                                 </Link>
                             </motion.div>
@@ -290,18 +292,22 @@ export default function SettingsPage() {
                                 exit={{ opacity: 0, x: -8 }}
                                 className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
                             >
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Notifications</h3>
-                                <p className="text-sm text-gray-500 mb-6">Choose what updates you receive (billing, challenges, tips).</p>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("settings.notifications")}</h3>
+                                <p className="text-sm text-gray-500 mb-6">{t("settings.notifDesc")}</p>
                                 <div className="space-y-4">
-                                    {["Billing reminders", "Challenge updates", "Weekly summary"].map((label) => (
-                                        <div key={label} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
-                                            <span className="text-sm font-medium text-gray-700">{label}</span>
+                                    {[
+                                        { key: "billingReminders", label: t("settings.billingReminders") },
+                                        { key: "challengeUpdates", label: t("settings.challengeUpdates") },
+                                        { key: "weeklySummary", label: t("settings.weeklySummary") }
+                                    ].map((item) => (
+                                        <div key={item.key} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
+                                            <span className="text-sm font-medium text-gray-700">{item.label}</span>
                                             <input type="checkbox" defaultChecked className="rounded border-gray-300" />
                                         </div>
                                     ))}
                                 </div>
                                 <div className="pt-6 flex justify-end">
-                                    <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 h-11 rounded-xl">Save</Button>
+                                    <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 h-11 rounded-xl">{t("common.save")}</Button>
                                 </div>
                             </motion.div>
                         )}
@@ -314,11 +320,11 @@ export default function SettingsPage() {
                                 exit={{ opacity: 0, x: -8 }}
                                 className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm"
                             >
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">Security</h3>
-                                <p className="text-sm text-gray-500 mb-6">Password and security options.</p>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("settings.security")}</h3>
+                                <p className="text-sm text-gray-500 mb-6">{t("settings.securityDesc")}</p>
                                 <div className="space-y-4 text-gray-900">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">New password</Label>
+                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t("settings.newPassword")}</Label>
                                         <div className="relative">
                                             <Input
                                                 type={showPassword ? "text" : "password"}
@@ -337,7 +343,7 @@ export default function SettingsPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">Confirm new password</Label>
+                                        <Label className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t("settings.confirmPassword")}</Label>
                                         <Input
                                             type="password"
                                             placeholder="••••••••"
@@ -353,7 +359,7 @@ export default function SettingsPage() {
                                         disabled={passwordLoading}
                                         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold h-12 px-8 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
                                     >
-                                        {passwordLoading ? "Updating…" : "Update password"}
+                                        {passwordLoading ? t("settings.updating") : t("settings.updatePassword")}
                                     </Button>
                                 </div>
                             </motion.div>
@@ -372,8 +378,8 @@ export default function SettingsPage() {
                                         <Globe className="w-8 h-8" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-gray-900">Language</h3>
-                                        <p className="text-xs text-gray-400 font-medium mt-1">Choose your preferred language</p>
+                                        <h3 className="text-lg font-semibold text-gray-900">{t("settings.language")}</h3>
+                                        <p className="text-xs text-gray-400 font-medium mt-1">{t("settings.langDesc")}</p>
                                     </div>
                                 </div>
 
@@ -408,7 +414,7 @@ export default function SettingsPage() {
 
                                 <div className="mt-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
                                     <p className="text-xs text-emerald-700 font-medium leading-relaxed">
-                                        ✅ Language switching is now active! Changes will be applied across the dashboard instantly.
+                                        {t("settings.langNotice")}
                                     </p>
                                 </div>
                             </motion.div>
