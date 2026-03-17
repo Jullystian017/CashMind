@@ -30,12 +30,16 @@ import {
     Home,
     Smartphone,
     Plane,
-    Zap
+    Zap,
+    Camera,
+    UploadCloud,
+    Loader2
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, formatRp } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction } from "@/app/actions/transactions"
+import { parseReceipt } from "@/app/actions/ocr"
 import { useTranslation } from "@/lib/i18n/useTranslation"
 
 // Types
@@ -111,6 +115,8 @@ export default function TransactionsPage() {
     const [isFilterOpen, setIsFilterOpen] = useState(false)
     const [filterCategory, setFilterCategory] = useState("All")
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isScanModalOpen, setIsScanModalOpen] = useState(false)
+    const [isScanning, setIsScanning] = useState(false)
     const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
     const [selectedDetail, setSelectedDetail] = useState<Transaction | null>(null)
 
@@ -318,6 +324,50 @@ export default function TransactionsPage() {
         return key ? t(`transactions.categories.${key}`) : cat
     }
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (!file.type.startsWith('image/')) {
+            alert("Please upload an image file.")
+            return
+        }
+
+        setIsScanning(true)
+        try {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = async () => {
+                const base64Data = reader.result?.toString().split(',')[1]
+                if (base64Data) {
+                    const result = await parseReceipt(base64Data, file.type)
+                    if (result.data) {
+                        resetForm()
+                        setType('expense')
+                        setDescription(result.data.description || "")
+                        setAmount(result.data.amount?.toString() || "")
+                        
+                        if (expenseCategories.includes(result.data.category)) {
+                            setCategory(result.data.category)
+                        } else {
+                            setCategory("Others")
+                        }
+                        
+                        setIsScanModalOpen(false)
+                        setIsModalOpen(true)
+                    } else {
+                        alert(t("transactions.receiptScanFailed") || "Failed to scan receipt")
+                    }
+                }
+                setIsScanning(false)
+            }
+        } catch (error) {
+            console.error("Scan error:", error)
+            alert(t("transactions.receiptScanFailed") || "Error scanning receipt")
+            setIsScanning(false)
+        }
+    }
+
     return (
         <div className="space-y-10 pb-32" suppressHydrationWarning>
             {/* Header Section */}
@@ -411,13 +461,23 @@ export default function TransactionsPage() {
                             )}
                         </AnimatePresence>
                     </div>
-                    <button
-                        onClick={() => { resetForm(); setIsModalOpen(true); }}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-2xl text-xs font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>{t("transactions.addTransaction")}</span>
-                    </button>
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <button
+                            onClick={() => setIsScanModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-600 rounded-2xl text-xs font-semibold hover:bg-blue-100 transition-all shadow-sm border border-blue-100/50 group"
+                            title={t("transactions.scanTooltip")}
+                        >
+                            <Camera className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span className="hidden leading-none @sm:inline">{t("transactions.scanReceipt")}</span>
+                        </button>
+                        <button
+                            onClick={() => { resetForm(); setIsModalOpen(true); }}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-2xl text-xs font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 group"
+                        >
+                            <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+                            <span className="hidden leading-none @sm:inline">{t("transactions.addTransaction")}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -585,6 +645,68 @@ export default function TransactionsPage() {
                     )
                 }
             </div>
+
+            {/* Scan Receipt Modal */}
+            <AnimatePresence>
+                {isScanModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => !isScanning && setIsScanModalOpen(false)}
+                            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="relative w-full max-w-md bg-white rounded-[32px] border border-gray-100 shadow-2xl overflow-hidden p-8 text-center"
+                        >
+                            <div className="mb-6">
+                                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Camera className="w-8 h-8" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900">{t("transactions.scanReceipt")}</h3>
+                                <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                                    {t("transactions.scanReceiptSubtitle")}
+                                </p>
+                            </div>
+
+                            <div className="relative border-2 border-dashed border-gray-200 rounded-3xl p-8 hover:border-blue-400 hover:bg-blue-50/50 transition-colors group cursor-pointer">
+                                <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    onChange={handleFileUpload}
+                                    disabled={isScanning}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+                                />
+                                <div className="flex flex-col items-center gap-4">
+                                    {isScanning ? (
+                                        <>
+                                            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+                                            <p className="text-sm font-semibold text-blue-600">{t("transactions.analyzingReceipt")}</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <UploadCloud className="w-10 h-10 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                                            <p className="text-sm font-medium text-gray-600 px-4">{t("transactions.dragDropReceipt")}</p>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            <button
+                                onClick={() => setIsScanModalOpen(false)}
+                                disabled={isScanning}
+                                className="mt-6 px-6 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                            >
+                                {t("challenges.cancel")}
+                            </button>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* Detail Modal Layer - Mirrors Add Transaction fields + meta info */}
             <AnimatePresence>

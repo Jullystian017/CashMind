@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { chatWithMindy } from "@/lib/gemini"
+import { chatWithMindy } from "@/lib/ai"
 import { getFinancialContext, buildContextPrompt } from "@/app/actions/ai-context"
 
 function delay(ms: number) {
@@ -17,9 +17,9 @@ export async function POST(req: NextRequest) {
             )
         }
 
-        if (!process.env.GEMINI_API_KEY) {
+        if (!process.env.GROQ_API_KEY) {
             return NextResponse.json(
-                { error: "Gemini API key not configured. Add GEMINI_API_KEY to .env.local" },
+                { error: "Groq API key not configured. Add GROQ_API_KEY to .env.local" },
                 { status: 500 }
             )
         }

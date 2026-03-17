@@ -62,10 +62,7 @@ const getMenuCategories = (t: (key: string) => string) => [
     }
 ]
 
-const getBottomMenuItems = (t: (key: string) => string) => [
-    { name: t("nav.profile"), icon: User, href: "/dashboard/profile" },
-    { name: t("nav.settings"), icon: Settings, href: "/dashboard/settings" },
-]
+const getBottomMenuItems = (t: (key: string) => string) => []
 
 interface SidebarProps {
     isCollapsed: boolean
@@ -201,33 +198,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobile
                 ))}
             </div>
 
-            {/* Bottom Menu */}
-            <div className="p-4 border-t border-gray-100 flex-shrink-0">
-                <div className="space-y-1">
-                    {getBottomMenuItems(t).map((item) => {
-                        const isActive = pathname === item.href
-                        return (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className={cn(
-                                    "flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all group relative",
-                                    isActive
-                                        ? "bg-white text-blue-600 shadow-[0px_2px_8px_0px_rgba(37,99,235,0.1)] border border-blue-100/50"
-                                        : "text-gray-500 hover:bg-blue-50/50 hover:text-blue-600"
-                                )}
-                            >
-                                <item.icon className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600")} />
-                                {!effectiveCollapsed && (
-                                    <span className="text-sm font-semibold tracking-tight flex-1">
-                                        {item.name}
-                                    </span>
-                                )}
-                            </Link>
-                        )
-                    })}
-                </div>
-            </div>
+            {/* Bottom Menu - Removed Profile & Settings as per user request */}
         </aside>
     )
 }
