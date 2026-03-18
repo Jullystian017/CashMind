@@ -154,6 +154,8 @@
     "allCategories": "All Categories",
     "searchTransactions": "Search transactions...",
     "dateRange": "Date Range",
+    "lifetime": "Lifetime",
+    "monthly": "Monthly",
     "categories": {
       "foodDrinks": "Food & Drinks",
       "transport": "Transport",

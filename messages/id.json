@@ -167,6 +167,8 @@
     "allCategories": "Semua Kategori",
     "searchTransactions": "Cari transaksi...",
     "dateRange": "Rentang Tanggal",
+    "lifetime": "Lifetime",
+    "monthly": "Bulanan",
     "categories": {
       "foodDrinks": "Makanan & Minuman",
       "transport": "Transportasi",

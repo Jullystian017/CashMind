@@ -109,6 +109,7 @@ export default function TransactionsPage() {
     const [selectedYear, setSelectedYear] = useState(now.getFullYear())
     const [pickerYear, setPickerYear] = useState(now.getFullYear())
     const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false)
+    const [isLifetime, setIsLifetime] = useState(false)
     const mounted = useRef(true)
 
     const months = useMemo(() => {
@@ -229,9 +230,21 @@ export default function TransactionsPage() {
 
     const totalIncome = filteredTransactions.filter(entry => entry.type === 'income').reduce((acc, entry) => acc + entry.amount, 0)
     const totalExpense = filteredTransactions.filter(entry => entry.type === 'expense').reduce((acc, entry) => acc + entry.amount, 0)
-    const allTimeBalance = transactions.reduce((acc, entry) => {
-        return entry.type === 'income' ? acc + entry.amount : acc - entry.amount
-    }, 0)
+    const monthlyBalance = totalIncome - totalExpense
+
+    const lifetimeIncome = transactions.filter(entry => entry.type === 'income').reduce((acc, entry) => acc + entry.amount, 0)
+    const lifetimeExpense = transactions.filter(entry => entry.type === 'expense').reduce((acc, entry) => acc + entry.amount, 0)
+    const lifetimeBalance = lifetimeIncome - lifetimeExpense
+
+    const displayStats = isLifetime ? {
+        income: lifetimeIncome,
+        expense: lifetimeExpense,
+        balance: lifetimeBalance
+    } : {
+        income: totalIncome,
+        expense: totalExpense,
+        balance: monthlyBalance
+    }
 
     const monthLabel = new Date(selectedYear, selectedMonth).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })
 
@@ -404,11 +417,16 @@ export default function TransactionsPage() {
                         <div className="relative">
                             <button
                                 onClick={() => setIsMonthPickerOpen(!isMonthPickerOpen)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-500 hover:bg-white hover:border-blue-200 hover:text-blue-600 transition-all shadow-sm"
+                                className={cn(
+                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[10px] @md:text-xs font-semibold transition-all shadow-sm whitespace-nowrap",
+                                    isLifetime 
+                                        ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700 active:scale-95" 
+                                        : "bg-gray-50 border-gray-100 text-gray-500 hover:bg-white hover:border-blue-200 hover:text-blue-600 active:scale-95"
+                                )}
                             >
-                                <CalendarIcon className="w-3.5 h-3.5" />
-                                <span className="capitalize">{monthLabel}</span>
-                                <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", isMonthPickerOpen && "rotate-180")} />
+                                <CalendarIcon className={cn("w-3 h-3 transition-colors", isLifetime ? "text-white/80" : "text-gray-400")} />
+                                <span className="capitalize leading-none">{isLifetime ? t("transactions.lifetime") : monthLabel}</span>
+                                <ChevronDown className={cn("w-3 h-3 transition-transform duration-200 text-gray-400", isMonthPickerOpen && "rotate-180")} />
                             </button>
 
                             <AnimatePresence>
@@ -421,8 +439,32 @@ export default function TransactionsPage() {
                                             exit={{ opacity: 0, y: 8 }}
                                             className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl border border-gray-100 shadow-xl z-50 overflow-hidden"
                                         >
+                                            {/* Filter Type Toggle */}
+                                            <div className="p-2 bg-gray-50/50 border-b border-gray-100">
+                                                <div className="flex bg-gray-200/50 p-1 rounded-xl">
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setIsLifetime(false); }}
+                                                        className={cn(
+                                                            "flex-1 px-3 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all",
+                                                            !isLifetime ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-500"
+                                                        )}
+                                                    >
+                                                        {t("transactions.monthly")}
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setIsLifetime(true); }}
+                                                        className={cn(
+                                                            "flex-1 px-3 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all",
+                                                            isLifetime ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-500"
+                                                        )}
+                                                    >
+                                                        {t("transactions.lifetime")}
+                                                    </button>
+                                                </div>
+                                            </div>
+
                                             {/* Year Selector Header */}
-                                            <div className="flex items-center justify-between px-3 py-2 bg-gray-50/50 border-b border-gray-100">
+                                            <div className={cn("flex items-center justify-between px-3 py-2 bg-gray-50/50 border-b border-gray-100 transition-opacity", isLifetime && "opacity-50 pointer-events-none")}>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); setPickerYear(y => y - 1); }}
                                                     className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-blue-600 transition-all"
@@ -439,7 +481,7 @@ export default function TransactionsPage() {
                                             </div>
 
                                             {/* Months Grid */}
-                                            <div className="p-2 grid grid-cols-3 gap-1">
+                                            <div className={cn("p-2 grid grid-cols-3 gap-1 transition-opacity", isLifetime && "opacity-50 pointer-events-none")}>
                                                 {months.map((m) => {
                                                     const isSelected = selectedMonth === m.month && selectedYear === pickerYear
                                                     const isCurrentMonth = now.getMonth() === m.month && now.getFullYear() === pickerYear
@@ -469,9 +511,10 @@ export default function TransactionsPage() {
                                             </div>
 
                                             {/* Quick Jumps */}
-                                            <div className="px-2 pb-2 mt-1">
+                                            <div className={cn("px-2 pb-2 mt-1 transition-opacity", isLifetime && "opacity-50 pointer-events-none")}>
                                                 <button
-                                                    onClick={() => {
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
                                                         const d = new Date()
                                                         setSelectedMonth(d.getMonth())
                                                         setSelectedYear(d.getFullYear())
@@ -493,91 +536,92 @@ export default function TransactionsPage() {
                     <p className="text-gray-500 text-sm mt-2 font-medium">{t("transactions.manageSubtitle")}</p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            className="flex items-center gap-3 pl-4 pr-10 py-2.5 bg-white border border-gray-100 rounded-2xl text-xs font-semibold text-gray-600 outline-none hover:border-blue-100 transition-all shadow-sm relative group"
-                        >
-                            <Filter className={cn("w-4 h-4 transition-colors", isFilterOpen ? "text-blue-600" : "text-gray-400")} />
-                            <span>{filterCategory === "All" ? t("transactions.allCategories") : getCategoryLabel(filterCategory)}</span>
-                            <ChevronDown className={cn("absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 transition-transform duration-200", isFilterOpen && "rotate-180")} />
-                        </button>
-
-                        <AnimatePresence>
-                            {isFilterOpen && (
-                                <>
-                                    <div className="fixed inset-0 z-40" onClick={() => setIsFilterOpen(false)} />
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                        className="absolute top-full left-0 mt-3 w-64 bg-white rounded-3xl border border-gray-100 shadow-2xl z-50 overflow-hidden p-2"
-                                    >
-                                        <div className="max-h-[360px] overflow-y-auto custom-scrollbar space-y-1">
-                                            <button
-                                                onClick={() => { setFilterCategory("All"); setIsFilterOpen(false); }}
-                                                className={cn(
-                                                    "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all",
-                                                    filterCategory === "All" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                                                )}
-                                            >
-                                                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", filterCategory === "All" ? "bg-white/20" : "bg-gray-100")}>
-                                                    <FilterX className="w-4 h-4" />
-                                                </div>
-                                                <span>{t("transactions.allCategories")}</span>
-                                            </button>
-
-                                            <div className="h-px bg-gray-50 my-2 mx-2" />
-
-                                            {[...expenseCategories, ...incomeCategories].filter(c => c !== "Others").map((c) => {
-                                                const config = categoryConfig[c] || categoryConfig["Others"]
-                                                const Icon = config.icon
-                                                const isSelected = filterCategory === c
-                                                return (
-                                                    <button
-                                                        key={c}
-                                                        onClick={() => { setFilterCategory(c); setIsFilterOpen(false); }}
-                                                        className={cn(
-                                                            "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all group/item",
-                                                            isSelected ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                                                        )}
-                                                    >
-                                                        <div
-                                                            className={cn(
-                                                                "w-8 h-8 rounded-xl flex items-center justify-center transition-all",
-                                                                isSelected ? "bg-white/20" : "bg-gray-100"
-                                                            )}
-                                                            style={!isSelected ? { color: config.color, backgroundColor: `${config.color}10` } : {}}
-                                                        >
-                                                            <Icon className="w-4 h-4" />
-                                                        </div>
-                                                        <span className="truncate">{getCategoryLabel(c)}</span>
-                                                        {isSelected && <Check className="w-3.5 h-3.5 ml-auto" />}
-                                                    </button>
-                                                )
-                                            })}
-
-                                            <button
-                                                onClick={() => { setFilterCategory("Others"); setIsFilterOpen(false); }}
-                                                className={cn(
-                                                    "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all",
-                                                    filterCategory === "Others" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
-                                                )}
-                                            >
-                                                <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", filterCategory === "Others" ? "bg-white/20" : "bg-gray-100")}>
-                                                    <OthersIcon className="w-4 h-4 text-gray-400" />
-                                                </div>
-                                                <span>{t("transactions.categories.other")}</span>
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                </>
-                            )}
-                        </AnimatePresence>
-                    </div>
-
+                <div className="flex items-center justify-end w-full">
+                    {/* Right side: Actions & Filters */}
                     <div className="flex items-center gap-2 md:gap-3">
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                                className="flex items-center gap-3 pl-4 pr-10 py-2.5 bg-white border border-gray-100 rounded-2xl text-xs font-semibold text-gray-600 outline-none hover:border-blue-100 transition-all shadow-sm relative group"
+                            >
+                                <Filter className={cn("w-4 h-4 transition-colors", isFilterOpen ? "text-blue-600" : "text-gray-400")} />
+                                <span>{filterCategory === "All" ? t("transactions.allCategories") : getCategoryLabel(filterCategory)}</span>
+                                <ChevronDown className={cn("absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 transition-transform duration-200", isFilterOpen && "rotate-180")} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isFilterOpen && (
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsFilterOpen(false)} />
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                            className="absolute top-full right-0 mt-3 w-64 bg-white rounded-3xl border border-gray-100 shadow-2xl z-50 overflow-hidden p-2"
+                                        >
+                                            <div className="max-h-[360px] overflow-y-auto custom-scrollbar space-y-1">
+                                                <button
+                                                    onClick={() => { setFilterCategory("All"); setIsFilterOpen(false); }}
+                                                    className={cn(
+                                                        "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all",
+                                                        filterCategory === "All" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                                    )}
+                                                >
+                                                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", filterCategory === "All" ? "bg-white/20" : "bg-gray-100")}>
+                                                        <FilterX className="w-4 h-4" />
+                                                    </div>
+                                                    <span>{t("transactions.allCategories")}</span>
+                                                </button>
+
+                                                <div className="h-px bg-gray-50 my-2 mx-2" />
+
+                                                {[...expenseCategories, ...incomeCategories].filter(c => c !== "Others").map((c) => {
+                                                    const config = categoryConfig[c] || categoryConfig["Others"]
+                                                    const Icon = config.icon
+                                                    const isSelected = filterCategory === c
+                                                    return (
+                                                        <button
+                                                            key={c}
+                                                            onClick={() => { setFilterCategory(c); setIsFilterOpen(false); }}
+                                                            className={cn(
+                                                                "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all group/item",
+                                                                isSelected ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                                            )}
+                                                        >
+                                                            <div
+                                                                className={cn(
+                                                                    "w-8 h-8 rounded-xl flex items-center justify-center transition-all",
+                                                                    isSelected ? "bg-white/20" : "bg-gray-100"
+                                                                )}
+                                                                style={!isSelected ? { color: config.color, backgroundColor: `${config.color}10` } : {}}
+                                                            >
+                                                                <Icon className="w-4 h-4" />
+                                                            </div>
+                                                            <span className="truncate">{getCategoryLabel(c)}</span>
+                                                            {isSelected && <Check className="w-3.5 h-3.5 ml-auto" />}
+                                                        </button>
+                                                    )
+                                                })}
+
+                                                <button
+                                                    onClick={() => { setFilterCategory("Others"); setIsFilterOpen(false); }}
+                                                    className={cn(
+                                                        "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-semibold transition-all",
+                                                        filterCategory === "Others" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                                    )}
+                                                >
+                                                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", filterCategory === "Others" ? "bg-white/20" : "bg-gray-100")}>
+                                                        <OthersIcon className="w-4 h-4 text-gray-400" />
+                                                    </div>
+                                                    <span>{t("transactions.categories.other")}</span>
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    </>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
                         <button
                             onClick={() => setIsScanModalOpen(true)}
                             className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-600 rounded-2xl text-xs font-semibold hover:bg-blue-100 transition-all shadow-sm border border-blue-100/50 group"
@@ -601,9 +645,9 @@ export default function TransactionsPage() {
             {/* Transaction Stats Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                    { label: t("transactions.income"), value: formatRp(totalIncome), icon: TrendingUp, color: "text-green-600", bg: "bg-green-50" },
-                    { label: t("transactions.expense"), value: formatRp(totalExpense), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-50" },
-                    { label: t("dashboard.totalBalance"), value: formatRp(allTimeBalance), icon: Wallet, color: "text-amber-600", bg: "bg-amber-50" }
+                    { label: t("transactions.income"), value: formatRp(displayStats.income), icon: TrendingUp, color: "text-green-600", bg: "bg-green-50" },
+                    { label: t("transactions.expense"), value: formatRp(displayStats.expense), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-50" },
+                    { label: t("dashboard.totalBalance"), value: formatRp(displayStats.balance), icon: Wallet, color: "text-amber-600", bg: "bg-amber-50" }
                 ].map((stat, i) => (
                     <div key={i} className="p-6 bg-white rounded-[24px] border border-gray-100 shadow-sm flex items-center gap-4">
                         <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center", stat.bg)}>
