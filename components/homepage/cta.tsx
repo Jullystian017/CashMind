@@ -55,7 +55,7 @@ export const CTA = () => {
                                     initial="initial"
                                     whileHover="hover"
                                     whileTap="tap"
-                                    className="group relative flex items-center gap-4 bg-blue-50/80 hover:bg-white transition-all rounded-full p-1.5 pl-6 md:pl-8 pr-1.5 border border-blue-100 shadow-sm overflow-hidden"
+                                    className="group relative flex items-center gap-4 bg-white hover:bg-blue-50/50 transition-all rounded-full p-1.5 pl-6 md:pl-8 pr-1.5 border border-blue-100 shadow-sm overflow-hidden"
                                 >
                                     <div className="relative h-6 md:h-7 overflow-hidden pointer-events-none">
                                         <motion.div
