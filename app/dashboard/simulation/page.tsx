@@ -11,7 +11,6 @@ import {
     Coffee,
     Gamepad2,
     Car,
-    BarChart3,
     Play,
     ChevronRight,
     Loader2,
@@ -26,46 +25,40 @@ import {
     PiggyBank,
     Film,
     ShoppingBag,
-    ArrowRight,
     CheckCircle2,
     Clock,
     Lock,
+    BookOpen,
+    BrainCircuit,
+    AlertCircle,
 } from "lucide-react"
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts"
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts"
 import { getSimulationData, type SimulationData } from "@/app/actions/simulation"
 import { useTranslation } from "@/lib/i18n/useTranslation"
 import { formatRp } from "@/lib/utils"
 
 // ─── TYPES ────────────────────────────────────────────────────────
 
-type Tab = "future-me" | "trade-off" | "timeline"
+type Tab = "future-me" | "trade-off"
 
-type LifestyleItem = {
+type AILifestyleSuggestion = {
     id: string
     label: string
-    icon: any
     emoji: string
     costPerMonth: number
     description: string
     concept: string
-    enabled: boolean
-}
-
-type Milestone = {
-    id: string
-    label: string
-    emoji: string
-    amount: number
-    year: number | null
-    reached: boolean
+    impact5Years: number
+    investmentAlternative: string
+    enabled?: boolean
 }
 
 // ─── UTILS ────────────────────────────────────────────────────────
 
 const formatRpCompact = (val: number) => {
-    if (Math.abs(val) >= 1_000_000_000) return `Rp ${(val / 1_000_000_000).toFixed(1)}B`
-    if (Math.abs(val) >= 1_000_000) return `Rp ${(val / 1_000_000).toFixed(1)}M`
-    if (Math.abs(val) >= 1_000) return `Rp ${(val / 1_000).toFixed(0)}K`
+    if (Math.abs(val) >= 1_000_000_000) return `Rp ${(val / 1_000_000_000).toFixed(1)} Miliar`
+    if (Math.abs(val) >= 1_000_000) return `Rp ${(val / 1_000_000).toFixed(1)} Juta`
+    if (Math.abs(val) >= 1_000) return `Rp ${(val / 1_000).toFixed(0)} rb`
     return `Rp ${val}`
 }
 
@@ -82,7 +75,7 @@ function CurrencyInput({ value, onChange, label }: { value: number; onChange: (v
 
     return (
         <div>
-            <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{label}</label>
+            <label className="text-[11px] font-semibold text-slate-500 mb-1.5 block uppercase tracking-wider">{label}</label>
             <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">Rp</span>
                 <input
@@ -95,7 +88,7 @@ function CurrencyInput({ value, onChange, label }: { value: number; onChange: (v
                         setDisplayVal(formatNumberDots(num))
                         onChange(num)
                     }}
-                    className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
                 />
             </div>
         </div>
@@ -111,81 +104,39 @@ function ConceptBadge({ label }: { label: string }) {
         [t("concepts.compound")]: "bg-emerald-50 text-emerald-700 border-emerald-200",
         [t("concepts.risk")]: "bg-red-50 text-red-700 border-red-200",
         [t("concepts.savings")]: "bg-blue-50 text-blue-700 border-blue-200",
-        [t("concepts.depreciation")]: "bg-orange-50 text-orange-700 border-orange-200",
-        [t("concepts.debt")]: "bg-rose-50 text-rose-700 border-rose-200",
-        [t("concepts.lifestyle")]: "bg-purple-50 text-purple-700 border-purple-200",
-        [t("concepts.recurring")]: "bg-slate-100 text-slate-600 border-slate-200",
         [t("concepts.networth")]: "bg-indigo-50 text-indigo-700 border-indigo-200",
-        [t("concepts.compoundGrowth")]: "bg-cyan-50 text-cyan-700 border-cyan-200",
     }
     return (
-        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${colors[label] || "bg-slate-50 text-slate-600 border-slate-200"}`}>
+        <span className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full border uppercase tracking-wider ${colors[label] || "bg-slate-50 text-slate-600 border-slate-200"}`}>
             <GraduationCap className="w-3 h-3" />
             {label}
         </span>
     )
 }
 
-// ─── REALITY CHECK BANNER ─────────────────────────────────────────
+// ─── REALITY CHECK PILL ──────────────────────────────────────────
 
-function RealityCheck({ messages }: { messages: string[] }) {
-    const { t } = useTranslation()
-    if (messages.length === 0) return null
+function RealityCheck({ text }: { text: string }) {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3"
-        >
-            <div className="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                <AlertTriangle className="w-4 h-4 text-amber-600" />
-            </div>
-            <div>
-                <p className="text-xs font-semibold text-amber-800 mb-1">⚠️ {t("simulation.realityCheck")}</p>
-                {messages.map((msg, i) => (
-                    <p key={i} className="text-[11px] text-amber-700 leading-relaxed">{msg}</p>
-                ))}
-            </div>
-        </motion.div>
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-lg flex items-center gap-2">
+            <CheckCircle2 className="w-3 h-3 text-indigo-400 shrink-0" />
+            <span className="text-[10px] font-semibold text-slate-200 leading-tight">{text}</span>
+        </div>
     )
-}
-
-// ─── ANIMATED COUNTER ─────────────────────────────────────────────
-
-function AnimatedNumber({ value, prefix = "" }: { value: number; prefix?: string }) {
-    const [display, setDisplay] = useState(0)
-    useEffect(() => {
-        const duration = 1200
-        const steps = 40
-        const increment = value / steps
-        let current = 0
-        let step = 0
-        const timer = setInterval(() => {
-            step++
-            current += increment
-            if (step >= steps) {
-                setDisplay(value)
-                clearInterval(timer)
-            } else {
-                setDisplay(Math.round(current))
-            }
-        }, duration / steps)
-        return () => clearInterval(timer)
-    }, [value])
-    return <span>{prefix}{formatRp(display)}</span>
 }
 
 // ─── CUSTOM TOOLTIP ───────────────────────────────────────────────
 
-function ChartTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: any) {
     if (!active || !payload?.length) return null
     return (
-        <div className="bg-white/95 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-xl">
-            <p className="text-xs font-semibold text-slate-800 mb-1">{label}</p>
+        <div className="bg-slate-900 border border-slate-700 p-3 rounded-xl shadow-2xl">
+            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2 pb-2 border-b border-slate-800">{label}</div>
             {payload.map((p: any, i: number) => (
-                <p key={i} className="text-xs text-slate-600">
-                    <span className="font-semibold" style={{ color: p.color }}>{p.name}:</span> {formatRp(p.value)}
-                </p>
+                <div key={i} className="text-xs font-semibold text-slate-100 flex items-center gap-2 mt-1">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+                    {formatRp(p.value)}
+                </div>
             ))}
         </div>
     )
@@ -195,9 +146,13 @@ function ChartTooltip({ active, payload, label }: any) {
 
 export default function SimulationPage() {
     const { t, locale } = useTranslation()
+    const [mounted, setMounted] = useState(false)
     const [tab, setTab] = useState<Tab>("future-me")
     const [loading, setLoading] = useState(true)
     const [simData, setSimData] = useState<SimulationData | null>(null)
+    const [aiLifestyles, setAiLifestyles] = useState<AILifestyleSuggestion[]>([])
+    const [aiLoading, setAiLoading] = useState(false)
+    const [showEducation, setShowEducation] = useState(true)
 
     const goalPresets = useMemo(() => [
         { label: t("simulation.goalPresets.emergency"), icon: ShieldAlert, value: "emergency", amount: 15000000 },
@@ -207,15 +162,6 @@ export default function SimulationPage() {
         { label: t("simulation.goalPresets.education"), icon: GraduationCap, value: "education", amount: 30000000 },
     ], [t])
 
-    const defaultLifestyleItems: LifestyleItem[] = useMemo(() => [
-        { id: "coffee", label: t("simulation.lifestyles.coffee"), icon: Coffee, emoji: "☕", costPerMonth: 750000, description: t("simulation.lifestyles.coffee_desc"), concept: t("concepts.opportunity"), enabled: false },
-        { id: "gadget", label: t("simulation.lifestyles.gadget"), icon: Gamepad2, emoji: "🎮", costPerMonth: 416667, description: t("simulation.lifestyles.gadget_desc"), concept: t("concepts.depreciation"), enabled: false },
-        { id: "motor", label: t("simulation.lifestyles.motor"), icon: Car, emoji: "🚗", costPerMonth: 800000, description: t("simulation.lifestyles.motor_desc"), concept: t("concepts.debt"), enabled: false },
-        { id: "invest", label: t("simulation.lifestyles.invest"), icon: TrendingUp, emoji: "📈", costPerMonth: -500000, description: t("simulation.lifestyles.invest_desc"), concept: t("concepts.compound"), enabled: false },
-        { id: "eating", label: t("simulation.lifestyles.eating"), icon: ShoppingBag, emoji: "🍔", costPerMonth: 480000, description: t("simulation.lifestyles.eating_desc"), concept: t("concepts.lifestyle"), enabled: false },
-        { id: "streaming", label: t("simulation.lifestyles.streaming"), icon: Film, emoji: "🎬", costPerMonth: 150000, description: t("simulation.lifestyles.streaming_desc"), concept: t("concepts.recurring"), enabled: false },
-    ], [t])
-
     // Future Me state
     const [income, setIncome] = useState(0)
     const [expense, setExpense] = useState(0)
@@ -223,9 +169,6 @@ export default function SimulationPage() {
     const [selectedGoal, setSelectedGoal] = useState("emergency")
     const [projectionYears, setProjectionYears] = useState(5)
     const [showProjection, setShowProjection] = useState(false)
-
-    // Trade-off state
-    const [lifestyleItems, setLifestyleItems] = useState<LifestyleItem[]>(defaultLifestyleItems)
 
     useEffect(() => {
         async function load() {
@@ -237,15 +180,32 @@ export default function SimulationPage() {
                 setTargetIncome(Math.round((data.monthlyIncome || 3000000) * 1.5))
             }
             setLoading(false)
+            setMounted(true)
         }
         load()
     }, [])
 
-    // ─── FUTURE ME CALCULATIONS ─────────────────────────────────
+    const fetchAISuggestions = async () => {
+        setAiLoading(true)
+        const { getAILifestyleSuggestions } = await import("@/app/actions/simulation")
+        const { data, error } = await getAILifestyleSuggestions(locale)
+        if (data) {
+            setAiLifestyles(data.map(item => ({ ...item, enabled: false })))
+        } else if (error) {
+            alert(error)
+        }
+        setAiLoading(false)
+    }
+
+    const toggleAILifestyle = (id: string) => {
+        setAiLifestyles(prev => prev.map(item =>
+            item.id === id ? { ...item, enabled: !item.enabled } : item
+        ))
+    }
 
     const futureProjection = useMemo(() => {
         const savingsRate = income > 0 ? ((income - expense) / income) * 100 : 0
-        const annualGrowthRate = 0.06 // 6% annual return on savings
+        const annualGrowthRate = 0.06
         const currentBalance = simData?.totalBalance || 0
 
         const incomeGrowthPerYear = projectionYears > 0 ? (targetIncome - income) / projectionYears : 0
@@ -311,16 +271,12 @@ export default function SimulationPage() {
         return { yearlyData, finalNetWorth, savingsRate, monthlySavings: income - expense, status, statusLabel, statusColor, statusBg, statusEmoji, goalReachable, goalAmount, realityChecks, insight }
     }, [income, expense, targetIncome, selectedGoal, projectionYears, simData, t, goalPresets])
 
-    // ─── TRADE-OFF CALCULATIONS ─────────────────────────────────
-
     const tradeOffResult = useMemo(() => {
         const baseMonthlySavings = income - expense
         let adjustedSavings = baseMonthlySavings
 
-        lifestyleItems.forEach(item => {
-            if (item.enabled) {
-                adjustedSavings -= item.costPerMonth
-            }
+        aiLifestyles.forEach(item => {
+            if (item.enabled) adjustedSavings -= item.costPerMonth
         })
 
         const years = 5
@@ -338,63 +294,23 @@ export default function SimulationPage() {
         }
 
         const difference = withNW - withoutNW
-        const totalEnabledCost = lifestyleItems
-            .filter(i => i.enabled)
-            .reduce((sum, i) => sum + i.costPerMonth, 0)
-
-        const comparisonData = [
-            { name: "Without Lifestyle", netWorth: Math.round(withoutNW), fill: "#3b82f6" },
-            { name: "With Lifestyle", netWorth: Math.round(withNW), fill: difference >= 0 ? "#10b981" : "#ef4444" },
-        ]
+        const enabledItems = aiLifestyles.filter(i => i.enabled)
+        const totalPlus = enabledItems.filter(i => i.costPerMonth < 0).reduce((sum, i) => sum + Math.abs(i.costPerMonth), 0)
+        const totalMinus = enabledItems.filter(i => i.costPerMonth > 0).reduce((sum, i) => sum + i.costPerMonth, 0)
+        const totalEnabledCost = totalMinus - totalPlus
+        const isMixed = totalPlus > 0 && totalMinus > 0
 
         const realityChecks: string[] = []
-        if (adjustedSavings < 0) realityChecks.push("Warning: Your expenses exceed income with these lifestyle choices.")
-        if (totalEnabledCost > baseMonthlySavings * 0.5) realityChecks.push("More than 50% of your savings are consumed by lifestyle choices.")
+        if (adjustedSavings < 0) realityChecks.push(t("simulation.realityCheckNegativeSavings") || "Gaya hidup ini melebihi tabunganmu!")
 
-        return { withoutNW, withNW, difference, adjustedSavings, comparisonData, totalEnabledCost, realityChecks }
-    }, [income, expense, lifestyleItems, simData])
+        return { 
+            withoutNW, withNW, difference, adjustedSavings, 
+            totalEnabledCost, totalPlus, totalMinus, 
+            realityChecks, isMixed 
+        }
+    }, [income, expense, aiLifestyles, simData, t])
 
-    // ─── TIMELINE MILESTONES ────────────────────────────────────
-
-    const timelineMilestones = useMemo(() => {
-        const monthlySavings = income - expense
-        const lifestyleCost = lifestyleItems.filter(i => i.enabled).reduce((sum, i) => sum + i.costPerMonth, 0)
-        const adjustedSavings = monthlySavings - lifestyleCost
-        const effectiveSavings = Math.max(0, adjustedSavings)
-        const currentBalance = simData?.totalBalance || 0
-        const currentYear = new Date().getFullYear()
-
-        const milestones: Milestone[] = [
-            { id: "emergency", label: t("simulation.goalPresets.emergency"), emoji: "🛡️", amount: 15000000, year: null, reached: false },
-            { id: "dp-motor", label: t("simulation.goalPresets.motor"), emoji: "🏍️", amount: 8000000, year: null, reached: false },
-            { id: "invest", label: t("simulation.goalPresets.invest"), emoji: "💰", amount: 20000000, year: null, reached: false },
-            { id: "dp-rumah", label: t("simulation.goalPresets.house"), emoji: "🏠", amount: 50000000, year: null, reached: false },
-        ]
-
-        milestones.forEach(m => {
-            if (currentBalance >= m.amount) {
-                m.year = currentYear
-                m.reached = true
-            } else if (effectiveSavings > 0) {
-                const monthsNeeded = Math.ceil((m.amount - currentBalance) / effectiveSavings)
-                const yearsNeeded = monthsNeeded / 12
-                if (yearsNeeded <= 10) {
-                    m.year = currentYear + Math.ceil(yearsNeeded)
-                    m.reached = false
-                }
-            }
-        })
-
-        return milestones
-    }, [income, expense, lifestyleItems, simData, t])
-
-    const toggleLifestyle = (id: string) => {
-        setLifestyleItems(prev => prev.map(item =>
-            item.id === id ? { ...item, enabled: !item.enabled } : item
-        ))
-    }
-
-    if (loading) {
+    if (loading || !mounted) {
         return (
             <div className="flex items-center justify-center py-32">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
@@ -407,404 +323,471 @@ export default function SimulationPage() {
             {/* Header */}
             <div className="flex flex-col @md/main:flex-row @md/main:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl @md/main:text-3xl font-semibold text-gray-900 tracking-tight">{t("simulation.title")}</h2>
-                    <p className="text-gray-500 text-xs @md/main:text-sm mt-1 font-medium italic">{t("simulation.subtitle")}</p>
+                    <h2 className="text-2xl @md/main:text-3xl font-semibold text-slate-900 tracking-tight">{t("simulation.title")}</h2>
+                    <p className="text-slate-500 text-xs @md/main:text-sm mt-1 font-semibold italic tracking-tight">{t("simulation.subtitle")}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
+                    <button
+                        onClick={() => setShowEducation(!showEducation)}
+                        className={`h-9 px-4 rounded-xl text-[11px] font-semibold uppercase tracking-wider flex items-center gap-2 transition-all shadow-sm border ${
+                            showEducation ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200"
+                        }`}
+                    >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        {showEducation ? t("simulation.hideGuide") : t("simulation.showGuide")}
+                    </button>
                     <ConceptBadge label={t("concepts.compound")} />
                     <ConceptBadge label={t("concepts.opportunity")} />
-                    <ConceptBadge label={t("concepts.risk")} />
                 </div>
             </div>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 @sm/main:grid-cols-2 @lg/main:grid-cols-4 gap-4">
-                {[
-                    { label: t("simulation.monthlyIncome"), value: formatRp(income), icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50" },
-                    { label: t("simulation.monthlyExpense"), value: formatRp(expense), icon: Wallet, color: "text-red-500", bg: "bg-red-50" },
-                    { label: t("simulation.savingsRate"), value: `${futureProjection.savingsRate.toFixed(1)}%`, icon: PiggyBank, color: "text-blue-600", bg: "bg-blue-50" },
-                    { label: t("dashboard.details") || "Balance", value: formatRp(simData?.totalBalance || 0), icon: BarChart3, color: "text-purple-600", bg: "bg-purple-50" },
-                ].map((card, i) => (
-                    <motion.div
-                        key={card.label}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.08 }}
-                        className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 ${card.bg} rounded-xl flex items-center justify-center`}>
-                                <card.icon className={`w-5 h-5 ${card.color}`} />
-                            </div>
-                            <div>
-                                <p className="text-[11px] text-slate-400 font-medium">{card.label}</p>
-                                <p className={`text-lg font-semibold ${card.color}`}>{card.value}</p>
-                            </div>
-                        </div>
-                    </motion.div>
-                ))}
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-2 @sm/main:gap-6 border-b border-slate-200 overflow-x-auto no-scrollbar">
-                {([
-                    { key: "future-me" as Tab, label: t("simulation.futureMe"), icon: Sparkles },
-                    { key: "trade-off" as Tab, label: t("simulation.tradeOff"), icon: Zap },
-                    { key: "timeline" as Tab, label: t("simulation.timeline"), icon: Clock },
-                ]).map((t_tab) => (
-                    <button
-                        key={t_tab.key}
-                        onClick={() => setTab(t_tab.key)}
-                        className={`flex items-center gap-2 text-sm font-semibold pb-3 border-b-2 transition-colors whitespace-nowrap px-1 ${tab === t_tab.key ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"}`}
-                    >
-                        <t_tab.icon className="w-4 h-4" />
-                        {t_tab.label}
-                    </button>
-                ))}
-            </div>
-
-            <AnimatePresence mode="wait">
-                {tab === "future-me" && (
-                    <motion.div
-                        key="future-me"
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -12 }}
-                        className="space-y-6"
-                    >
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                    <Sparkles className="w-5 h-5 text-white" />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-slate-800">{t("simulation.futureMe")} {new Date().getFullYear() + projectionYears}</h3>
-                                    <p className="text-xs text-slate-400">{t("simulation.netWorthGrowthProjection")}</p>
-                                </div>
-                                <ConceptBadge label={t("concepts.networth")} />
-                            </div>
-
-                            <div className="grid grid-cols-1 @md/main:grid-cols-2 gap-4 mb-6">
-                                <CurrencyInput label={t("simulation.monthlyIncome")} value={income} onChange={setIncome} />
-                                <CurrencyInput label={t("simulation.targetIncome")} value={targetIncome} onChange={setTargetIncome} />
-                                <CurrencyInput label={t("simulation.monthlyExpense")} value={expense} onChange={setExpense} />
-                                <div>
-                                    <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t("simulation.projectionYears")}</label>
-                                    <select
-                                        value={projectionYears}
-                                        onChange={e => setProjectionYears(Number(e.target.value))}
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
-                                    >
-                                        <option value={3}>{t("simulation.years", { count: "3" })}</option>
-                                        <option value={5}>{t("simulation.years", { count: "5" })}</option>
-                                        <option value={10}>{t("simulation.years", { count: "10" })}</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="text-xs font-semibold text-slate-500 mb-3 block">{t("simulation.goal")}</label>
-                                <div className="grid grid-cols-2 @md/main:grid-cols-5 gap-2">
-                                    {goalPresets.map(goal => (
-                                        <button
-                                            key={goal.value}
-                                            onClick={() => setSelectedGoal(goal.value)}
-                                            className={`p-3 rounded-xl border-2 transition-all text-center ${selectedGoal === goal.value
-                                                ? "border-blue-500 bg-blue-50 text-blue-700"
-                                                : "border-slate-100 hover:border-slate-200 text-slate-600"
-                                                }`}
-                                        >
-                                            <goal.icon className="w-5 h-5 mx-auto mb-1" />
-                                            <p className="text-[10px] font-semibold">{goal.label}</p>
-                                            <p className="text-[9px] text-slate-400 mt-0.5">{formatRpCompact(goal.amount)}</p>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
+            <div className="grid grid-cols-1 @lg/main:grid-cols-12 gap-8 items-start">
+                <div className={`${(showEducation && tab !== "trade-off") ? "@lg/main:col-span-8" : "col-span-full"} space-y-8 transition-all duration-500 ease-in-out`}>
+                    {/* Tabs */}
+                    <div className="flex gap-2 @sm/main:gap-8 border-b border-slate-100 overflow-x-auto no-scrollbar">
+                        {([
+                            { key: "future-me" as Tab, label: t("simulation.futureMe"), icon: Sparkles },
+                            { key: "trade-off" as Tab, label: t("simulation.tradeOff"), icon: Zap },
+                        ]).map((t_tab) => (
                             <button
-                                onClick={() => setShowProjection(true)}
-                                className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20"
+                                key={t_tab.key}
+                                onClick={() => setTab(t_tab.key)}
+                                className={`flex items-center gap-2.5 text-xs font-semibold pb-4 border-b-2 transition-all whitespace-nowrap px-1 uppercase tracking-widest ${tab === t_tab.key ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"}`}
                             >
-                                <Play className="w-4 h-4" />
-                                {t("simulation.calculation")}
+                                <t_tab.icon className="w-4 h-4" />
+                                {t_tab.label}
                             </button>
-                        </div>
+                        ))}
+                    </div>
 
-                        <AnimatePresence>
-                            {showProjection && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="space-y-4"
-                                >
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.1 }}
-                                        className={`p-6 rounded-2xl border ${futureProjection.statusBg}`}
-                                    >
-                                        <div className="flex flex-col @sm/main:flex-row items-start @sm/main:items-center justify-between gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="text-4xl">{futureProjection.statusEmoji}</div>
-                                                <div>
-                                                    <p className="text-xs font-medium text-slate-500">{t("simulation.futureMe")}:</p>
-                                                    <h3 className={`text-xl font-semibold ${futureProjection.statusColor}`}>{futureProjection.statusLabel}</h3>
-                                                    <ConceptBadge label={t("concepts.savings")} />
-                                                </div>
-                                            </div>
-                                            <div className="text-left @sm/main:text-right">
-                                                <p className="text-xs text-slate-500">{t("concepts.networth")}</p>
-                                                <p className={`text-2xl font-semibold ${futureProjection.statusColor}`}>
-                                                    <AnimatedNumber value={futureProjection.finalNetWorth} />
-                                                </p>
-                                            </div>
+                    <AnimatePresence mode="wait">
+                        {tab === "future-me" && (
+                            <motion.div
+                                key="future-me"
+                                initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.98, y: -10 }}
+                                transition={{ duration: 0.3 }}
+                                className="space-y-6"
+                            >
+                                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                                            <Sparkles className="w-6 h-6 text-white" />
                                         </div>
-
-                                        <div className="mt-4 pt-4 border-t border-slate-200/50">
-                                            <div className="flex items-start gap-2">
-                                                <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-                                                <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                                    {futureProjection.insight}
-                                                </p>
-                                            </div>
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-slate-800 tracking-tight text-lg">{t("simulation.futureMe")} {new Date().getFullYear() + projectionYears}</h3>
+                                            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">{t("simulation.netWorthGrowthProjection")}</p>
                                         </div>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 12 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                        className={`p-4 rounded-xl border flex items-center gap-3 ${futureProjection.goalReachable
-                                            ? "bg-emerald-50 border-emerald-200"
-                                            : "bg-red-50 border-red-200"
-                                            }`}
-                                    >
-                                        {futureProjection.goalReachable
-                                            ? <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                                            : <AlertTriangle className="w-5 h-5 text-red-600" />
-                                        }
-                                        <p className="text-xs font-medium">
-                                            {futureProjection.goalReachable
-                                                ? t("simulation.goalReached", {
-                                                    goal: goalPresets.find(g => g.value === selectedGoal)?.label || "",
-                                                    amount: formatRp(futureProjection.goalAmount),
-                                                    years: projectionYears.toString()
-                                                })
-                                                : t("simulation.goalNotReached", {
-                                                    goal: goalPresets.find(g => g.value === selectedGoal)?.label || "",
-                                                    amount: formatRp(futureProjection.goalAmount)
-                                                })
-                                            }
-                                        </p>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 12 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100"
-                                    >
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div>
-                                                <h4 className="font-semibold text-slate-800">📈 {t("simulation.growthPath")}</h4>
-                                                <p className="text-[11px] text-slate-400">{t("simulation.netWorthGrowthProjection")}</p>
-                                            </div>
-                                            <ConceptBadge label={t("concepts.compoundGrowth")} />
+                                        <div className={`px-4 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-widest ${futureProjection.statusBg} ${futureProjection.statusColor} border shadow-sm`}>
+                                            <span className="mr-2">{futureProjection.statusEmoji}</span>
+                                            {futureProjection.statusLabel}
                                         </div>
-                                        <div className="h-64">
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <AreaChart data={futureProjection.yearlyData}>
-                                                    <defs>
-                                                        <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
-                                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                                        </linearGradient>
-                                                    </defs>
-                                                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                                                    <XAxis dataKey="year" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-                                                    <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickFormatter={v => formatRpCompact(v)} width={70} />
-                                                    <Tooltip content={<ChartTooltip />} />
-                                                    <Area
-                                                        name={t("concepts.networth")}
-                                                        type="monotone"
-                                                        dataKey="netWorth"
-                                                        stroke="#3b82f6"
-                                                        strokeWidth={3}
-                                                        fillOpacity={1}
-                                                        fill="url(#colorNetWorth)"
-                                                    />
-                                                </AreaChart>
-                                            </ResponsiveContainer>
-                                        </div>
-                                    </motion.div>
-
-                                    <RealityCheck messages={futureProjection.realityChecks} />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </motion.div>
-                )}
-
-                {tab === "trade-off" && (
-                    <motion.div
-                        key="trade-off"
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -12 }}
-                        className="space-y-6"
-                    >
-                        <div className="grid grid-cols-1 @lg/main:grid-cols-2 gap-6">
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
-                                        <Zap className="w-5 h-5 text-white" />
                                     </div>
-                                    <h3 className="font-semibold text-slate-800">{t("simulation.lifestyleChoices")}</h3>
-                                </div>
-                                <div className="space-y-3">
-                                    {lifestyleItems.map(item => (
-                                        <button
-                                            key={item.id}
-                                            onClick={() => toggleLifestyle(item.id)}
-                                            className={`w-full p-4 rounded-xl border transition-all text-left flex items-center justify-between ${item.enabled ? "border-blue-500 bg-blue-50/50" : "border-slate-100 hover:bg-slate-50"}`}
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="text-2xl">{item.emoji}</div>
-                                                <div className="flex-1">
-                                                    <h4 className="text-sm font-semibold text-slate-800">{item.label}</h4>
-                                                    <p className="text-[11px] text-slate-500 mb-1">{item.description}</p>
-                                                    <ConceptBadge label={item.concept} />
-                                                </div>
-                                            </div>
-                                            <div className="text-right ml-4">
-                                                <p className={`text-xs font-bold ${item.costPerMonth > 0 ? "text-red-500" : "text-emerald-600"}`}>
-                                                    {item.costPerMonth > 0 ? "-" : "+"}{formatRpCompact(Math.abs(item.costPerMonth))}
-                                                </p>
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
 
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
-                                        <BarChart3 className="w-5 h-5 text-white" />
-                                    </div>
-                                    <h3 className="font-semibold text-slate-800">{t("simulation.impactOnFuture")}</h3>
-                                </div>
-
-                                <div className="flex-1 min-h-[300px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={tradeOffResult.comparisonData}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                            <XAxis
-                                                dataKey="name"
-                                                axisLine={false}
-                                                tickLine={false}
-                                                tick={{ fontSize: 10, fill: '#94a3b8' }}
-                                                tickFormatter={(val) => val === "With Lifestyle" ? t("simulation.withLifestyle") : t("simulation.withoutLifestyle")}
-                                            />
-                                            <YAxis
-                                                axisLine={false}
-                                                tickLine={false}
-                                                tick={{ fontSize: 10, fill: '#94a3b8' }}
-                                                tickFormatter={formatRpCompact}
-                                            />
-                                            <Tooltip content={<ChartTooltip />} />
-                                            <Bar dataKey="netWorth" radius={[8, 8, 0, 0]}>
-                                                {tradeOffResult.comparisonData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-
-                                <div className="mt-6 grid grid-cols-2 gap-4">
-                                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1">{t("simulation.impactOnFuture")}</p>
-                                        <p className={`text-lg font-bold ${tradeOffResult.difference >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                                            {tradeOffResult.difference >= 0 ? "+" : ""}{formatRpCompact(tradeOffResult.difference)}
-                                        </p>
-                                    </div>
-                                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1">{t("simulation.monthlySavings")}</p>
-                                        <p className="text-lg font-bold text-slate-800">{formatRpCompact(tradeOffResult.adjustedSavings)}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <RealityCheck messages={tradeOffResult.realityChecks} />
-                    </motion.div>
-                )}
-
-                {tab === "timeline" && (
-                    <motion.div
-                        key="timeline"
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -12 }}
-                        className="space-y-6"
-                    >
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center">
-                                    <Clock className="w-5 h-5 text-white" />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-slate-800">{t("simulation.timeline")}</h3>
-                                    <p className="text-xs text-slate-400">{t("simulation.timelineMilestoneDesc")}</p>
-                                </div>
-                                <ConceptBadge label={t("concepts.compoundGrowth")} />
-                            </div>
-                        </div>
-
-                        <div className="bg-white p-6 @md/main:p-8 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                            <div className="relative mb-10">
-                                <div className="flex items-center justify-between relative">
-                                    <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-100 rounded-full -translate-y-1/2" />
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: "100%" }}
-                                        transition={{ duration: 1.5, ease: "easeOut" }}
-                                        className="absolute top-1/2 left-0 h-1 bg-blue-500 rounded-full -translate-y-1/2"
-                                    />
-
-                                    {timelineMilestones.map((m, i) => (
-                                        <div key={m.id} className="relative z-10 flex flex-col items-center">
-                                            <motion.div
-                                                initial={{ scale: 0 }}
-                                                animate={{ scale: 1 }}
-                                                transition={{ delay: i * 0.2 + 0.5 }}
-                                                className={`w-10 h-10 @md/main:w-12 @md/main:h-12 rounded-full border-4 border-white shadow-md flex items-center justify-center text-lg @md/main:text-xl ${m.reached ? "bg-emerald-500" : m.year ? "bg-blue-500" : "bg-slate-200"}`}
+                                    <div className="grid grid-cols-1 @md/main:grid-cols-2 gap-6 mb-8">
+                                        <CurrencyInput label={t("simulation.monthlyIncome")} value={income} onChange={setIncome} />
+                                        <CurrencyInput label={t("simulation.targetIncome")} value={targetIncome} onChange={setTargetIncome} />
+                                        <CurrencyInput label={t("simulation.monthlyExpense")} value={expense} onChange={setExpense} />
+                                        <div>
+                                            <label className="text-[11px] font-semibold text-slate-500 mb-1.5 block uppercase tracking-wider">{t("simulation.projectionYears")}</label>
+                                            <select
+                                                value={projectionYears}
+                                                onChange={e => setProjectionYears(Number(e.target.value))}
+                                                className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
                                             >
-                                                {m.reached ? <CheckCircle2 className="w-5 h-5 text-white" /> : <span>{m.emoji}</span>}
-                                            </motion.div>
-                                            <div className="absolute top-full mt-3 text-center w-24 @md/main:w-32">
-                                                <p className={`text-[10px] @md/main:text-xs font-bold ${m.reached ? "text-emerald-600" : m.year ? "text-blue-600" : "text-slate-400"}`}>
-                                                    {m.reached ? t("splitBill.settled") : m.year || t("common.at")}
-                                                </p>
-                                                <p className="text-[9px] @md/main:text-[10px] font-semibold text-slate-800 truncate">{m.label}</p>
-                                                <p className="text-[8px] @md/main:text-[9px] font-medium text-slate-400">{formatRpCompact(m.amount)}</p>
+                                                <option value={3}>{t("simulation.years", { count: "3" })}</option>
+                                                <option value={5}>{t("simulation.years", { count: "5" })}</option>
+                                                <option value={10}>{t("simulation.years", { count: "10" })}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-10">
+                                        <label className="text-[11px] font-semibold text-slate-500 mb-4 block uppercase tracking-wider">{t("simulation.targetGoal")}</label>
+                                        <div className="grid grid-cols-2 @md/main:grid-cols-5 gap-3">
+                                            {goalPresets.map(goal => (
+                                                <button
+                                                    key={goal.value}
+                                                    onClick={() => setSelectedGoal(goal.value)}
+                                                    className={`p-4 rounded-2xl border-2 transition-all text-center group ${selectedGoal === goal.value
+                                                        ? "border-blue-600 bg-blue-50/50 text-blue-800 shadow-sm"
+                                                        : "border-slate-50 hover:border-slate-100 bg-slate-50/30 text-slate-500"
+                                                        }`}
+                                                >
+                                                    <goal.icon className={`w-6 h-6 mx-auto mb-2 transition-transform group-hover:scale-110 ${selectedGoal === goal.value ? "text-blue-600" : "text-slate-300"}`} />
+                                                    <p className="text-[11px] font-semibold tracking-tighter uppercase">{goal.label}</p>
+                                                    <p className="text-[10px] font-semibold opacity-40 mt-1">{formatRpCompact(goal.amount)}</p>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={() => setShowProjection(true)}
+                                        className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl shadow-slate-200 group uppercase tracking-[0.1em] text-sm"
+                                    >
+                                        <Play className="w-5 h-5 fill-current group-hover:translate-x-1 transition-transform" />
+                                        {t("simulation.calculation")}
+                                    </button>
+                                </div>
+
+                                <AnimatePresence>
+                                    {showProjection && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 40 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="space-y-8"
+                                        >
+                                            <div className="grid grid-cols-1 @md/main:grid-cols-12 gap-8">
+                                                <div className="col-span-1 @md/main:col-span-8 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 min-h-[450px]">
+                                                    <div className="flex items-center justify-between mb-10">
+                                                        <h4 className="text-sm font-semibold text-slate-800 flex items-center gap-3 uppercase tracking-wider">
+                                                            <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                                                            {t("simulation.netWorthGrowth")}
+                                                        </h4>
+                                                        <div className="flex items-center gap-6 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                                                            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-500 shadow-sm shadow-blue-200" /> {t("simulation.netWorth")}</span>
+                                                            <span className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-slate-100 border-2 border-slate-200" /> {t("simulation.target")}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="h-[320px] w-full">
+                                                        <ResponsiveContainer width="100%" height="100%">
+                                                            <AreaChart data={futureProjection.yearlyData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                                                <defs>
+                                                                    <linearGradient id="colorNW" x1="0" y1="0" x2="0" y2="1">
+                                                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
+                                                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.01} />
+                                                                    </linearGradient>
+                                                                </defs>
+                                                                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#f8fafc" />
+                                                                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 600, fill: "#cbd5e1" }} dy={15} />
+                                                                <YAxis hide domain={[0, (dataMax: number) => Math.max(dataMax, futureProjection.goalAmount) * 1.2]} />
+                                                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#3b82f6", strokeWidth: 2, strokeDasharray: "5 5" }} />
+                                                                <ReferenceLine y={futureProjection.goalAmount} stroke="#cbd5e1" strokeWidth={2} strokeDasharray="10 10" label={{ value: "TARGET", position: "right", fontSize: 10, fontWeight: 600, fill: "#cbd5e1", letterSpacing: "1px" }} />
+                                                                <Area type="monotone" dataKey="netWorth" stroke="#3b82f6" strokeWidth={5} fillOpacity={1} fill="url(#colorNW)" animationDuration={2500} />
+                                                            </AreaChart>
+                                                        </ResponsiveContainer>
+                                                    </div>
+                                                </div>
+
+                                                <div className="col-span-1 @md/main:col-span-4 space-y-6">
+                                                    <div className={`p-8 rounded-[2rem] border-4 ${futureProjection.statusBg} transition-all shadow-sm flex flex-col justify-center min-h-[140px] shadow-white`}>
+                                                        <div className="flex items-center gap-2 mb-4">
+                                                            <span className="text-2xl">{futureProjection.statusEmoji}</span>
+                                                            <p className={`text-[11px] font-semibold uppercase tracking-[0.2em] ${futureProjection.statusColor}`}>{futureProjection.statusLabel}</p>
+                                                        </div>
+                                                        <p className="text-3xl font-semibold text-slate-800 tracking-tighter mb-2">{formatRpCompact(futureProjection.finalNetWorth)}</p>
+                                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{t("simulation.estNetWorth", { year: (new Date().getFullYear() + projectionYears).toString() })}</p>
+                                                    </div>
+
+                                                    <div className={`p-8 rounded-[2rem] border-4 ${futureProjection.goalReachable ? "bg-emerald-50/50 border-emerald-100" : "bg-slate-50/50 border-slate-100"} shadow-sm`}>
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${futureProjection.goalReachable ? "bg-emerald-100" : "bg-slate-100"}`}>
+                                                                <Target className={`w-5 h-5 ${futureProjection.goalReachable ? "text-emerald-600" : "text-slate-400"}`} />
+                                                            </div>
+                                                            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600">{t("simulation.goalStatus")}</p>
+                                                        </div>
+                                                        <p className={`text-sm font-semibold leading-relaxed ${futureProjection.goalReachable ? "text-emerald-800" : "text-slate-600"}`}>
+                                                            {futureProjection.goalReachable
+                                                                ? t("simulation.goalReached", { goal: t(`simulation.goalPresets.${selectedGoal}`), amount: formatRpCompact(futureProjection.goalAmount), years: projectionYears.toString() })
+                                                                : t("simulation.goalNotReached", { goal: t(`simulation.goalPresets.${selectedGoal}`), amount: formatRpCompact(futureProjection.goalAmount) })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-slate-900 p-10 rounded-[3rem] text-white overflow-hidden relative group shadow-2xl shadow-slate-300">
+                                                <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 group-hover:scale-125 transition-transform duration-1000 rotate-12">
+                                                    <BrainCircuit className="w-64 h-64" />
+                                                </div>
+                                                <div className="max-w-2xl relative z-10">
+                                                    <div className="flex items-center gap-4 mb-6">
+                                                        <div className="w-1.5 h-6 bg-indigo-500 rounded-full" />
+                                                        <h5 className="text-indigo-400 text-[11px] font-semibold uppercase tracking-[0.3em]">{t("simulation.mindyRealityCheck")}</h5>
+                                                    </div>
+                                                    <p className="text-xl font-semibold leading-relaxed mb-10 text-slate-100 tracking-tight">
+                                                        "{futureProjection.insight}"
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-3">
+                                                        {futureProjection.realityChecks.map((check, i) => (
+                                                            <RealityCheck key={i} text={check} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        )}
+
+                        {tab === "trade-off" && (
+                            <motion.div
+                                key="trade-off"
+                                initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.98, y: -10 }}
+                                className="space-y-8"
+                            >
+                                <div className="grid grid-cols-1 @lg/main:grid-cols-2 gap-8">
+                                    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
+                                        <div className="flex items-center justify-between mb-8">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center shadow-inner">
+                                                    <BrainCircuit className="w-6 h-6 text-indigo-600" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-semibold text-slate-800 text-lg tracking-tight">{t("ai.title")}</h3>
+                                                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">{t("simulation.dynamicLifeImpact")}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={fetchAISuggestions}
+                                                disabled={aiLoading}
+                                                className="h-10 px-5 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl text-xs font-semibold uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-slate-200 active:scale-95"
+                                            >
+                                                <Sparkles className={`w-4 h-4 ${aiLoading ? "animate-spin" : ""}`} />
+                                                {aiLoading ? t("simulation.analysing") : t("simulation.generateIdeas")}
+                                            </button>
+                                        </div>
+
+                                        <div className="space-y-4 flex-1">
+                                            {aiLifestyles.length === 0 ? (
+                                                <div className="h-full flex flex-col items-center justify-center py-20 text-center border-4 border-dashed border-slate-50 rounded-[2rem] bg-slate-50/20">
+                                                    <div className="w-16 h-16 rounded-3xl bg-white flex items-center justify-center mb-6 shadow-sm">
+                                                        <Zap className="w-8 h-8 text-slate-200" />
+                                                    </div>
+                                                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em] max-w-[240px] leading-relaxed">
+                                                        {t("simulation.clickSuggestions")}
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                aiLifestyles.map(item => (
+                                                    <button
+                                                        key={item.id}
+                                                        onClick={() => toggleAILifestyle(item.id)}
+                                                        className={`w-full p-5 rounded-2xl border-4 transition-all text-left flex items-start gap-5 group relative overflow-hidden ${
+                                                            item.enabled
+                                                                ? "border-blue-600 bg-blue-50/30 shadow-sm"
+                                                                : "border-transparent bg-slate-50 hover:bg-slate-100 text-slate-500"
+                                                        }`}
+                                                    >
+                                                        {item.enabled && <div className="absolute top-0 right-0 w-12 h-12 bg-blue-600 rounded-bl-[2rem] flex items-center justify-center pl-3 pb-3">
+                                                            <CheckCircle2 className="w-4 h-4 text-white" />
+                                                        </div>}
+                                                        <div className="text-3xl pt-1 group-hover:scale-110 transition-transform duration-500">{item.emoji}</div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className={`flex items-center justify-between mb-1 ${item.enabled ? "pr-8" : ""}`}>
+                                                                <p className="font-semibold text-slate-800 text-sm uppercase tracking-tight truncate">{item.label}</p>
+                                                                <p className={`text-sm font-semibold ${item.costPerMonth > 0 ? "text-rose-500" : "text-emerald-600"}`}>
+                                                                    {item.costPerMonth > 0 ? "+" : ""}{formatRpCompact(Math.abs(item.costPerMonth))}/bln
+                                                                </p>
+                                                            </div>
+                                                            <p className="text-[11px] text-slate-500 font-semibold leading-relaxed mb-4 line-clamp-2">{item.description}</p>
+                                                            <div className="flex gap-2">
+                                                                <div className={`px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-widest ${
+                                                                    item.costPerMonth > 0 ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
+                                                                }`}>
+                                                                    {item.concept}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-8">
+                                        <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
+                                            {/* Dynamic Narrative Summary - Primary Visual Focus now */}
+                                            <div className="p-1 rounded-[2.5rem] bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-emerald-500/10">
+                                                <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[2.4rem] border border-white/50 relative overflow-hidden">
+                                                    <div className="flex items-center gap-3 mb-6 relative z-10">
+                                                        <div className="w-2 h-6 bg-blue-600 rounded-full" />
+                                                        <h4 className="text-[11px] font-semibold text-slate-800 uppercase tracking-[0.3em]">{t("simulation.tradeOffSummary.title")}</h4>
+                                                    </div>
+                                                    
+                                                    <div className="space-y-6 relative z-10">
+                                                        <p className="text-xl font-semibold text-slate-800 leading-tight tracking-tight">
+                                                            {tradeOffResult.isMixed
+                                                                ? t("simulation.tradeOffSummary.mixed", {
+                                                                    amount: formatRpCompact(Math.abs(tradeOffResult.difference))
+                                                                  })
+                                                                : tradeOffResult.difference > 0 
+                                                                    ? t("simulation.tradeOffSummary.positive", { 
+                                                                        amount: formatRpCompact(tradeOffResult.difference),
+                                                                        percentage: ((tradeOffResult.difference / tradeOffResult.withoutNW) * 100).toFixed(1)
+                                                                      })
+                                                                    : tradeOffResult.difference < 0
+                                                                        ? t("simulation.tradeOffSummary.negative", {
+                                                                            amount: formatRpCompact(Math.abs(tradeOffResult.difference))
+                                                                          })
+                                                                        : t("simulation.tradeOffSummary.neutral", {
+                                                                            amount: formatRpCompact(tradeOffResult.totalEnabledCost)
+                                                                          })
+                                                            }
+                                                        </p>
+                                                        <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100 flex items-start gap-5">
+                                                            <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0 shadow-sm shadow-amber-100">
+                                                                <Coffee className="w-6 h-6 text-amber-600" />
+                                                            </div>
+                                                            <p className="text-xs text-slate-500 font-semibold italic leading-relaxed">
+                                                                {t("simulation.tradeOffSummary.coffeeExample")}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Subtle background decoration */}
+                                                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl opacity-50" />
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-8 grid grid-cols-1 @md/main:grid-cols-2 gap-6">
+                                                {/* Card 1: Breakdown */}
+                                                <div className="p-6 bg-slate-50/50 rounded-3xl border-2 border-slate-100">
+                                                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-4">{t("simulation.breakdown")}</p>
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight">{t("simulation.totalInvestment")}</span>
+                                                            <span className="text-sm font-semibold text-emerald-600">+{formatRpCompact(tradeOffResult.totalPlus)}</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-tight">{t("simulation.totalSpending")}</span>
+                                                            <span className="text-sm font-semibold text-rose-500">-{formatRpCompact(tradeOffResult.totalMinus)}</span>
+                                                        </div>
+                                                        <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                                                            <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-tight">{t("simulation.netBalance")}</span>
+                                                            <span className={`text-sm font-semibold ${tradeOffResult.totalPlus - tradeOffResult.totalMinus >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+                                                                {tradeOffResult.totalPlus - tradeOffResult.totalMinus >= 0 ? "+" : "-"}{formatRpCompact(Math.abs(tradeOffResult.totalPlus - tradeOffResult.totalMinus))}/bln
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Card 2: Net Impact */}
+                                                <div className="p-6 bg-slate-50/50 rounded-3xl border-2 border-slate-100 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1.5">{t("simulation.netFinancialImpact")}</p>
+                                                        <p className={`text-2xl font-semibold tracking-tighter ${tradeOffResult.difference >= 0 ? "text-emerald-600" : "text-rose-500"}`}>
+                                                            {tradeOffResult.difference >= 0 ? "+" : ""}{formatRpCompact(tradeOffResult.difference)}
+                                                        </p>
+                                                    </div>
+                                                    <div className={`w-14 h-14 rounded-2xl border-4 border-white shadow-lg flex items-center justify-center ${tradeOffResult.difference >= 0 ? "bg-emerald-500" : "bg-rose-500"}`}>
+                                                        {tradeOffResult.difference >= 0 ? <TrendingUp className="w-7 h-7 text-white" /> : <TrendingDown className="w-7 h-7 text-white" />}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
+
+                                        {tradeOffResult.realityChecks.length > 0 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                className="bg-rose-50 border-2 border-rose-100 p-6 rounded-[2rem] shadow-sm shadow-rose-100"
+                                            >
+                                                <div className="flex items-center gap-3 mb-4 text-rose-600">
+                                                    <AlertCircle className="w-5 h-5" />
+                                                    <p className="text-[11px] font-semibold uppercase tracking-widest">{t("simulation.safetyAnalysis")}</p>
+                                                </div>
+                                                <ul className="space-y-3">
+                                                    {tradeOffResult.realityChecks.map((check, i) => (
+                                                        <li key={i} className="text-xs font-semibold text-rose-800 leading-relaxed flex items-start gap-3">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
+                                                            {check}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </motion.div>
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Educational Side-panel */}
+                <AnimatePresence>
+                    {(showEducation && tab !== "trade-off") && (
+                        <motion.div
+                            initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, x: 50, scale: 0.9 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="col-span-1 @lg/main:col-span-4 space-y-6 sticky top-8"
+                        >
+                            <div className="bg-white p-8 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-50/50 rounded-full -mr-20 -mt-20 group-hover:bg-blue-100/50 transition-colors duration-700" />
+                                <div className="relative z-10">
+                                    <div className="mb-10">
+                                        <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-200">
+                                            <BookOpen className="w-5 h-5 text-white" />
+                                        </div>
+                                        <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-[0.2em]">{t("simulation.financialGuide")}</h3>
+                                    </div>
+                                    
+                                    <div className="space-y-8">
+                                        <div className="group/item">
+                                            <h4 className="text-[11px] font-semibold text-slate-800 mb-2 flex items-center gap-3 uppercase tracking-wider group-hover/item:text-blue-600 transition-colors">
+                                                <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm" />
+                                                {t("concepts.compound")}
+                                            </h4>
+                                            <p className="text-[11px] text-slate-500 leading-relaxed font-semibold italic">
+                                                {t("simulation.compoundDesc")}
+                                            </p>
+                                        </div>
+
+                                        <div className="group/item">
+                                            <h4 className="text-[11px] font-semibold text-slate-800 mb-2 flex items-center gap-3 uppercase tracking-wider group-hover/item:text-indigo-600 transition-colors">
+                                                <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-sm" />
+                                                {t("concepts.opportunity")}
+                                            </h4>
+                                            <p className="text-[11px] text-slate-500 leading-relaxed font-semibold italic">
+                                                {t("simulation.opportunityDesc")}
+                                            </p>
+                                        </div>
+
+                                        <div className="group/item">
+                                            <h4 className="text-[11px] font-semibold text-slate-800 mb-2 flex items-center gap-3 uppercase tracking-wider group-hover/item:text-slate-900 transition-colors">
+                                                <div className="w-2 h-2 rounded-full bg-slate-900 shadow-sm" />
+                                                {t("concepts.networth")}
+                                            </h4>
+                                            <p className="text-[11px] text-slate-500 leading-relaxed font-semibold italic">
+                                                {t("simulation.networthDesc")}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-12 pt-8 border-t border-slate-50 flex flex-col gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <Target className="w-4 h-4 text-blue-600" />
+                                            <p className="text-[10px] font-semibold text-blue-600 uppercase tracking-[0.2em]">{t("simulation.moneyRules")}</p>
+                                        </div>
+                                        <p className="text-[11px] text-slate-700 font-semibold leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                            {t("simulation.moneyRuleDesc")}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="mt-16 bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex items-start gap-3">
-                                <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                                <p className="text-[11px] text-blue-700 leading-relaxed font-medium">
-                                    {t("simulation.timelineDisclaimer")}
+                            <div className="bg-gradient-to-br from-indigo-900 via-slate-900 to-black p-10 rounded-[3rem] text-white shadow-2xl shadow-indigo-100 relative overflow-hidden group">
+                                <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mb-10 blur-2xl group-hover:bg-white/10 transition-colors" />
+                                <div className="flex items-center gap-4 mb-6 relative z-10">
+                                    <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md">
+                                        <TrendingUp className="w-5 h-5 text-indigo-300" />
+                                    </div>
+                                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-indigo-200">{t("simulation.whySimulate")}</h3>
+                                </div>
+                                <p className="text-[11px] text-slate-400 leading-relaxed font-semibold relative z-10">
+                                    {t("simulation.whySimulateDesc")}
                                 </p>
                             </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
     )
 }

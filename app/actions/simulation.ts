@@ -85,3 +85,55 @@ export async function getSimulationData(): Promise<{ data: SimulationData | null
         return { data: null, error: err.message };
     }
 }
+
+export type AILifestyleSuggestion = {
+    id: string;
+    label: string;
+    emoji: string;
+    costPerMonth: number;
+    description: string;
+    concept: string;
+    impact5Years: number;
+    investmentAlternative: string;
+};
+
+export async function getAILifestyleSuggestions(locale: string = "id"): Promise<{ data: AILifestyleSuggestion[] | null; error: string | null }> {
+    const { data: simData, error: simError } = await getSimulationData();
+    if (simError || !simData) return { data: null, error: simError || "Failed to get simulation data" };
+
+    const { chatWithMindy } = await import("@/lib/ai");
+
+    const languageName = locale === "id" ? "Indonesian" : "English";
+
+    const prompt = `Based on a user with monthly income of ${simData.monthlyIncome} and expenses of ${simData.monthlyExpense}, suggest 4 realistic lifestyle choices (some positive like investing, some negative like daily expensive coffee/hobbies).
+    
+    Return the result STRAIGHT as a JSON array of objects with this schema:
+    [
+      {
+        "id": "string",
+        "label": "string",
+        "emoji": "string",
+        "costPerMonth": number (negative for savings/investments, positive for spending),
+        "description": "string (max 10 words)",
+        "concept": "Opportunity Cost" | "Compound Interest" | "Depreciation" | "Lifestyle Inflation",
+        "impact5Years": number (total impact including 6% inflation/growth),
+        "investmentAlternative": "string (what if this was invested?)"
+      }
+    ]
+    
+    CRITICAL: YOU MUST RESPOND IN ${languageName.toUpperCase()}. Translate all text (label, description, concept, investmentAlternative) to ${languageName}. No extra text, just JSON.`;
+
+    try {
+        const response = await chatWithMindy([{ role: "user", text: prompt }], `User Monthly Income: ${simData.monthlyIncome}, Expense: ${simData.monthlyExpense}`);
+        
+        // Basic JSON extraction
+        const jsonMatch = response.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) throw new Error("Invalid AI response format");
+        
+        const data = JSON.parse(jsonMatch[0]);
+        return { data, error: null };
+    } catch (err: any) {
+        console.error("AI Lifestyle Error:", err);
+        return { data: null, error: "Failed to get AI suggestions" };
+    }
+}
