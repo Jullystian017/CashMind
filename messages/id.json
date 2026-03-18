@@ -365,6 +365,7 @@
       "streaming_desc": "Netflix, Disney+, Spotify"
     },
     "insights": {
+      "progressive": "Dengan pendapatan yang tumbuh dari {from} → {to}/bln, Anda akan mengumpulkan {netWorth} dalam {years} tahun. Rasio tabungan meningkat dari {fromRate}% ke {toRate}%.",
       "stable": "Dengan menabung secara konsisten selama {years} tahun, kekayaanmu diproyeksikan mencapai {netWorth}. Tingkat tabunganmu stabil di {rate}%."
     },
     "hideGuide": "Sembunyikan Panduan",

@@ -111,7 +111,7 @@ function CurrencyInput({ value, onChange, label }: { value: number; onChange: (v
 function RealityCheck({ text }: { text: string }) {
     return (
         <div className="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-lg flex items-center gap-2">
-            <CheckCircle2 className="w-3 h-3 text-indigo-400 shrink-0" />
+            <CheckCircle2 className="w-3 h-3 text-blue-400 shrink-0" />
             <span className="text-[10px] font-semibold text-slate-200 leading-tight">{text}</span>
         </div>
     )
@@ -350,16 +350,18 @@ export default function SimulationPage() {
                                 transition={{ duration: 0.3 }}
                                 className="space-y-6"
                             >
-                                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-                                            <Sparkles className="w-6 h-6 text-white" />
+                                <div className="bg-white p-5 @sm/main:p-8 rounded-3xl @sm/main:rounded-[2rem] shadow-sm border border-slate-100">
+                                    <div className="flex flex-col @sm/main:flex-row @sm/main:items-center gap-4 mb-8">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 shrink-0">
+                                                <Sparkles className="w-6 h-6 text-white" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="font-semibold text-slate-800 tracking-tight text-lg">{t("simulation.futureMe")} {new Date().getFullYear() + projectionYears}</h3>
+                                                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">{t("simulation.netWorthGrowthProjection")}</p>
+                                            </div>
                                         </div>
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-slate-800 tracking-tight text-lg">{t("simulation.futureMe")} {new Date().getFullYear() + projectionYears}</h3>
-                                            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">{t("simulation.netWorthGrowthProjection")}</p>
-                                        </div>
-                                        <div className={`px-4 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-widest ${futureProjection.statusBg} ${futureProjection.statusColor} border shadow-sm`}>
+                                        <div className={`mt-2 @sm/main:mt-0 px-4 py-2 @sm/main:py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-widest ${futureProjection.statusBg} ${futureProjection.statusColor} border shadow-sm w-fit`}>
                                             <span className="mr-2">{futureProjection.statusEmoji}</span>
                                             {futureProjection.statusLabel}
                                         </div>
@@ -420,10 +422,10 @@ export default function SimulationPage() {
                                             className="space-y-8"
                                         >
                                             <div className="grid grid-cols-1 @md/main:grid-cols-12 gap-8">
-                                                <div className="col-span-1 @md/main:col-span-8 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 min-h-[450px]">
-                                                    <div className="flex items-center justify-between mb-10">
+                                                <div className="col-span-1 @md/main:col-span-8 bg-white p-5 @sm/main:p-8 rounded-3xl @sm/main:rounded-[2rem] shadow-sm border border-slate-100 min-h-[450px]">
+                                                    <div className="flex flex-col @sm/main:flex-row @sm/main:items-center justify-between mb-8 gap-4">
                                                         <h4 className="text-sm font-semibold text-slate-800 flex items-center gap-3 uppercase tracking-wider">
-                                                            <div className="w-1.5 h-6 bg-emerald-500 rounded-full" />
+                                                            <div className="w-1.5 h-6 bg-emerald-500 rounded-full shrink-0" />
                                                             {t("simulation.netWorthGrowth")}
                                                         </h4>
                                                         <div className="flex items-center gap-6 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
@@ -452,16 +454,16 @@ export default function SimulationPage() {
                                                 </div>
 
                                                 <div className="col-span-1 @md/main:col-span-4 space-y-6">
-                                                    <div className={`p-8 rounded-[2rem] border-4 ${futureProjection.statusBg} transition-all shadow-sm flex flex-col justify-center min-h-[140px] shadow-white`}>
+                                                    <div className={`p-6 @sm/main:p-8 rounded-3xl @sm/main:rounded-[2rem] border-4 ${futureProjection.statusBg} transition-all shadow-sm flex flex-col justify-center min-h-[140px] shadow-white`}>
                                                         <div className="flex items-center gap-2 mb-4">
                                                             <span className="text-2xl">{futureProjection.statusEmoji}</span>
                                                             <p className={`text-[11px] font-semibold uppercase tracking-[0.2em] ${futureProjection.statusColor}`}>{futureProjection.statusLabel}</p>
                                                         </div>
-                                                        <p className="text-3xl font-semibold text-slate-800 tracking-tighter mb-2">{formatRpCompact(futureProjection.finalNetWorth)}</p>
+                                                        <p className="text-2xl @sm/main:text-3xl font-semibold text-slate-800 tracking-tighter mb-2">{formatRpCompact(futureProjection.finalNetWorth)}</p>
                                                         <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{t("simulation.estNetWorth", { year: (new Date().getFullYear() + projectionYears).toString() })}</p>
                                                     </div>
 
-                                                    <div className={`p-8 rounded-[2rem] border-4 ${futureProjection.goalReachable ? "bg-emerald-50/50 border-emerald-100" : "bg-slate-50/50 border-slate-100"} shadow-sm`}>
+                                                    <div className={`p-6 @sm/main:p-8 rounded-3xl @sm/main:rounded-[2rem] border-4 ${futureProjection.goalReachable ? "bg-emerald-50/50 border-emerald-100" : "bg-slate-50/50 border-slate-100"} shadow-sm`}>
                                                         <div className="flex items-center gap-3 mb-4">
                                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${futureProjection.goalReachable ? "bg-emerald-100" : "bg-slate-100"}`}>
                                                                 <Target className={`w-5 h-5 ${futureProjection.goalReachable ? "text-emerald-600" : "text-slate-400"}`} />
@@ -477,14 +479,14 @@ export default function SimulationPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="bg-slate-900 p-10 rounded-[3rem] text-white overflow-hidden relative group shadow-2xl shadow-slate-300">
+                                            <div className="bg-slate-900 p-6 @sm/main:p-10 rounded-3xl @sm/main:rounded-[3rem] text-white overflow-hidden relative group shadow-2xl shadow-slate-300">
                                                 <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 group-hover:scale-125 transition-transform duration-1000 rotate-12">
                                                     <BrainCircuit className="w-64 h-64" />
                                                 </div>
                                                 <div className="max-w-2xl relative z-10">
                                                     <div className="flex items-center gap-4 mb-6">
-                                                        <div className="w-1.5 h-6 bg-indigo-500 rounded-full" />
-                                                        <h5 className="text-indigo-400 text-[11px] font-semibold uppercase tracking-[0.3em]">{t("simulation.mindyRealityCheck")}</h5>
+                                                        <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
+                                                        <h5 className="text-blue-400 text-[11px] font-semibold uppercase tracking-[0.3em]">{t("simulation.mindyRealityCheck")}</h5>
                                                     </div>
                                                     <p className="text-xl font-semibold leading-relaxed mb-10 text-slate-100 tracking-tight">
                                                         "{futureProjection.insight}"
@@ -511,11 +513,11 @@ export default function SimulationPage() {
                                 className="space-y-8"
                             >
                                 <div className="grid grid-cols-1 @lg/main:grid-cols-2 gap-8">
-                                    <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
-                                        <div className="flex items-center justify-between mb-8">
+                                    <div className="bg-white p-6 @sm/main:p-8 rounded-3xl @sm/main:rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
+                                        <div className="flex flex-col @sm/main:flex-row @sm/main:items-center justify-between mb-8 gap-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center shadow-inner">
-                                                    <BrainCircuit className="w-6 h-6 text-indigo-600" />
+                                                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center shadow-inner shrink-0">
+                                                    <BrainCircuit className="w-6 h-6 text-blue-600" />
                                                 </div>
                                                 <div>
                                                     <h3 className="font-semibold text-slate-800 text-lg tracking-tight">{t("ai.title")}</h3>
@@ -580,10 +582,10 @@ export default function SimulationPage() {
                                     </div>
 
                                     <div className="space-y-8">
-                                        <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
+                                        <div className="bg-white p-5 @sm/main:p-8 rounded-3xl @sm/main:rounded-[3rem] shadow-sm border border-slate-100">
                                             {/* Dynamic Narrative Summary - Primary Visual Focus now */}
-                                            <div className="p-1 rounded-[2.5rem] bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-emerald-500/10">
-                                                <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[2.4rem] border border-white/50 relative overflow-hidden">
+                                            <div className="p-1 rounded-[2.5rem] bg-gradient-to-br from-blue-500/10 via-blue-500/10 to-emerald-500/10">
+                                                <div className="bg-white/80 backdrop-blur-xl p-5 @sm/main:p-8 rounded-[2.4rem] border border-white/50 relative overflow-hidden">
                                                     <div className="flex items-center gap-3 mb-6 relative z-10">
                                                         <div className="w-2 h-6 bg-blue-600 rounded-full" />
                                                         <h4 className="text-[11px] font-semibold text-slate-800 uppercase tracking-[0.3em]">{t("simulation.tradeOffSummary.title")}</h4>

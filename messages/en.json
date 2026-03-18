@@ -352,6 +352,7 @@
       "streaming_desc": "Netflix, Disney+, Spotify"
     },
     "insights": {
+      "progressive": "With a growing income from {from} → {to}/mo, you will accumulate {netWorth} in {years} years. Your savings ratio increases from {fromRate}% to {toRate}%.",
       "stable": "By saving consistently for {years} years, your net worth is projected to reach {netWorth}. Your savings rate is stable at {rate}%."
     },
     "hideGuide": "Hide Guide",
