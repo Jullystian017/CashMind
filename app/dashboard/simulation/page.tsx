@@ -28,7 +28,6 @@ import {
     CheckCircle2,
     Clock,
     Lock,
-    BookOpen,
     BrainCircuit,
     AlertCircle,
 } from "lucide-react"
@@ -56,10 +55,20 @@ type AILifestyleSuggestion = {
 // ─── UTILS ────────────────────────────────────────────────────────
 
 const formatRpCompact = (val: number) => {
-    if (Math.abs(val) >= 1_000_000_000) return `Rp ${(val / 1_000_000_000).toFixed(1)} Miliar`
-    if (Math.abs(val) >= 1_000_000) return `Rp ${(val / 1_000_000).toFixed(1)} Juta`
-    if (Math.abs(val) >= 1_000) return `Rp ${(val / 1_000).toFixed(0)} rb`
-    return `Rp ${val}`
+    const absVal = Math.abs(val)
+    if (absVal >= 1_000_000_000) {
+        const num = val / 1_000_000_000
+        return `Rp ${num % 1 === 0 ? num.toFixed(0) : num.toFixed(1)} Miliar`
+    }
+    if (absVal >= 1_000_000) {
+        const num = val / 1_000_000
+        return `Rp ${num % 1 === 0 ? num.toFixed(0) : num.toFixed(1)} Juta`
+    }
+    if (absVal >= 1_000) {
+        const num = val / 1_000
+        return `Rp ${num % 1 === 0 ? num.toFixed(0) : num.toFixed(1)} rb`
+    }
+    return `Rp ${val.toLocaleString("id-ID")}`
 }
 
 // ─── CURRENCY INPUT ───────────────────────────────────────────────
@@ -95,24 +104,7 @@ function CurrencyInput({ value, onChange, label }: { value: number; onChange: (v
     )
 }
 
-// ─── ECONOMIC CONCEPT BADGE ───────────────────────────────────────
 
-function ConceptBadge({ label }: { label: string }) {
-    const { t } = useTranslation()
-    const colors: Record<string, string> = {
-        [t("concepts.opportunity")]: "bg-amber-50 text-amber-700 border-amber-200",
-        [t("concepts.compound")]: "bg-emerald-50 text-emerald-700 border-emerald-200",
-        [t("concepts.risk")]: "bg-red-50 text-red-700 border-red-200",
-        [t("concepts.savings")]: "bg-blue-50 text-blue-700 border-blue-200",
-        [t("concepts.networth")]: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    }
-    return (
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full border uppercase tracking-wider ${colors[label] || "bg-slate-50 text-slate-600 border-slate-200"}`}>
-            <GraduationCap className="w-3 h-3" />
-            {label}
-        </span>
-    )
-}
 
 // ─── REALITY CHECK PILL ──────────────────────────────────────────
 
@@ -152,7 +144,6 @@ export default function SimulationPage() {
     const [simData, setSimData] = useState<SimulationData | null>(null)
     const [aiLifestyles, setAiLifestyles] = useState<AILifestyleSuggestion[]>([])
     const [aiLoading, setAiLoading] = useState(false)
-    const [showEducation, setShowEducation] = useState(true)
 
     const goalPresets = useMemo(() => [
         { label: t("simulation.goalPresets.emergency"), icon: ShieldAlert, value: "emergency", amount: 15000000 },
@@ -327,22 +318,11 @@ export default function SimulationPage() {
                     <p className="text-slate-500 text-xs @md/main:text-sm mt-1 font-semibold italic tracking-tight">{t("simulation.subtitle")}</p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                    <button
-                        onClick={() => setShowEducation(!showEducation)}
-                        className={`h-9 px-4 rounded-xl text-[11px] font-semibold uppercase tracking-wider flex items-center gap-2 transition-all shadow-sm border ${
-                            showEducation ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200"
-                        }`}
-                    >
-                        <BookOpen className="w-3.5 h-3.5" />
-                        {showEducation ? t("simulation.hideGuide") : t("simulation.showGuide")}
-                    </button>
-                    <ConceptBadge label={t("concepts.compound")} />
-                    <ConceptBadge label={t("concepts.opportunity")} />
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 @lg/main:grid-cols-12 gap-8 items-start">
-                <div className={`${(showEducation && tab !== "trade-off") ? "@lg/main:col-span-8" : "col-span-full"} space-y-8 transition-all duration-500 ease-in-out`}>
+            <div className="w-full">
+                <div className="space-y-8 transition-all duration-500 ease-in-out">
                     {/* Tabs */}
                     <div className="flex gap-2 @sm/main:gap-8 border-b border-slate-100 overflow-x-auto no-scrollbar">
                         {([
@@ -707,86 +687,6 @@ export default function SimulationPage() {
                         )}
                     </AnimatePresence>
                 </div>
-
-                {/* Educational Side-panel */}
-                <AnimatePresence>
-                    {(showEducation && tab !== "trade-off") && (
-                        <motion.div
-                            initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                            animate={{ opacity: 1, x: 0, scale: 1 }}
-                            exit={{ opacity: 0, x: 50, scale: 0.9 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="col-span-1 @lg/main:col-span-4 space-y-6 sticky top-8"
-                        >
-                            <div className="bg-white p-8 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-50/50 rounded-full -mr-20 -mt-20 group-hover:bg-blue-100/50 transition-colors duration-700" />
-                                <div className="relative z-10">
-                                    <div className="mb-10">
-                                        <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-200">
-                                            <BookOpen className="w-5 h-5 text-white" />
-                                        </div>
-                                        <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-[0.2em]">{t("simulation.financialGuide")}</h3>
-                                    </div>
-                                    
-                                    <div className="space-y-8">
-                                        <div className="group/item">
-                                            <h4 className="text-[11px] font-semibold text-slate-800 mb-2 flex items-center gap-3 uppercase tracking-wider group-hover/item:text-blue-600 transition-colors">
-                                                <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm" />
-                                                {t("concepts.compound")}
-                                            </h4>
-                                            <p className="text-[11px] text-slate-500 leading-relaxed font-semibold italic">
-                                                {t("simulation.compoundDesc")}
-                                            </p>
-                                        </div>
-
-                                        <div className="group/item">
-                                            <h4 className="text-[11px] font-semibold text-slate-800 mb-2 flex items-center gap-3 uppercase tracking-wider group-hover/item:text-indigo-600 transition-colors">
-                                                <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-sm" />
-                                                {t("concepts.opportunity")}
-                                            </h4>
-                                            <p className="text-[11px] text-slate-500 leading-relaxed font-semibold italic">
-                                                {t("simulation.opportunityDesc")}
-                                            </p>
-                                        </div>
-
-                                        <div className="group/item">
-                                            <h4 className="text-[11px] font-semibold text-slate-800 mb-2 flex items-center gap-3 uppercase tracking-wider group-hover/item:text-slate-900 transition-colors">
-                                                <div className="w-2 h-2 rounded-full bg-slate-900 shadow-sm" />
-                                                {t("concepts.networth")}
-                                            </h4>
-                                            <p className="text-[11px] text-slate-500 leading-relaxed font-semibold italic">
-                                                {t("simulation.networthDesc")}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-12 pt-8 border-t border-slate-50 flex flex-col gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <Target className="w-4 h-4 text-blue-600" />
-                                            <p className="text-[10px] font-semibold text-blue-600 uppercase tracking-[0.2em]">{t("simulation.moneyRules")}</p>
-                                        </div>
-                                        <p className="text-[11px] text-slate-700 font-semibold leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                            {t("simulation.moneyRuleDesc")}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-gradient-to-br from-indigo-900 via-slate-900 to-black p-10 rounded-[3rem] text-white shadow-2xl shadow-indigo-100 relative overflow-hidden group">
-                                <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mb-10 blur-2xl group-hover:bg-white/10 transition-colors" />
-                                <div className="flex items-center gap-4 mb-6 relative z-10">
-                                    <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md">
-                                        <TrendingUp className="w-5 h-5 text-indigo-300" />
-                                    </div>
-                                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.3em] text-indigo-200">{t("simulation.whySimulate")}</h3>
-                                </div>
-                                <p className="text-[11px] text-slate-400 leading-relaxed font-semibold relative z-10">
-                                    {t("simulation.whySimulateDesc")}
-                                </p>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </div>
         </div>
     )

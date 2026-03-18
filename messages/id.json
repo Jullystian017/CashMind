@@ -310,13 +310,13 @@
     "compoundGrowth": "Pertumbuhan Majemuk"
   },
   "simulation": {
-    "title": "Future Growth Simulator",
+    "title": "Simulator Pertumbuhan Masa Depan",
     "subtitle": "Visualisasikan masa depan finansialmu berdasarkan kebiasaan hari ini.",
     "monthlyIncome": "Pendapatan Bulanan",
     "monthlyExpense": "Pengeluaran Bulanan",
     "savingsRate": "Tingkat Tabungan",
-    "futureMe": "Future Me",
-    "tradeOff": "Trade-off",
+    "futureMe": "Masa Depanku",
+    "tradeOff": "Pilihan Gaya Hidup",
     "timeline": "Timeline",
     "targetIncome": "Target Pendapatan",
     "projectionYears": "Tahun Proyeksi",
