@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Supabase-Auth%20%26%20DB-3FCF8E?logo=supabase" alt="Supabase" />
-  <img src="https://img.shields.io/badge/Gemini_AI-Powered-4285F4?logo=google" alt="Gemini AI" />
+  <img src="https://img.shields.io/badge/AI_Powered-Groq_&_Llama-4285F4?logo=robot" alt="AI Powered" />
   <img src="https://img.shields.io/badge/TailwindCSS-4-06B6D4?logo=tailwindcss" alt="TailwindCSS" />
 </p>
 
@@ -31,30 +31,33 @@
 
 ### 💰 Manajemen Keuangan
 - **Dashboard Overview** — Ringkasan lengkap keuangan: total balance, income, expenses, dan financial score
-- **Transaction Tracking** — Catat dan kelola semua transaksi income & expense dengan kategori
+- **Transaction Tracking & Receipt OCR** — Pencatatan transaksi manual atau otomatis menggunakan AI (Auto-Scan Struk)
 - **Budget Management** — Atur budget per kategori per bulan dan pantau realisasinya
 - **Subscription Tracker** — Lacak dan kelola semua langganan berulang
 
-### 🎯 Goal & Gamifikasi
+### 🎯 Goal, Simulasi & Gamifikasi
 - **Financial Goals** — Buat target tabungan dan pantau progress menuju impianmu
+- **Future Growth Simulator** — Proyeksi kekayaan bersih berdasarkan pilihan gaya hidup dan trade-off (Masa Depan)
 - **Challenges & XP** — Selesaikan tantangan keuangan untuk mendapatkan XP dan naikkan level
 - **Financial Score** — Skor keuangan 0-100 berdasarkan savings rate, budget adherence, goals, dan aktivitas
 
 ### 🤖 Kecerdasan Buatan
-- **AI Financial Advisor** — Chat interface dengan Gemini AI untuk konsultasi dan saran keuangan
-- **Smart Insights** — Analisis pattern spending otomatis dan rekomendasi penghematan
+- **AI Financial Advisor (Mindy)** — Chat interface pintar beserta riwayat percakapan yang tersimpan
+- **Smart Insights** — Analisis pola pengeluaran otomatis dan rekomendasi penghematan khusus
+- **Financial Context Expansion** — AI memahami data transaksi, langganan, split bill, dan budget user secara menyeluruh
 - **Financial Calendar** — Kalender keuangan untuk tracking jadwal pembayaran
 
-### 👥 Sosial & Utilitas  
+### 👥 Sosial, Utilitas & Responsivitas
+- **Internationalization (i18n)** — Dukungan penuh dua bahasa: Bahasa Indonesia (ID) & English (EN)
 - **Split Bill** — Bagi tagihan dengan teman secara mudah dan adil
-- **Export Data** — Export data keuangan ke PDF
+- **Export Data** — Export data keuangan mentah maupun laporan PDF
 - **Notifications** — Notifikasi pintar untuk pengingat budget dan pembayaran
+- **Mobile Responsive** — UI/UX premium yang dioptimalkan untuk perangkat mobile maupun desktop
 
 ### 🔐 Autentikasi
 - **Email & Password** — Register dan login dengan email
 - **Google OAuth** — Login cepat dengan akun Google
-- **Forgot Password** — Reset password via email
-- **Onboarding Wizard** — Panduan setup awal untuk pengguna baru
+- **Quick Onboarding** — Setup awal praktis untuk pengguna baru
 
 ---
 
@@ -70,8 +73,9 @@
 | **Animation** | Framer Motion |
 | **Charts** | Recharts |
 | **Backend/Auth** | Supabase (PostgreSQL + Auth) |
-| **AI** | Google Gemini AI |
+| **AI** | Meta Llama 3 via Groq (Mindy & OCR) |
 | **PDF Export** | jsPDF + jsPDF-AutoTable |
+| **Localization** | Custom i18n implementation |
 | **Icons** | Lucide React |
 
 ---
@@ -140,8 +144,8 @@ CashMind/
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-   # Google Gemini AI
-   GEMINI_API_KEY=your_gemini_api_key
+   # AI API Keys
+   GROQ_API_KEY=your_groq_api_key
    ```
 
 4. **Setup Supabase Database**
