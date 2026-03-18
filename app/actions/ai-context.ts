@@ -8,6 +8,9 @@ export interface FinancialContext {
     monthlyExpense: number
     savingsRate: number
     topCategories: { name: string; amount: number; percentage: number }[]
+    prevMonthIncome: number
+    prevMonthExpense: number
+    prevMonthTopCategories: { name: string; amount: number; percentage: number }[]
     incomeTrend: string
     expenseTrend: string
     financialScore: number
@@ -16,6 +19,7 @@ export interface FinancialContext {
     goalProgress: { name: string; progress: number }[]
     activeChallenges: number
     completedChallenges: number
+    recentTransactions: { description: string; amount: number; type: string; category: string; date: string }[]
 }
 
 export async function getFinancialContext(): Promise<{
@@ -30,17 +34,18 @@ export async function getFinancialContext(): Promise<{
         const now = new Date()
         const firstDayCurrent = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
         const firstDayPrev = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
-        const sameDayPrev = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).toISOString()
+        const lastDayPrev = new Date(now.getFullYear(), now.getMonth(), 0).toISOString()
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
         // Fetch all data in parallel
-        const [txsRes, prevTxsRes, allTxsRes, budgetsRes, goalsRes, challengesRes] = await Promise.all([
+        const [txsRes, prevTxsRes, allTxsRes, budgetsRes, goalsRes, challengesRes, recentRes] = await Promise.all([
             supabase.from("transactions").select("amount, type, category").eq("user_id", user.id).gte("date", firstDayCurrent),
-            supabase.from("transactions").select("amount, type").eq("user_id", user.id).gte("date", firstDayPrev).lte("date", sameDayPrev),
+            supabase.from("transactions").select("amount, type, category").eq("user_id", user.id).gte("date", firstDayPrev).lte("date", lastDayPrev),
             supabase.from("transactions").select("amount, type").eq("user_id", user.id),
             supabase.from("budgets").select("*").eq("user_id", user.id).eq("month_year", monthKey),
             supabase.from("goals").select("title, current_amount, target_amount").eq("user_id", user.id),
-            supabase.from("user_challenges").select("status, xp_earned").eq("user_id", user.id)
+            supabase.from("user_challenges").select("status, xp_earned").eq("user_id", user.id),
+            supabase.from("transactions").select("description, amount, type, category, date").eq("user_id", user.id).order("date", { ascending: false }).limit(15)
         ])
 
         const txs = txsRes.data || []
@@ -59,12 +64,26 @@ export async function getFinancialContext(): Promise<{
             }
         })
 
-        // Previous month
+        // Previous month (full month)
         let prevIncome = 0, prevExpense = 0
+        const prevCategoryMap: Record<string, number> = {}
         prevTxs.forEach(t => {
-            if (t.type === "income") prevIncome += Number(t.amount)
-            else prevExpense += Number(t.amount)
+            const amt = Number(t.amount)
+            if (t.type === "income") prevIncome += amt
+            else {
+                prevExpense += amt
+                prevCategoryMap[t.category] = (prevCategoryMap[t.category] || 0) + amt
+            }
         })
+
+        const prevMonthTopCategories = Object.entries(prevCategoryMap)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5)
+            .map(([name, amount]) => ({
+                name,
+                amount,
+                percentage: prevExpense > 0 ? Math.round((amount / prevExpense) * 100) : 0
+            }))
 
         // Balance
         let totalBalance = 0
@@ -137,6 +156,9 @@ export async function getFinancialContext(): Promise<{
                 monthlyExpense: expense,
                 savingsRate: Math.round(savingsRate),
                 topCategories,
+                prevMonthIncome: prevIncome,
+                prevMonthExpense: prevExpense,
+                prevMonthTopCategories,
                 incomeTrend: calcTrend(income, prevIncome),
                 expenseTrend: calcTrend(expense, prevExpense),
                 financialScore: score,
@@ -144,7 +166,14 @@ export async function getFinancialContext(): Promise<{
                 budgetAlerts,
                 goalProgress: goals,
                 activeChallenges,
-                completedChallenges
+                completedChallenges,
+                recentTransactions: (recentRes.data || []).map(t => ({
+                    description: t.description,
+                    amount: Number(t.amount),
+                    type: t.type,
+                    category: t.category,
+                    date: t.date
+                }))
             },
             error: null
         }
@@ -182,6 +211,26 @@ export async function buildContextPrompt(ctx: FinancialContext): Promise<string>
     }
 
     prompt += `\nChallenges: ${ctx.activeChallenges} active, ${ctx.completedChallenges} completed\n`
+
+    if (ctx.prevMonthTopCategories.length > 0) {
+        prompt += `\nLast Month Summary:\n`
+        prompt += `- Income: ${formatRp(ctx.prevMonthIncome)}\n`
+        prompt += `- Expense: ${formatRp(ctx.prevMonthExpense)}\n`
+        prompt += `- Top Categories:\n`
+        ctx.prevMonthTopCategories.forEach(c => {
+            prompt += `  - ${c.name}: ${formatRp(c.amount)} (${c.percentage}%)\n`
+        })
+    } else {
+        prompt += `\nLast Month: No transaction data available.\n`
+    }
+
+    if (ctx.recentTransactions.length > 0) {
+        prompt += `\nRecent Transactions (latest 15):\n`
+        ctx.recentTransactions.forEach(t => {
+            prompt += `- [${t.date}] ${t.type === 'income' ? '+' : '-'}${formatRp(t.amount)} | ${t.category} | ${t.description}\n`
+        })
+    }
+
     prompt += `=== END DATA ===\n`
     prompt += `\nUse ONLY the data above for any financial analysis. Never invent numbers.\n`
 

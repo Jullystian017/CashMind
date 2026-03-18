@@ -22,19 +22,26 @@ import {
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/lib/i18n/useTranslation"
+import { 
+    getChatSessions, 
+    createChatSession, 
+    getSessionMessages, 
+    addMessageToSession, 
+    deleteChatSession 
+} from "@/app/actions/chat"
 
 interface Message {
-    id: number
+    id: string
     role: "user" | "model"
     text: string
     time: string
 }
 
 interface ChatSession {
-    id: number
+    id: string
     title: string
-    messages: Message[]
-    time: string
+    messages?: Message[]
+    updated_at: string
 }
 
 export default function DeepChatPage() {
@@ -43,7 +50,7 @@ export default function DeepChatPage() {
     const [messages, setMessages] = useState<Message[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
-    const [activeSessionId, setActiveSessionId] = useState<number | null>(null)
+    const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
     const scrollRef = useRef<HTMLDivElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -53,6 +60,21 @@ export default function DeepChatPage() {
         { key: "tips", icon: Lightbulb },
         { key: "review", icon: FileText },
     ]
+
+    // Fetch sessions on mount
+    useEffect(() => {
+        const fetchSessions = async () => {
+            const { data, error } = await getChatSessions()
+            if (!error && data) {
+                setChatSessions(data.map(s => ({
+                    id: s.id,
+                    title: s.title,
+                    updated_at: s.updated_at
+                })))
+            }
+        }
+        fetchSessions()
+    }, [])
 
     useEffect(() => {
         scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })
@@ -65,11 +87,32 @@ export default function DeepChatPage() {
     const sendMessage = async (text: string) => {
         if (!text.trim() || isLoading) return
 
+        let currentSessionId = activeSessionId
+
+        // 1. Create session if it doesn't exist
+        if (!currentSessionId) {
+            const title = text.trim().slice(0, 40) + (text.length > 40 ? "..." : "")
+            const { data, error } = await createChatSession(title)
+            if (error || !data) return
+            currentSessionId = data.id
+            setActiveSessionId(currentSessionId)
+            setChatSessions(prev => [{
+                id: data.id,
+                title: data.title,
+                updated_at: data.updated_at
+            }, ...prev])
+        }
+
         const userMsg: Message = {
-            id: Date.now(),
+            id: Math.random().toString(),
             role: "user",
             text: text.trim(),
             time: formatTime()
+        }
+
+        // 2. Save user message to DB
+        if (currentSessionId) {
+            await addMessageToSession(currentSessionId, "user", text.trim())
         }
 
         const updatedMessages = [...messages, userMsg]
@@ -91,37 +134,35 @@ export default function DeepChatPage() {
             })
 
             const data = await res.json()
+            const reply = data.error ? `⚠️ ${data.error}` : data.reply
+
+            // 3. Save AI message to DB
+            if (currentSessionId) {
+                await addMessageToSession(currentSessionId, "model", reply)
+            }
 
             const aiMsg: Message = {
-                id: Date.now() + 1,
+                id: Math.random().toString(),
                 role: "model",
-                text: data.error ? `⚠️ ${data.error}` : data.reply,
+                text: reply,
                 time: formatTime()
             }
 
-            const finalMessages = [...updatedMessages, aiMsg]
-            setMessages(finalMessages)
+            setMessages([...updatedMessages, aiMsg])
+            
+            // Update session list order/time
+            setChatSessions(prev => {
+                const session = prev.find(s => s.id === currentSessionId)
+                if (!session) return prev
+                return [
+                    { ...session, updated_at: new Date().toISOString() },
+                    ...prev.filter(s => s.id !== currentSessionId)
+                ]
+            })
 
-            if (activeSessionId === null) {
-                const newSession: ChatSession = {
-                    id: Date.now(),
-                    title: text.trim().slice(0, 40) + (text.length > 40 ? "..." : ""),
-                    messages: finalMessages,
-                    time: t("common.at") + " " + formatTime()
-                }
-                setChatSessions(prev => [newSession, ...prev])
-                setActiveSessionId(newSession.id)
-            } else {
-                setChatSessions(prev =>
-                    prev.map(s => s.id === activeSessionId
-                        ? { ...s, messages: finalMessages, time: t("common.at") + " " + formatTime() }
-                        : s
-                    )
-                )
-            }
         } catch {
             setMessages(prev => [...prev, {
-                id: Date.now() + 1,
+                id: Math.random().toString(),
                 role: "model",
                 text: "⚠️ " + t("errors.networkError"),
                 time: formatTime()
@@ -137,17 +178,34 @@ export default function DeepChatPage() {
         setMessage("")
     }
 
-    const loadSession = (session: ChatSession) => {
-        setMessages(session.messages)
+    const loadSession = async (session: ChatSession) => {
         setActiveSessionId(session.id)
         setMessage("")
+        setIsLoading(true)
+        try {
+            const { data, error } = await getSessionMessages(session.id)
+            if (!error && data) {
+                setMessages(data.map(m => ({
+                    id: m.id,
+                    role: m.role as "user" | "model",
+                    text: m.text,
+                    time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                })))
+            }
+        } finally {
+            setIsLoading(false)
+        }
     }
 
-    const deleteSession = (id: number) => {
-        setChatSessions(prev => prev.filter(s => s.id !== id))
-        if (activeSessionId === id) {
-            setMessages([])
-            setActiveSessionId(null)
+    const deleteSession = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        const { error } = await deleteChatSession(id)
+        if (!error) {
+            setChatSessions(prev => prev.filter(s => s.id !== id))
+            if (activeSessionId === id) {
+                setMessages([])
+                setActiveSessionId(null)
+            }
         }
     }
 
@@ -244,11 +302,13 @@ export default function DeepChatPage() {
                                             )} />
                                             <div className="flex-1 overflow-hidden pr-6">
                                                 <p className="text-sm font-semibold text-gray-700 truncate">{session.title}</p>
-                                                <p className="text-[10px] text-gray-400 font-medium">{session.time}</p>
+                                                <p className="text-[10px] text-gray-400 font-medium">
+                                                    {new Date(session.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                </p>
                                             </div>
                                         </button>
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); deleteSession(session.id) }}
+                                            onClick={(e) => deleteSession(session.id, e)}
                                             className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all rounded-lg hover:bg-rose-50"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />

@@ -33,7 +33,9 @@ import {
     Zap,
     Camera,
     UploadCloud,
-    Loader2
+    Loader2,
+    ChevronLeft,
+    ChevronRight
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, formatRp } from "@/lib/utils"
@@ -102,6 +104,9 @@ export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [transactionsLoading, setTransactionsLoading] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState("All")
+    const now = new Date()
+    const [selectedMonth, setSelectedMonth] = useState(now.getMonth())
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear())
     const mounted = useRef(true)
 
     const fetchTransactions = async () => {
@@ -197,9 +202,12 @@ export default function TransactionsPage() {
 
             const matchesCategory = filterCategory === "All" || entry.category === filterCategory
 
-            return matchesSearch && matchesCategory
+            const txDate = new Date(entry.date)
+            const matchesMonth = txDate.getMonth() === selectedMonth && txDate.getFullYear() === selectedYear
+
+            return matchesSearch && matchesCategory && matchesMonth
         }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    }, [transactions, searchQuery, filterCategory])
+    }, [transactions, searchQuery, filterCategory, selectedMonth, selectedYear])
 
     const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE)
     const paginatedTransactions = useMemo(() => {
@@ -207,9 +215,22 @@ export default function TransactionsPage() {
         return filteredTransactions.slice(start, start + ITEMS_PER_PAGE)
     }, [filteredTransactions, currentPage])
 
-    const totalIncome = transactions.filter(entry => entry.type === 'income').reduce((acc, entry) => acc + entry.amount, 0)
-    const totalExpense = transactions.filter(entry => entry.type === 'expense').reduce((acc, entry) => acc + entry.amount, 0)
+    const totalIncome = filteredTransactions.filter(entry => entry.type === 'income').reduce((acc, entry) => acc + entry.amount, 0)
+    const totalExpense = filteredTransactions.filter(entry => entry.type === 'expense').reduce((acc, entry) => acc + entry.amount, 0)
     const balance = totalIncome - totalExpense
+
+    const monthLabel = new Date(selectedYear, selectedMonth).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+
+    const goToPrevMonth = () => {
+        if (selectedMonth === 0) { setSelectedMonth(11); setSelectedYear(y => y - 1) }
+        else setSelectedMonth(m => m - 1)
+        setCurrentPage(1)
+    }
+    const goToNextMonth = () => {
+        if (selectedMonth === 11) { setSelectedMonth(0); setSelectedYear(y => y + 1) }
+        else setSelectedMonth(m => m + 1)
+        setCurrentPage(1)
+    }
 
     const formatAmountCompact = (val: number) => {
         if (Math.abs(val) >= 1000000) {
@@ -376,8 +397,19 @@ export default function TransactionsPage() {
                     <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">{t("transactions.title")}</h2>
                     <p className="text-gray-500 text-sm mt-2 font-medium">{t("transactions.manageSubtitle")}</p>
                 </div>
-                <div className="flex items-center gap-3">
+                
+                {/* Month Navigator */}
+                <div className="flex items-center gap-2 bg-white rounded-2xl px-2 py-1.5 border border-gray-100 shadow-sm self-center">
+                    <button onClick={goToPrevMonth} className="p-2 rounded-xl hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-colors">
+                        <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-sm font-semibold text-gray-900 min-w-[140px] text-center capitalize">{monthLabel}</span>
+                    <button onClick={goToNextMonth} className="p-2 rounded-xl hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-colors">
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
+                </div>
 
+                <div className="flex items-center gap-3">
                     <div className="relative">
                         <button
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -442,7 +474,6 @@ export default function TransactionsPage() {
                                                 )
                                             })}
 
-                                            {/* Miscellaneous/Others at the bottom */}
                                             <button
                                                 onClick={() => { setFilterCategory("Others"); setIsFilterOpen(false); }}
                                                 className={cn(
@@ -461,6 +492,7 @@ export default function TransactionsPage() {
                             )}
                         </AnimatePresence>
                     </div>
+
                     <div className="flex items-center gap-2 md:gap-3">
                         <button
                             onClick={() => setIsScanModalOpen(true)}
@@ -480,6 +512,7 @@ export default function TransactionsPage() {
                     </div>
                 </div>
             </div>
+
 
             {/* Transaction Stats Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
