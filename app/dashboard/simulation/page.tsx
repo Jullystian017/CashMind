@@ -34,7 +34,7 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts"
 import { getSimulationData, type SimulationData } from "@/app/actions/simulation"
 import { useTranslation } from "@/lib/i18n/useTranslation"
-import { formatRp } from "@/lib/utils"
+import { formatRp, cn } from "@/lib/utils"
 
 // ─── TYPES ────────────────────────────────────────────────────────
 
@@ -351,18 +351,22 @@ export default function SimulationPage() {
                                 className="space-y-6"
                             >
                                 <div className="bg-white p-5 @sm/main:p-8 rounded-3xl @sm/main:rounded-[2rem] shadow-sm border border-slate-100">
-                                    <div className="flex flex-col @sm/main:flex-row @sm/main:items-center gap-4 mb-8">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 shrink-0">
-                                                <Sparkles className="w-6 h-6 text-white" />
+                                    <div className="flex flex-col @md/main:flex-row @md/main:items-center justify-between gap-6 mb-8 group/header">
+                                        <div className="flex items-center gap-5">
+                                            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 group-hover/header:scale-110 group-hover/header:rotate-3 transition-all duration-500">
+                                                <Sparkles className="w-7 h-7 text-white" />
                                             </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold text-slate-800 tracking-tight text-lg">{t("simulation.futureMe")} {new Date().getFullYear() + projectionYears}</h3>
-                                                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">{t("simulation.netWorthGrowthProjection")}</p>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-semibold text-slate-800 tracking-tight text-xl @sm/main:text-1xl truncate">{t("simulation.futureMe")} {new Date().getFullYear() + projectionYears}</h3>
+                                                <p className="text-[10px] @sm/main:text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-0.5">{t("simulation.netWorthGrowthProjection")}</p>
                                             </div>
                                         </div>
-                                        <div className={`mt-2 @sm/main:mt-0 px-4 py-2 @sm/main:py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-widest ${futureProjection.statusBg} ${futureProjection.statusColor} border shadow-sm w-fit`}>
-                                            <span className="mr-2">{futureProjection.statusEmoji}</span>
+                                        <div className={cn(
+                                            "px-4 py-2 rounded-full text-[10px] @sm/main:text-[11px] font-bold uppercase tracking-[0.1em] border shadow-sm w-fit flex items-center gap-2.5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap",
+                                            futureProjection.statusBg,
+                                            futureProjection.statusColor
+                                        )}>
+                                            <span className="text-sm scale-110">{futureProjection.statusEmoji}</span>
                                             {futureProjection.statusLabel}
                                         </div>
                                     </div>
@@ -479,19 +483,30 @@ export default function SimulationPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="bg-slate-900 p-6 @sm/main:p-10 rounded-3xl @sm/main:rounded-[3rem] text-white overflow-hidden relative group shadow-2xl shadow-slate-300">
-                                                <div className="absolute top-0 right-0 p-12 opacity-5 scale-150 group-hover:scale-125 transition-transform duration-1000 rotate-12">
+                                            <div className="bg-slate-900 p-6 @sm/main:p-12 rounded-[40px] @sm/main:rounded-[3.5rem] text-white overflow-hidden relative group shadow-2xl shadow-slate-300/50 border border-slate-800">
+                                                {/* Ambient Glow */}
+                                                <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+                                                <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
+                                                
+                                                <div className="absolute top-0 right-0 p-12 opacity-[0.03] scale-150 group-hover:scale-125 transition-transform duration-1000 rotate-12 pointer-events-none">
                                                     <BrainCircuit className="w-64 h-64" />
                                                 </div>
-                                                <div className="max-w-2xl relative z-10">
-                                                    <div className="flex items-center gap-4 mb-6">
-                                                        <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
-                                                        <h5 className="text-blue-400 text-[11px] font-semibold uppercase tracking-[0.3em]">{t("simulation.mindyRealityCheck")}</h5>
+                                                
+                                                <div className="max-w-3xl relative z-10">
+                                                    <div className="flex items-center gap-4 mb-8">
+                                                        <div className="w-2 h-7 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+                                                        <h5 className="text-blue-400 text-[10px] @sm/main:text-[11px] font-bold uppercase tracking-[0.4em]">{t("simulation.mindyRealityCheck")}</h5>
                                                     </div>
-                                                    <p className="text-xl font-semibold leading-relaxed mb-10 text-slate-100 tracking-tight">
-                                                        "{futureProjection.insight}"
-                                                    </p>
-                                                    <div className="flex flex-wrap gap-3">
+                                                    
+                                                    <div className="relative mb-12">
+                                                        <span className="absolute -left-6 -top-4 text-6xl text-blue-500/20 font-serif opacity-50">"</span>
+                                                        <p className="text-2xl @sm/main:text-3xl font-bold leading-tight @sm/main:leading-tight text-slate-50 tracking-tight">
+                                                            {futureProjection.insight}
+                                                        </p>
+                                                        <span className="absolute -right-2 -bottom-8 text-6xl text-blue-500/20 font-serif opacity-50 rotate-180">"</span>
+                                                    </div>
+
+                                                    <div className="flex flex-wrap gap-3 mt-4">
                                                         {futureProjection.realityChecks.map((check, i) => (
                                                             <RealityCheck key={i} text={check} />
                                                         ))}
@@ -592,32 +607,34 @@ export default function SimulationPage() {
                                                     </div>
                                                     
                                                     <div className="space-y-6 relative z-10">
-                                                        <p className="text-xl font-semibold text-slate-800 leading-tight tracking-tight">
+                                                        <p className="text-lg @sm/main:text-xl font-semibold text-slate-800 leading-[1.3] tracking-tight mb-2">
                                                             {tradeOffResult.isMixed
-                                                                ? t("simulation.tradeOffSummary.mixed", {
-                                                                    amount: formatRpCompact(Math.abs(tradeOffResult.difference))
-                                                                  })
+                                                                ? tradeOffResult.difference > 0 
+                                                                    ? t("simulation.tradeOffSummary.mixed", { amount: formatRpCompact(Math.abs(tradeOffResult.difference)) })
+                                                                    : t("simulation.tradeOffSummary.negative", { amount: formatRpCompact(Math.abs(tradeOffResult.difference)) })
                                                                 : tradeOffResult.difference > 0 
                                                                     ? t("simulation.tradeOffSummary.positive", { 
                                                                         amount: formatRpCompact(tradeOffResult.difference),
                                                                         percentage: ((tradeOffResult.difference / tradeOffResult.withoutNW) * 100).toFixed(1)
                                                                       })
                                                                     : tradeOffResult.difference < 0
-                                                                        ? t("simulation.tradeOffSummary.negative", {
-                                                                            amount: formatRpCompact(Math.abs(tradeOffResult.difference))
-                                                                          })
-                                                                        : t("simulation.tradeOffSummary.neutral", {
-                                                                            amount: formatRpCompact(tradeOffResult.totalEnabledCost)
-                                                                          })
+                                                                        ? t("simulation.tradeOffSummary.negative", { amount: formatRpCompact(Math.abs(tradeOffResult.difference)) })
+                                                                        : t("simulation.tradeOffSummary.neutral", { amount: formatRpCompact(tradeOffResult.totalEnabledCost) })
                                                             }
                                                         </p>
-                                                        <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100 flex items-start gap-5">
-                                                            <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0 shadow-sm shadow-amber-100">
-                                                                <Coffee className="w-6 h-6 text-amber-600" />
+                                                        <div className="group/insight p-4 @md/main:p-6 bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-100 flex flex-col @md/main:flex-row items-center @md/main:items-start gap-4 @md/main:gap-6 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/5">
+                                                            <div className="w-14 h-14 @md/main:w-16 @md/main:h-16 rounded-2xl bg-amber-100/50 flex items-center justify-center shrink-0 shadow-sm shadow-amber-200/20 group-hover/insight:scale-110 group-hover/insight:rotate-6 transition-all duration-500">
+                                                                <Coffee className="w-7 h-7 @md/main:w-8 @md/main:h-8 text-amber-600/80 drop-shadow-sm" />
                                                             </div>
-                                                            <p className="text-xs text-slate-500 font-semibold italic leading-relaxed">
-                                                                {t("simulation.tradeOffSummary.coffeeExample")}
-                                                            </p>
+                                                            <div className="flex-1 text-center @md/main:text-left min-w-0">
+                                                                <p className="text-xs @md/main:text-sm text-slate-600 font-bold italic leading-relaxed tracking-tight group-hover/insight:text-slate-800 transition-colors">
+                                                                    {t("simulation.tradeOffSummary.coffeeExample")}
+                                                                </p>
+                                                                <div className="mt-2.5 flex items-center justify-center @md/main:justify-start gap-2">
+                                                                    <div className="w-1 h-1 rounded-full bg-amber-400 animate-pulse" />
+                                                                    <span className="text-[9px] font-bold text-amber-600/60 uppercase tracking-widest">{t("simulation.realityCheck")}</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     

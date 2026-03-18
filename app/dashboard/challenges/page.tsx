@@ -1,7 +1,7 @@
-"use client"
+  "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Utensils, Trophy, Target, Star, X, Loader2, Ban, Car, ShoppingBag, Gamepad2, Zap } from "lucide-react";
+import { Sparkles, Utensils, Trophy, Target, Star, X, Loader2, Ban, Car, ShoppingBag, Gamepad2, Zap, Clock, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   getChallengeTemplates,
@@ -15,7 +15,7 @@ import {
   type UserBadge,
 } from "@/app/actions/challenges";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { formatRp } from "@/lib/utils";
+import { formatRp, cn } from "@/lib/utils";
 
 type Tab = "active" | "completed" | "badges";
 

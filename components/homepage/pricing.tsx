@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { SectionBadge } from "@/components/ui/section-badge";
+import Link from "next/link";
 
 const plans = [
     {
@@ -86,12 +87,14 @@ export const Pricing = ({ showHeader = true }: { showHeader?: boolean }) => {
                                 ))}
                             </div>
 
-                            <button className={`w-full py-4 rounded-2xl font-semibold transition-all relative z-10 flex items-center justify-center gap-2 ${plan.popular
-                                ? "bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-600/30 hover:-translate-y-1 hover:shadow-blue-600/40 active:translate-y-0"
-                                : "bg-gray-50 text-gray-900 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
-                                }`}>
+                            <Link
+                                href={plan.popular ? "/checkout" : "/register"}
+                                className={`w-full py-4 rounded-2xl font-semibold transition-all relative z-10 flex items-center justify-center gap-2 ${plan.popular
+                                    ? "bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-600/30 hover:-translate-y-1 hover:shadow-blue-600/40 active:translate-y-0"
+                                    : "bg-gray-50 text-gray-900 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
+                                    }`}>
                                 {plan.buttonText}
-                            </button>
+                            </Link>
                         </motion.div>
                     ))}
                 </div>
