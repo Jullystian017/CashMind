@@ -229,7 +229,9 @@ export default function TransactionsPage() {
 
     const totalIncome = filteredTransactions.filter(entry => entry.type === 'income').reduce((acc, entry) => acc + entry.amount, 0)
     const totalExpense = filteredTransactions.filter(entry => entry.type === 'expense').reduce((acc, entry) => acc + entry.amount, 0)
-    const balance = totalIncome - totalExpense
+    const allTimeBalance = transactions.reduce((acc, entry) => {
+        return entry.type === 'income' ? acc + entry.amount : acc - entry.amount
+    }, 0)
 
     const monthLabel = new Date(selectedYear, selectedMonth).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })
 
@@ -601,7 +603,7 @@ export default function TransactionsPage() {
                 {[
                     { label: t("transactions.income"), value: formatRp(totalIncome), icon: TrendingUp, color: "text-green-600", bg: "bg-green-50" },
                     { label: t("transactions.expense"), value: formatRp(totalExpense), icon: TrendingDown, color: "text-rose-600", bg: "bg-rose-50" },
-                    { label: t("dashboard.totalBalance"), value: formatRp(balance), icon: Wallet, color: "text-amber-600", bg: "bg-amber-50" }
+                    { label: t("dashboard.totalBalance"), value: formatRp(allTimeBalance), icon: Wallet, color: "text-amber-600", bg: "bg-amber-50" }
                 ].map((stat, i) => (
                     <div key={i} className="p-6 bg-white rounded-[24px] border border-gray-100 shadow-sm flex items-center gap-4">
                         <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center", stat.bg)}>
