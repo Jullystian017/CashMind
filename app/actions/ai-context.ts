@@ -20,6 +20,11 @@ export interface FinancialContext {
     activeChallenges: number
     completedChallenges: number
     recentTransactions: { description: string; amount: number; type: string; category: string; date: string }[]
+    // New Fields
+    subscriptions: { name: string; price: number; billing: string; nextDate: string }[]
+    splitBills: { title: string; totalAmount: number; status: string; participantCount: number; paidCount: number }[]
+    badges: { name: string; description: string }[]
+    activeChallengeDetails: { title: string; category: string; limit: number; spent: number; daysLeft: number }[]
 }
 
 export async function getFinancialContext(): Promise<{
@@ -38,14 +43,28 @@ export async function getFinancialContext(): Promise<{
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
         // Fetch all data in parallel
-        const [txsRes, prevTxsRes, allTxsRes, budgetsRes, goalsRes, challengesRes, recentRes] = await Promise.all([
+        const [
+            txsRes, 
+            prevTxsRes, 
+            allTxsRes, 
+            budgetsRes, 
+            goalsRes, 
+            challengesRes, 
+            recentRes,
+            subsRes,
+            splitRes,
+            badgesRes
+        ] = await Promise.all([
             supabase.from("transactions").select("amount, type, category").eq("user_id", user.id).gte("date", firstDayCurrent),
             supabase.from("transactions").select("amount, type, category").eq("user_id", user.id).gte("date", firstDayPrev).lte("date", lastDayPrev),
             supabase.from("transactions").select("amount, type").eq("user_id", user.id),
             supabase.from("budgets").select("*").eq("user_id", user.id).eq("month_year", monthKey),
             supabase.from("goals").select("title, current_amount, target_amount").eq("user_id", user.id),
-            supabase.from("user_challenges").select("status, xp_earned").eq("user_id", user.id),
-            supabase.from("transactions").select("description, amount, type, category, date").eq("user_id", user.id).order("date", { ascending: false }).limit(15)
+            supabase.from("user_challenges").select("*, challenge_templates(*)").eq("user_id", user.id),
+            supabase.from("transactions").select("description, amount, type, category, date").eq("user_id", user.id).order("date", { ascending: false }).limit(15),
+            supabase.from("subscriptions").select("name, price, billing, next_date").eq("user_id", user.id),
+            supabase.from("split_bills").select("id, title, total_amount, status").eq("user_id", user.id),
+            supabase.from("user_badges").select("name, description").eq("user_id", user.id)
         ])
 
         const txs = txsRes.data || []
@@ -132,10 +151,25 @@ export async function getFinancialContext(): Promise<{
         }))
 
         // Challenges
-        const challenges = challengesRes.data || []
-        const activeChallenges = challenges.filter(c => c.status === "active").length
-        const completedChallenges = challenges.filter(c => c.status === "completed").length
-        const totalXp = challenges.filter(c => c.status === "completed").reduce((s, c) => s + (c.xp_earned || 0), 0)
+        const challengesRaw = challengesRes.data || []
+        const activeChallenges = challengesRaw.filter(c => c.status === "active").length
+        const completedChallenges = challengesRaw.filter(c => c.status === "completed").length
+        const totalXp = challengesRaw.filter(c => c.status === "completed").reduce((s, c) => s + (c.xp_earned || 0), 0)
+
+        const activeChallengeDetails = challengesRaw
+            .filter(c => c.status === "active")
+            .map(c => {
+                const template = c.challenge_templates
+                const endsAt = new Date(c.ends_at)
+                const daysLeft = Math.max(0, Math.ceil((endsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+                return {
+                    title: template.title,
+                    category: template.category,
+                    limit: Number(template.limit_amount),
+                    spent: Number(c.spent),
+                    daysLeft
+                }
+            })
 
         // Financial score
         let savingsScore = income > 0 ? Math.min(40, (((income - expense) / income) / 0.2) * 40) : 0
@@ -148,6 +182,33 @@ export async function getFinancialContext(): Promise<{
         if (score >= 80) status = "Master"
         else if (score >= 60) status = "Excellent"
         else if (score >= 40) status = "Good"
+
+        // Subscriptions
+        const subscriptions = (subsRes.data || []).map(s => ({
+            name: s.name,
+            price: Number(s.price),
+            billing: s.billing,
+            nextDate: s.next_date
+        }))
+
+        // Split Bills
+        const splitBillsData = splitRes.data || []
+        const billIds = splitBillsData.map(b => b.id)
+        const { data: participants } = await supabase
+            .from("split_participants")
+            .select("split_bill_id, is_paid")
+            .in("split_bill_id", billIds)
+
+        const splitBills = splitBillsData.map(bill => {
+            const billParticipants = (participants || []).filter(p => p.split_bill_id === bill.id)
+            return {
+                title: bill.title,
+                totalAmount: Number(bill.total_amount),
+                status: bill.status,
+                participantCount: billParticipants.length,
+                paidCount: billParticipants.filter(p => p.is_paid).length
+            }
+        })
 
         return {
             data: {
@@ -173,7 +234,11 @@ export async function getFinancialContext(): Promise<{
                     type: t.type,
                     category: t.category,
                     date: t.date
-                }))
+                })),
+                subscriptions,
+                splitBills,
+                badges: badgesRes.data || [],
+                activeChallengeDetails
             },
             error: null
         }
@@ -205,12 +270,36 @@ export async function buildContextPrompt(ctx: FinancialContext): Promise<string>
         ctx.budgetAlerts.forEach(a => prompt += `- ⚠️ ${a}\n`)
     }
 
+    if (ctx.subscriptions.length > 0) {
+        prompt += `\nSubscriptions:\n`
+        ctx.subscriptions.forEach(s => {
+            prompt += `- ${s.name}: ${formatRp(s.price)} (${s.billing}) | Next: ${s.nextDate}\n`
+        })
+    }
+
+    if (ctx.splitBills.length > 0) {
+        prompt += `\nSplit Bills:\n`
+        ctx.splitBills.forEach(b => {
+            prompt += `- ${b.title}: ${formatRp(b.totalAmount)} | Status: ${b.status} (${b.paidCount}/${b.participantCount} paid)\n`
+        })
+    }
+
     if (ctx.goalProgress.length > 0) {
         prompt += `\nGoal Progress:\n`
         ctx.goalProgress.forEach(g => prompt += `- ${g.name}: ${g.progress}%\n`)
     }
 
     prompt += `\nChallenges: ${ctx.activeChallenges} active, ${ctx.completedChallenges} completed\n`
+    if (ctx.activeChallengeDetails.length > 0) {
+        ctx.activeChallengeDetails.forEach(c => {
+            prompt += `- [ACTIVE] ${c.title}: Spent ${formatRp(c.spent)}/${formatRp(c.limit)} | ${c.daysLeft} days left\n`
+        })
+    }
+
+    if (ctx.badges.length > 0) {
+        prompt += `\nBadges/Achievements:\n`
+        ctx.badges.forEach(b => prompt += `- ${b.name}: ${b.description}\n`)
+    }
 
     if (ctx.prevMonthTopCategories.length > 0) {
         prompt += `\nLast Month Summary:\n`
@@ -220,8 +309,6 @@ export async function buildContextPrompt(ctx: FinancialContext): Promise<string>
         ctx.prevMonthTopCategories.forEach(c => {
             prompt += `  - ${c.name}: ${formatRp(c.amount)} (${c.percentage}%)\n`
         })
-    } else {
-        prompt += `\nLast Month: No transaction data available.\n`
     }
 
     if (ctx.recentTransactions.length > 0) {
@@ -236,3 +323,4 @@ export async function buildContextPrompt(ctx: FinancialContext): Promise<string>
 
     return prompt
 }
+
