@@ -7,6 +7,7 @@ import {
     TrendingDown,
     Target,
     Sparkles,
+    Rocket,
     AlertTriangle,
     Coffee,
     Gamepad2,
@@ -326,7 +327,7 @@ export default function SimulationPage() {
                     {/* Tabs */}
                     <div className="flex gap-2 @sm/main:gap-8 border-b border-slate-100 overflow-x-auto no-scrollbar">
                         {([
-                            { key: "future-me" as Tab, label: t("simulation.futureMe"), icon: Sparkles },
+                            { key: "future-me" as Tab, label: t("simulation.futureMe"), icon: Rocket },
                             { key: "trade-off" as Tab, label: t("simulation.tradeOff"), icon: Zap },
                         ]).map((t_tab) => (
                             <button
@@ -354,7 +355,7 @@ export default function SimulationPage() {
                                     <div className="flex flex-col @md/main:flex-row @md/main:items-center justify-between gap-6 mb-8 group/header">
                                         <div className="flex items-center gap-5">
                                             <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0 group-hover/header:scale-110 group-hover/header:rotate-3 transition-all duration-500">
-                                                <Sparkles className="w-7 h-7 text-white" />
+                                                <Rocket className="w-7 h-7 text-white" />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-semibold text-slate-800 tracking-tight text-xl @sm/main:text-1xl truncate">{t("simulation.futureMe")} {new Date().getFullYear() + projectionYears}</h3>

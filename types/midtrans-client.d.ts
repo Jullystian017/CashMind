@@ -42,8 +42,19 @@ declare module "midtrans-client" {
     ): Promise<TransactionResult>;
   }
 
+  interface TransactionStatusResponse {
+    transaction_status: string;
+    fraud_status: string;
+    transaction_id: string;
+    payment_type: string;
+    [key: string]: any;
+  }
+
   class CoreApi {
     constructor(options: SnapOptions);
+    transaction: {
+      status(orderId: string): Promise<TransactionStatusResponse>;
+    };
   }
 
   export default { Snap, CoreApi };

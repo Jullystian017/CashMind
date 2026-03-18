@@ -86,9 +86,26 @@ export default function CheckoutPage() {
       // Open Midtrans Snap popup
       if (window.snap) {
         window.snap.pay(data.token, {
-          onSuccess: () => {
-            setStatus("success");
-            setLoading(false);
+          onSuccess: async (result: any) => {
+            try {
+              setStatus("processing");
+              const verifyRes = await fetch("/api/payment/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ order_id: result.order_id || data.order_id }),
+              });
+              
+              if (verifyRes.ok) {
+                setStatus("success");
+              } else {
+                throw new Error("Verification failed");
+              }
+            } catch (err) {
+              setStatus("error");
+              setErrorMsg("Payment verified but failed to update status. Please contact support.");
+            } finally {
+              setLoading(false);
+            }
           },
           onPending: () => {
             setStatus("processing");

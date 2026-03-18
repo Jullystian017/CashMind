@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { chatWithMindy } from "@/lib/ai"
 import { getFinancialContext, buildContextPrompt } from "@/app/actions/ai-context"
+import { getUserPlanServer, getMonthlyAIQueryCount, isPro, AI_QUERY_LIMIT } from "@/lib/plan"
 
 function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -22,6 +23,23 @@ export async function POST(req: NextRequest) {
                 { error: "Groq API key not configured. Add GROQ_API_KEY to .env.local" },
                 { status: 500 }
             )
+        }
+
+        // Check AI query limit for Starter plan
+        const { plan, userId } = await getUserPlanServer()
+        if (!isPro(plan) && userId) {
+            const queryCount = await getMonthlyAIQueryCount(userId)
+            if (queryCount >= AI_QUERY_LIMIT) {
+                return NextResponse.json(
+                    {
+                        error: `You've reached your ${AI_QUERY_LIMIT} AI queries limit this month. Upgrade to Pro for unlimited access! 🚀`,
+                        code: "QUERY_LIMIT_REACHED",
+                        queryCount,
+                        limit: AI_QUERY_LIMIT,
+                    },
+                    { status: 403 }
+                )
+            }
         }
 
         // Hybrid approach: fetch real financial data first

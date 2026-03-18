@@ -24,11 +24,13 @@ import {
     Repeat,
     Sparkles,
     Trophy,
-    Award
+    Award,
+    Rocket
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTranslation } from "@/lib/i18n/useTranslation"
+import { getUserPlan } from "@/app/actions/payment"
 
 const getMenuCategories = (t: (key: string) => string) => [
     {
@@ -48,7 +50,7 @@ const getMenuCategories = (t: (key: string) => string) => [
     {
         title: t("dashboard.sidebarGrowth"),
         items: [
-            { name: t("dashboard.futureSimulator"), icon: Sparkles, href: "/dashboard/simulation" },
+            { name: t("dashboard.futureSimulator"), icon: Rocket, href: "/dashboard/simulation" },
             { name: t("nav.challenges"), icon: Trophy, href: "/dashboard/challenges" },
             { name: t("nav.aiAdvisor"), icon: Bot, href: "/dashboard/ai" },
         ]
@@ -84,6 +86,13 @@ export function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobile
         return () => window.removeEventListener('resize', check)
     }, [])
     const effectiveCollapsed = isMobile ? false : isCollapsed
+    const [userPlan, setUserPlan] = useState<string>("starter")
+
+    useEffect(() => {
+        getUserPlan().then(({ data }) => {
+            if (data?.plan) setUserPlan(data.plan);
+        });
+    }, []);
 
     return (
         <aside
@@ -169,7 +178,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobile
                                 {category.title}
                             </h4>
                         )}
-                        <div className="space-y-1">
+                        <div className="space-y-0.5">
                             {category.items.map((item) => {
                                 const isActive = pathname === item.href
                                 return (
@@ -177,15 +186,15 @@ export function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobile
                                         <Link
                                             href={item.href}
                                             className={cn(
-                                                "flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all group relative",
+                                                "flex items-center gap-2 px-3 py-2 rounded-xl transition-all group relative",
                                                 isActive
                                                     ? "bg-white text-blue-600 shadow-[0px_2px_8px_0px_rgba(37,99,235,0.1)] border border-blue-100/50"
                                                     : "text-gray-500 hover:bg-blue-50/50 hover:text-blue-600"
                                             )}
                                         >
-                                            <item.icon className={cn("w-5 h-5", isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600")} />
+                                            <item.icon className={cn("w-4 h-4", isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600")} />
                                             {!effectiveCollapsed && (
-                                                <span className="text-sm font-semibold tracking-tight flex-1">
+                                                <span className="text-[13px] font-semibold tracking-tight flex-1">
                                                     {item.name}
                                                 </span>
                                             )}
@@ -198,7 +207,39 @@ export function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobile
                 ))}
             </div>
 
-            {/* Bottom Menu - Removed Profile & Settings as per user request */}
+            {/* Plan Badge */}
+            <div className={cn(
+                "border-t border-gray-100 flex-shrink-0",
+                effectiveCollapsed ? "p-3" : "p-4"
+            )}>
+                {userPlan === "pro" ? (
+                    <div className={cn(
+                        "bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center gap-2 text-white",
+                        effectiveCollapsed ? "p-2.5 justify-center" : "px-4 py-3"
+                    )}>
+                        <Sparkles className="w-4 h-4 shrink-0" />
+                        {!effectiveCollapsed && (
+                            <span className="text-xs font-bold tracking-wide">Pro Plan</span>
+                        )}
+                    </div>
+                ) : (
+                    <Link
+                        href="/checkout"
+                        className={cn(
+                            "bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 rounded-2xl flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-all group",
+                            effectiveCollapsed ? "p-2.5 justify-center" : "px-4 py-3"
+                        )}
+                    >
+                        <Zap className="w-4 h-4 shrink-0 group-hover:text-blue-600 transition-colors" />
+                        {!effectiveCollapsed && (
+                            <div className="flex-1 flex items-center justify-between">
+                                <span className="text-xs font-bold tracking-wide">Starter</span>
+                                <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-lg uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">Upgrade</span>
+                            </div>
+                        )}
+                    </Link>
+                )}
+            </div>
         </aside>
     )
 }

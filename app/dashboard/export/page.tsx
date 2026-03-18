@@ -28,6 +28,8 @@ import { getExportData, type ExportTransaction } from "@/app/actions/export";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { getUserPlan } from "@/app/actions/payment";
+import { UpgradePrompt } from "@/components/upgrade-prompt";
 
 export default function ExportPage() {
     const { t, locale } = useTranslation();
@@ -39,6 +41,8 @@ export default function ExportPage() {
     const [hasDownloaded, setHasDownloaded] = useState(false);
     const [data, setData] = useState<ExportTransaction[]>([]);
     const [loading, setLoading] = useState(true);
+    const [userPlan, setUserPlan] = useState<string>("starter");
+    const [planLoading, setPlanLoading] = useState(true);
 
     const fetchDateData = async () => {
         setLoading(true);
@@ -52,6 +56,13 @@ export default function ExportPage() {
     useEffect(() => {
         fetchDateData();
     }, [selectedDate]);
+
+    useEffect(() => {
+        getUserPlan().then(({ data }) => {
+            if (data?.plan) setUserPlan(data.plan);
+            setPlanLoading(false);
+        });
+    }, []);
 
     const stats = useMemo(() => {
         const income = data.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
@@ -253,6 +264,31 @@ export default function ExportPage() {
     ];
 
     const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+
+    if (planLoading) {
+        return (
+            <div className="flex items-center justify-center py-32">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
+
+    if (userPlan !== "pro") {
+        return (
+            <div className="space-y-8 pb-24">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">{t("export.title")}</h2>
+                        <p className="text-gray-500 text-xs md:text-sm mt-1 font-medium italic">{t("export.subtitle")}</p>
+                    </div>
+                </div>
+                <UpgradePrompt
+                    feature="Export to PDF / CSV"
+                    description="Export your financial data to PDF, CSV, or JSON. Analyze your spending patterns and share reports with just one click."
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 pb-24" suppressHydrationWarning={true}>
