@@ -97,7 +97,7 @@ const expenseCategories = ["Food & Drinks", "Transport", "Shopping", "Entertainm
 const incomeCategories = ["Salary", "Bonus", "Part-time Job", "Pocket Money", "Investment", "Gift", "Others"]
 
 export default function TransactionsPage() {
-    const { t } = useTranslation()
+    const { t, locale } = useTranslation()
     const searchParams = useSearchParams()
     const urlQuery = searchParams.get('q') || ""
 
@@ -107,7 +107,19 @@ export default function TransactionsPage() {
     const now = new Date()
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth())
     const [selectedYear, setSelectedYear] = useState(now.getFullYear())
+    const [pickerYear, setPickerYear] = useState(now.getFullYear())
+    const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false)
     const mounted = useRef(true)
+
+    const months = useMemo(() => {
+        return Array.from({ length: 12 }, (_, i) => {
+            const d = new Date(pickerYear, i, 1)
+            return {
+                month: i,
+                label: d.toLocaleDateString('id-ID', { month: 'short' })
+            }
+        })
+    }, [pickerYear])
 
     const fetchTransactions = async () => {
         const { data, error } = await getTransactions()
@@ -219,18 +231,7 @@ export default function TransactionsPage() {
     const totalExpense = filteredTransactions.filter(entry => entry.type === 'expense').reduce((acc, entry) => acc + entry.amount, 0)
     const balance = totalIncome - totalExpense
 
-    const monthLabel = new Date(selectedYear, selectedMonth).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
-
-    const goToPrevMonth = () => {
-        if (selectedMonth === 0) { setSelectedMonth(11); setSelectedYear(y => y - 1) }
-        else setSelectedMonth(m => m - 1)
-        setCurrentPage(1)
-    }
-    const goToNextMonth = () => {
-        if (selectedMonth === 11) { setSelectedMonth(0); setSelectedYear(y => y + 1) }
-        else setSelectedMonth(m => m + 1)
-        setCurrentPage(1)
-    }
+    const monthLabel = new Date(selectedYear, selectedMonth).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })
 
     const formatAmountCompact = (val: number) => {
         if (Math.abs(val) >= 1000000) {
@@ -394,19 +395,100 @@ export default function TransactionsPage() {
             {/* Header Section */}
             <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">{t("transactions.title")}</h2>
+                    <div className="flex items-center gap-3">
+                        <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">{t("transactions.title")}</h2>
+                        
+                        {/* Premium Month Picker */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsMonthPickerOpen(!isMonthPickerOpen)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-500 hover:bg-white hover:border-blue-200 hover:text-blue-600 transition-all shadow-sm"
+                            >
+                                <CalendarIcon className="w-3.5 h-3.5" />
+                                <span className="capitalize">{monthLabel}</span>
+                                <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", isMonthPickerOpen && "rotate-180")} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isMonthPickerOpen && (
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsMonthPickerOpen(false)} />
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 8 }}
+                                            className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl border border-gray-100 shadow-xl z-50 overflow-hidden"
+                                        >
+                                            {/* Year Selector Header */}
+                                            <div className="flex items-center justify-between px-3 py-2 bg-gray-50/50 border-b border-gray-100">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setPickerYear(y => y - 1); }}
+                                                    className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-blue-600 transition-all"
+                                                >
+                                                    <ChevronLeft className="w-3.5 h-3.5" />
+                                                </button>
+                                                <span className="text-xs font-bold text-gray-700 tracking-tight">{pickerYear}</span>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setPickerYear(y => y + 1); }}
+                                                    className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-blue-600 transition-all"
+                                                >
+                                                    <ChevronRight className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+
+                                            {/* Months Grid */}
+                                            <div className="p-2 grid grid-cols-3 gap-1">
+                                                {months.map((m) => {
+                                                    const isSelected = selectedMonth === m.month && selectedYear === pickerYear
+                                                    const isCurrentMonth = now.getMonth() === m.month && now.getFullYear() === pickerYear
+                                                    
+                                                    return (
+                                                        <button
+                                                            key={m.month}
+                                                            onClick={() => {
+                                                                setSelectedMonth(m.month)
+                                                                setSelectedYear(pickerYear)
+                                                                setIsMonthPickerOpen(false)
+                                                                setCurrentPage(1)
+                                                            }}
+                                                            className={cn(
+                                                                "px-2 py-3 rounded-xl text-[10px] font-semibold transition-all text-center border capitalize",
+                                                                isSelected 
+                                                                    ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20" 
+                                                                    : isCurrentMonth
+                                                                        ? "bg-blue-50 text-blue-600 border-blue-100"
+                                                                        : "text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-900"
+                                                            )}
+                                                        >
+                                                            {m.label}
+                                                        </button>
+                                                    )
+                                                })}
+                                            </div>
+
+                                            {/* Quick Jumps */}
+                                            <div className="px-2 pb-2 mt-1">
+                                                <button
+                                                    onClick={() => {
+                                                        const d = new Date()
+                                                        setSelectedMonth(d.getMonth())
+                                                        setSelectedYear(d.getFullYear())
+                                                        setPickerYear(d.getFullYear())
+                                                        setIsMonthPickerOpen(false)
+                                                        setCurrentPage(1)
+                                                    }}
+                                                    className="w-full py-2 rounded-xl text-[9px] font-bold text-blue-600 bg-blue-50/50 hover:bg-blue-50 transition-colors uppercase tracking-widest"
+                                                >
+                                                    {t("common.today") || "Today"}
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    </>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
                     <p className="text-gray-500 text-sm mt-2 font-medium">{t("transactions.manageSubtitle")}</p>
-                </div>
-                
-                {/* Month Navigator */}
-                <div className="flex items-center gap-2 bg-white rounded-2xl px-2 py-1.5 border border-gray-100 shadow-sm self-center">
-                    <button onClick={goToPrevMonth} className="p-2 rounded-xl hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-colors">
-                        <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <span className="text-sm font-semibold text-gray-900 min-w-[140px] text-center capitalize">{monthLabel}</span>
-                    <button onClick={goToNextMonth} className="p-2 rounded-xl hover:bg-gray-50 text-gray-500 hover:text-gray-900 transition-colors">
-                        <ChevronRight className="w-4 h-4" />
-                    </button>
                 </div>
 
                 <div className="flex items-center gap-3">
