@@ -8,9 +8,9 @@ import { SectionBadge } from "@/components/ui/section-badge";
 
 export const CTA = () => {
     return (
-        <section className="py-24 px-4 bg-white">
+        <section className="py-16 md:py-20 px-4 bg-white">
             <div className="max-w-7xl mx-auto">
-                <div className="bg-white border border-blue-200 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl shadow-blue-500/10">
+                <div className="bg-white border border-blue-200 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-16 text-center relative overflow-hidden shadow-2xl shadow-blue-500/10">
 
                     {/* Background Shader Effect (Matching Hero, inside the Card) */}
                     <div className="absolute inset-0 z-0 pointer-events-none">
@@ -42,10 +42,10 @@ export const CTA = () => {
                     {/* Content */}
                     <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
                         <SectionBadge label="Get Started" className="mb-6" />
-                        <h2 className="text-4xl md:text-6xl font-semibold text-gray-900 tracking-tight mb-8 leading-tight">
+                        <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-tight mb-6 md:mb-8 leading-tight">
                             Start your journey to <br /> financial freedom today.
                         </h2>
-                        <p className="text-gray-500 text-lg md:text-xl font-medium mb-12 max-w-lg">
+                        <p className="text-gray-500 text-base md:text-lg font-medium mb-10 max-w-lg">
                             Join 10,000+ users who are already scaling their finances with CashMind. No credit card required.
                         </p>
 

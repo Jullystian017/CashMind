@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mail, MapPin, Clock, MessageSquare, Send, PhoneCall } from "lucide-react";
 import { SectionBadge } from "@/components/ui/section-badge";
 import { useState } from "react";
+import { submitContactForm } from "@/app/actions/contact";
 
 const contactInfo = [
     {
@@ -38,15 +39,28 @@ export default function ContactPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false);
+        
+        const form = e.currentTarget;
+        const formData = {
+            firstName: (form.elements.namedItem('firstName') as HTMLInputElement).value,
+            lastName: (form.elements.namedItem('lastName') as HTMLInputElement).value,
+            email: (form.elements.namedItem('email') as HTMLInputElement).value,
+            message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+        };
+
+        const result = await submitContactForm(formData);
+
+        setIsSubmitting(false);
+        if (result.success) {
             setIsSuccess(true);
+            form.reset();
             setTimeout(() => setIsSuccess(false), 5000);
-        }, 1500);
+        } else {
+            alert(result.error);
+        }
     };
 
     return (

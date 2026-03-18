@@ -58,20 +58,7 @@ const ScoreVisual = () => (
                 </svg>
             </div>
 
-            {/* Floating indicator */}
-            <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -right-4 sm:-right-8 top-10 bg-white p-2 sm:p-3 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-2 sm:gap-3 z-20"
-            >
-                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600" />
-                </div>
-                <div>
-                    <p className="text-[10px] text-gray-400 font-medium">Status</p>
-                    <p className="text-xs sm:text-sm font-semibold text-gray-900">Protected</p>
-                </div>
-            </motion.div>
+
         </div>
     </div>
 );
