@@ -12,7 +12,8 @@ import {
     Receipt,
     Shield,
     Clock,
-    ChevronRight
+    ChevronRight,
+    Info
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -23,8 +24,10 @@ import {
     deleteSplitBill,
     type SplitBillDetail
 } from "@/app/actions/split-bill"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 export default function SplitBillDetailPage() {
+    const { t } = useTranslation()
     const router = useRouter()
     const params = useParams()
     const billId = params.id as string
@@ -62,7 +65,7 @@ export default function SplitBillDetailPage() {
     }
 
     const handleSettle = async () => {
-        if (!confirm("Mark all participants as settled?")) return
+        if (!confirm(t("splitBillDetail.confirmSettleAll"))) return
         setSettling(true)
         await settleBill(billId)
         await fetchDetail()
@@ -70,7 +73,7 @@ export default function SplitBillDetailPage() {
     }
 
     const handleDelete = async () => {
-        if (!confirm("Delete this split bill? This cannot be undone.")) return
+        if (!confirm(t("splitBillDetail.confirmDelete"))) return
         setDeleting(true)
         await deleteSplitBill(billId)
         router.push("/dashboard/split-bill")
@@ -80,7 +83,7 @@ export default function SplitBillDetailPage() {
         return (
             <div className="flex flex-col items-center justify-center py-32 gap-3 text-gray-400">
                 <Loader2 className="w-7 h-7 animate-spin" />
-                <p className="text-xs font-medium">Loading details...</p>
+                <p className="text-xs font-medium">{t("splitBillDetail.loading")}</p>
             </div>
         )
     }
@@ -88,10 +91,10 @@ export default function SplitBillDetailPage() {
     if (!bill) {
         return (
             <div className="text-center py-32">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Split bill not found</h3>
-                <p className="text-sm text-gray-400 mb-6">It may have been deleted.</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("splitBillDetail.notFoundTitle")}</h3>
+                <p className="text-sm text-gray-400 mb-6">{t("splitBillDetail.notFoundDesc")}</p>
                 <Button onClick={() => router.push("/dashboard/split-bill")} variant="outline" className="rounded-xl">
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Go Back
+                    <ArrowLeft className="w-4 h-4 mr-2" /> {t("splitBillDetail.goBack")}
                 </Button>
             </div>
         )
@@ -105,14 +108,14 @@ export default function SplitBillDetailPage() {
     const totalPending = bill.participants.filter(p => !p.is_paid).reduce((s, p) => s + p.amount, 0)
 
     return (
-        <div className="space-y-8 pb-24 max-w-3xl" suppressHydrationWarning={true}>
+        <div className="space-y-8 pb-24 max-w-3xl mx-auto" suppressHydrationWarning={true}>
             {/* Back */}
             <button
                 onClick={() => router.push("/dashboard/split-bill")}
                 className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-gray-600 transition-colors"
             >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Split Bills
+                {t("splitBillDetail.backToSplitBills")}
             </button>
 
             {/* Header */}
@@ -124,12 +127,12 @@ export default function SplitBillDetailPage() {
                             "text-[9px] font-semibold px-2.5 py-1 rounded-lg tracking-wider",
                             isActive ? "bg-orange-50 text-orange-500" : "bg-emerald-50 text-emerald-600"
                         )}>
-                            {isActive ? "ACTIVE" : "SETTLED"}
+                            {isActive ? t("splitBillDetail.active") : t("splitBillDetail.settled")}
                         </span>
                     </div>
                     <p className="text-gray-400 text-xs font-medium">
-                        Created {new Date(bill.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        {" · "}Paid by {bill.payer === "you" ? "You" : "Friend"}
+                        {t("splitBillDetail.created")} {new Date(bill.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {" · "}{t("splitBillDetail.paidBy")} {bill.payer === "you" ? t("splitBillDetail.you") : t("splitBillDetail.friend")}
                     </p>
                 </div>
                 {isActive && (
@@ -140,7 +143,7 @@ export default function SplitBillDetailPage() {
                             className="bg-emerald-600 hover:bg-emerald-700 rounded-xl h-10 px-5 shadow-sm text-sm font-semibold"
                         >
                             {settling ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
-                            Settle All
+                            {t("splitBillDetail.settleAll")}
                         </Button>
                         <Button
                             onClick={handleDelete}
@@ -154,22 +157,33 @@ export default function SplitBillDetailPage() {
                 )}
             </div>
 
+            {/* Disclaimer */}
+            <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex items-start gap-3">
+                <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                <div>
+                    <p className="text-sm font-semibold text-blue-900">{t("splitBillDetail.goodToKnow")}</p>
+                    <p className="text-xs text-blue-700/80 mt-1 leading-snug">
+                        {t("splitBillDetail.disclaimer")}
+                    </p>
+                </div>
+            </div>
+
             {/* Overview Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Total</p>
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">{t("splitBillDetail.total")}</p>
                     <p className="text-lg font-semibold text-gray-900">{formatRp(bill.total_amount)}</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">People</p>
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">{t("splitBillDetail.people")}</p>
                     <p className="text-lg font-semibold text-gray-900">{totalParticipants + 1}</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <p className="text-[10px] font-semibold text-emerald-500 uppercase tracking-wider mb-2">Collected</p>
+                    <p className="text-[10px] font-semibold text-emerald-500 uppercase tracking-wider mb-2">{t("splitBillDetail.collected")}</p>
                     <p className="text-lg font-semibold text-emerald-600">{formatRp(totalCollected)}</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                    <p className="text-[10px] font-semibold text-orange-500 uppercase tracking-wider mb-2">Pending</p>
+                    <p className="text-[10px] font-semibold text-orange-500 uppercase tracking-wider mb-2">{t("splitBillDetail.pending")}</p>
                     <p className="text-lg font-semibold text-orange-500">{formatRp(totalPending)}</p>
                 </div>
             </div>
@@ -177,8 +191,8 @@ export default function SplitBillDetailPage() {
             {/* Progress */}
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-semibold text-gray-800">Settlement Progress</p>
-                    <p className="text-sm font-semibold text-blue-600">{paidCount}/{totalParticipants} settled</p>
+                    <p className="text-sm font-semibold text-gray-800">{t("splitBillDetail.progress")}</p>
+                    <p className="text-sm font-semibold text-blue-600">{paidCount}/{totalParticipants} {t("splitBillDetail.settledWord")}</p>
                 </div>
                 <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
                     <div
@@ -193,7 +207,7 @@ export default function SplitBillDetailPage() {
                 <div className="p-6 border-b border-gray-50">
                     <h3 className="font-semibold text-gray-800 flex items-center gap-2">
                         <Users className="w-4 h-4 text-gray-400" />
-                        Participants
+                        {t("splitBillDetail.participants")}
                     </h3>
                 </div>
                 <div className="divide-y divide-gray-50">
@@ -205,9 +219,9 @@ export default function SplitBillDetailPage() {
                             </div>
                             <div>
                                 <p className="text-sm font-semibold text-gray-900">
-                                    You {bill.payer === "you" && <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md ml-1">Payer</span>}
+                                    {t("splitBillDetail.you")} {bill.payer === "you" && <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md ml-1">{t("splitBillDetail.payer")}</span>}
                                 </p>
-                                <p className="text-[11px] text-gray-400">Your share</p>
+                                <p className="text-[11px] text-gray-400">{t("splitBillDetail.yourShare")}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -238,7 +252,7 @@ export default function SplitBillDetailPage() {
                                 <div>
                                     <p className={cn("text-sm font-semibold", p.is_paid ? "text-gray-400 line-through" : "text-gray-900")}>{p.name}</p>
                                     <p className="text-[11px] text-gray-400">
-                                        {p.is_paid ? "Settled ✓" : isActive ? "Tap to mark as settled" : "Not settled"}
+                                        {p.is_paid ? t("splitBillDetail.statusSettled") : isActive ? t("splitBillDetail.tapToSettle") : t("splitBillDetail.notSettled")}
                                     </p>
                                 </div>
                             </div>
@@ -269,7 +283,7 @@ export default function SplitBillDetailPage() {
                         className="text-sm font-medium text-gray-400 hover:text-rose-500"
                     >
                         {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                        Delete this split bill
+                        {t("splitBillDetail.deleteBill")}
                     </Button>
                 </div>
             )}

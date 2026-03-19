@@ -202,7 +202,7 @@ export function CreateSplitModal({
               {/* Split Mode & Participants */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="text-[13px] font-semibold text-gray-900 uppercase tracking-wide">Participants ({participants.length})</label>
+                  <label className="text-[13px] font-semibold text-gray-900 uppercase tracking-wide">{t("splitBillDetail.participants")} ({participants.length})</label>
                   <div className="flex bg-gray-50 p-1 rounded-lg text-[10px] font-semibold border border-gray-100">
                     <button
                       type="button"

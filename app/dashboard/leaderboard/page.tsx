@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { getIndividualLeaderboard, getCircleLeaderboard, type LeaderboardEntry, type CircleLeaderboardEntry } from "@/app/actions/leaderboard"
 import { getMyCircles } from "@/app/actions/circles"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 type Mode = "individual" | "circle"
 type Scope = "global" | "circle"
@@ -21,6 +22,7 @@ const PODIUM_CONFIG = [
 ]
 
 export default function LeaderboardPage() {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<Mode>("individual")
   const [scope, setScope] = useState<Scope>("global")
   
@@ -87,8 +89,8 @@ export default function LeaderboardPage() {
       {/* Header */}
       <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">Leaderboard</h2>
-          <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium">Financial Health Score — ranked by what truly matters</p>
+          <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">{t("leaderboard.title")}</h2>
+          <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium">{t("leaderboard.subtitle")}</p>
         </div>
       </div>
 
@@ -99,12 +101,12 @@ export default function LeaderboardPage() {
           <button onClick={() => setMode("individual")}
             className={cn("px-5 py-2 rounded-lg text-xs font-semibold transition-all flex border border-transparent items-center gap-2",
               mode === "individual" ? "bg-white text-blue-700 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-700")}>
-            <Trophy className="w-3.5 h-3.5" /> Pribadi
+            <Trophy className="w-3.5 h-3.5" /> {t("leaderboard.individual")}
           </button>
           <button onClick={() => setMode("circle")}
             className={cn("px-5 py-2 rounded-lg text-xs font-semibold transition-all flex border border-transparent items-center gap-2",
               mode === "circle" ? "bg-white text-indigo-700 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-700")}>
-            <Users className="w-3.5 h-3.5" /> Circle
+            <Users className="w-3.5 h-3.5" /> {t("leaderboard.circle")}
           </button>
         </div>
 
@@ -115,7 +117,7 @@ export default function LeaderboardPage() {
               <button key={s} onClick={() => { setScope(s); if (s === "global") setSelectedCircleId(null) }}
                 className={cn("px-5 py-2 rounded-lg text-xs font-semibold transition-all",
                   scope === s ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700")}>
-                {s === "global" ? "Global" : "My Circle"}
+                {s === "global" ? t("leaderboard.global") : t("leaderboard.myCircle")}
               </button>
             ))}
           </div>
@@ -125,7 +127,7 @@ export default function LeaderboardPage() {
         {mode === "individual" && scope === "circle" && (
           <select value={selectedCircleId || ""} onChange={(e) => setSelectedCircleId(e.target.value || null)}
             className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 outline-none focus:border-blue-400 transition-all">
-            <option value="">Select Circle</option>
+            <option value="">{t("leaderboard.selectCircle")}</option>
             {circles.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
           </select>
         )}
@@ -142,22 +144,22 @@ export default function LeaderboardPage() {
                 #{myEntry.rank}
               </div>
               <div>
-                <p className="text-xs text-white/80 font-medium">Your Position</p>
+                <p className="text-xs text-white/80 font-medium">{t("leaderboard.yourPosition")}</p>
                 <h3 className="text-xl font-bold">{myEntry.displayName}</h3>
-                <p className="text-xs text-white/80 mt-0.5">Level {myEntry.level} — {myEntry.title}</p>
+                <p className="text-xs text-white/80 mt-0.5">{t("leaderboard.level")} {myEntry.level} — {myEntry.title}</p>
               </div>
             </div>
             <div className="flex gap-4 @md:ml-auto">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
-                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">Health Score</p>
+                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">{t("leaderboard.healthScore")}</p>
                 <p className="text-lg font-bold">{myEntry.healthScore}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
-                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">Savings Rate</p>
+                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">{t("leaderboard.savingsRate")}</p>
                 <p className="text-lg font-bold">{myEntry.savingsRate}%</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-center hidden @sm:block">
-                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">Badges</p>
+                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">{t("leaderboard.badges")}</p>
                 <p className="text-lg font-bold">{myEntry.badgesCount}</p>
               </div>
             </div>
@@ -171,14 +173,14 @@ export default function LeaderboardPage() {
           className="bg-gradient-to-r from-indigo-600 to-purple-800 p-6 rounded-[28px] text-white shadow-2xl shadow-indigo-500/20 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-16 translate-x-16 blur-2xl" />
           <div className="relative z-10 flex flex-col items-start gap-2">
-            <p className="text-xs text-white/80 font-medium">Your Circle Rankings</p>
+            <p className="text-xs text-white/80 font-medium">{t("leaderboard.yourCircleRankings")}</p>
             <div className="flex flex-wrap gap-4">
                {circleEntries.filter(c => c.isYourCircle).map(c => (
                  <div key={c.circleId} className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
                     <div className="text-xl font-bold bg-white/20 w-8 h-8 flex items-center justify-center rounded-lg">#{c.rank}</div>
                     <div>
                       <h4 className="font-semibold text-sm">{c.emoji} {c.name}</h4>
-                      <p className="text-[10px] text-indigo-200">Avg Score: {c.averageHealthScore}</p>
+                      <p className="text-[10px] text-indigo-200">{t("leaderboard.avgScore")}: {c.averageHealthScore}</p>
                     </div>
                  </div>
                ))}
@@ -193,7 +195,7 @@ export default function LeaderboardPage() {
           {(mode === "individual" ? podiumOrderIndividual : podiumOrderCircle).map((entry: any, i) => {
             const config = PODIUM_CONFIG.find(c => c.rank === entry.rank) || PODIUM_CONFIG[1]
             const name = entry.displayName || `${entry.emoji} ${entry.name}`
-            const sub = mode === "individual" ? `Level ${entry.level}` : `${entry.memberCount} Members`
+            const sub = mode === "individual" ? `${t("leaderboard.level")} ${entry.level}` : `${entry.memberCount} ${t("leaderboard.members")}`
             const score = mode === "individual" ? entry.healthScore : entry.averageHealthScore
 
             return (
@@ -214,7 +216,7 @@ export default function LeaderboardPage() {
                       : "bg-gradient-to-b from-amber-100/60 to-amber-50/40 border border-amber-200/30")}>
                   <span className="text-2xl mb-1">{config.medal}</span>
                   <span className="text-xs font-bold text-gray-700">{score}</span>
-                  <span className="text-[9px] text-gray-400 font-medium">Score</span>
+                  <span className="text-[9px] text-gray-400 font-medium">{t("leaderboard.score")}</span>
                 </div>
               </motion.div>
             )
@@ -227,24 +229,24 @@ export default function LeaderboardPage() {
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Shield className="w-4 h-4 text-blue-600" />
-            <h4 className="text-sm font-semibold text-gray-900">How Financial Health Score Works</h4>
+            <h4 className="text-sm font-semibold text-gray-900">{t("leaderboard.howItWorks")}</h4>
           </div>
           <div className="grid grid-cols-4 gap-3">
             <div className="bg-emerald-50 rounded-xl p-3 text-center border border-emerald-100/50">
               <p className="text-xs font-bold text-emerald-700">40%</p>
-              <p className="text-[10px] font-semibold text-emerald-600/80 mt-0.5 uppercase tracking-wide">Savings Rate</p>
+              <p className="text-[10px] font-semibold text-emerald-600/80 mt-0.5 uppercase tracking-wide">{t("leaderboard.savingsRate")}</p>
             </div>
             <div className="bg-blue-50 rounded-xl p-3 text-center border border-blue-100/50">
               <p className="text-xs font-bold text-blue-700">20%</p>
-              <p className="text-[10px] font-semibold text-blue-600/80 mt-0.5 uppercase tracking-wide">Budgeting</p>
+              <p className="text-[10px] font-semibold text-blue-600/80 mt-0.5 uppercase tracking-wide">{t("leaderboard.budgeting")}</p>
             </div>
             <div className="bg-purple-50 rounded-xl p-3 text-center border border-purple-100/50">
               <p className="text-xs font-bold text-purple-700">20%</p>
-              <p className="text-[10px] font-semibold text-purple-600/80 mt-0.5 uppercase tracking-wide">Goal Achievement</p>
+              <p className="text-[10px] font-semibold text-purple-600/80 mt-0.5 uppercase tracking-wide">{t("leaderboard.goalAchieve")}</p>
             </div>
             <div className="bg-amber-50 rounded-xl p-3 text-center border border-amber-100/50">
               <p className="text-xs font-bold text-amber-700">20%</p>
-              <p className="text-[10px] font-semibold text-amber-600/80 mt-0.5 uppercase tracking-wide">XP & Activity</p>
+              <p className="text-[10px] font-semibold text-amber-600/80 mt-0.5 uppercase tracking-wide">{t("leaderboard.xpActivity")}</p>
             </div>
           </div>
         </div>
@@ -253,8 +255,8 @@ export default function LeaderboardPage() {
       {/* Rankings Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-gray-900">{mode === "individual" ? "User Rankings" : "Circle Rankings"}</h4>
-          <span className="text-xs text-gray-400">{mode === "individual" ? individualEntries.length + " users" : circleEntries.length + " circles"}</span>
+          <h4 className="text-sm font-semibold text-gray-900">{mode === "individual" ? t("leaderboard.userRankings") : t("leaderboard.circleRankings")}</h4>
+          <span className="text-xs text-gray-400">{mode === "individual" ? individualEntries.length + ` ${t("leaderboard.users")}` : circleEntries.length + ` ${t("leaderboard.circlesPlaceholder")}`}</span>
         </div>
         
         {mode === "individual" ? (
@@ -284,9 +286,9 @@ export default function LeaderboardPage() {
                   <div className="min-w-0">
                     <p className={cn("text-sm font-semibold truncate", entry.isCurrentUser ? "text-blue-700" : "text-gray-900")}>
                       {entry.displayName}
-                      {entry.isCurrentUser && <span className="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">YOU</span>}
+                      {entry.isCurrentUser && <span className="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">{t("leaderboard.you")}</span>}
                     </p>
-                    <p className="text-[10px] text-gray-400">Level {entry.level} • {entry.title}</p>
+                    <p className="text-[10px] text-gray-400">{t("leaderboard.level")} {entry.level} • {entry.title}</p>
                   </div>
                 </div>
 

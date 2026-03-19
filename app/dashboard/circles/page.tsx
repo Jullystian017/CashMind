@@ -15,6 +15,7 @@ import {
   createCircle, joinCircle, getMyCircles, getCircleDetail, addCircleExpense, leaveCircle, deleteCircleExpense,
   type FinanceCircle, type CircleExpense
 } from "@/app/actions/circles"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 // ─── Category Options ───
 const CATEGORIES = [
@@ -44,6 +45,7 @@ const identityConfig = {
 }
 
 export default function CirclesPage() {
+  const { t } = useTranslation()
   const [circles, setCircles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null)
@@ -195,7 +197,7 @@ export default function CirclesPage() {
               {circle.invite_code}
             </button>
             <button onClick={() => setIsAddExpenseOpen(true)} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-xl text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all">
-              <Plus className="w-4 h-4" /> Add Expense
+              <Plus className="w-4 h-4" /> {t("circles.addExpense")}
             </button>
           </div>
         </div>
@@ -208,21 +210,21 @@ export default function CirclesPage() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur text-2xl">{idc.icon}</div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-white/60">Circle Identity</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-white/60">{t("circles.circleIdentity")}</p>
                 <h3 className="text-xl font-bold">{identity.label}</h3>
               </div>
             </div>
             <div className="grid grid-cols-1 @md:grid-cols-3 gap-4 mt-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-                <p className="text-xs text-white/60 font-medium">Total Spend</p>
+                <p className="text-xs text-white/60 font-medium">{t("circles.totalSpend")}</p>
                 <p className="text-2xl font-bold mt-1">{formatRp(stats.totalSpend)}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-                <p className="text-xs text-white/60 font-medium">Essential Ratio</p>
+                <p className="text-xs text-white/60 font-medium">{t("circles.essentialRatio")}</p>
                 <p className="text-2xl font-bold mt-1">{stats.essentialRatio}%</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-                <p className="text-xs text-white/60 font-medium">Lifestyle Focus</p>
+                <p className="text-xs text-white/60 font-medium">{t("circles.lifestyleFocus")}</p>
                 <p className="text-2xl font-bold mt-1">{stats.lifestyleRatio || 0}%</p>
               </div>
             </div>
@@ -233,7 +235,7 @@ export default function CirclesPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Circle Insights</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t("circles.insights")}</h3>
           </div>
           <div className="grid grid-cols-1 @md:grid-cols-2 gap-4">
             {insights.map((insight: string, i: number) => (
@@ -254,7 +256,7 @@ export default function CirclesPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Behavioral Patterns</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t("circles.patterns")}</h3>
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50">
             {behavioralPatterns.map((pattern: string, i: number) => (
@@ -273,7 +275,7 @@ export default function CirclesPage() {
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-5">
               <PieChart className="w-4 h-4 text-gray-400" />
-              <h4 className="text-sm font-semibold text-gray-900">Spending Distribution</h4>
+              <h4 className="text-sm font-semibold text-gray-900">{t("circles.spendingDist")}</h4>
             </div>
             <div className="space-y-3">
               {stats.categoryBreakdown.slice(0, 6).map((cat: any, i: number) => (
@@ -295,12 +297,12 @@ export default function CirclesPage() {
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
             <div className="flex items-center gap-2 mb-5">
               <BarChart3 className="w-4 h-4 text-gray-400" />
-              <h4 className="text-sm font-semibold text-gray-900">Essential vs Non-Essential</h4>
+              <h4 className="text-sm font-semibold text-gray-900">{t("circles.essentialVsNon")}</h4>
             </div>
             <div className="flex items-center gap-6 mt-8">
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-emerald-600">Essential</span>
+                  <span className="text-xs font-semibold text-emerald-600">{t("circles.essential")}</span>
                   <span className="text-xs font-bold text-gray-900">{stats.essentialRatio}%</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-4">
@@ -310,7 +312,7 @@ export default function CirclesPage() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-orange-600">Non-Essential</span>
+                  <span className="text-xs font-semibold text-orange-600">{t("circles.nonEssential")}</span>
                   <span className="text-xs font-bold text-gray-900">{100 - stats.essentialRatio}%</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-4">
@@ -359,9 +361,9 @@ export default function CirclesPage() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-gray-400" />
-              <h4 className="text-sm font-semibold text-gray-900">Member Contributions</h4>
+              <h4 className="text-sm font-semibold text-gray-900">{t("circles.membersList")}</h4>
             </div>
-            <span className="text-xs text-gray-400">{members.length} members</span>
+            <span className="text-xs text-gray-400">{members.length} {t("circles.members")}</span>
           </div>
           <div className="space-y-4">
             {stats.memberSpending.map((m: any, i: number) => (
@@ -388,9 +390,9 @@ export default function CirclesPage() {
         {/* ─── Recent Expenses ─── */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
           <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-gray-900">Recent Expenses</h4>
+            <h4 className="text-sm font-semibold text-gray-900">{t("circles.recentExpenses")}</h4>
             <button onClick={() => setIsAddExpenseOpen(true)} className="text-xs font-semibold text-blue-600 hover:text-blue-700">
-              + Add
+              + {t("common.add")}
             </button>
           </div>
           <div className="divide-y divide-gray-50">
@@ -421,7 +423,7 @@ export default function CirclesPage() {
         {/* Leave Circle */}
         <div className="flex justify-center pb-8">
           <button onClick={handleLeave} className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium">
-            Leave this circle
+            {t("circles.leaveCircle")}
           </button>
         </div>
 
@@ -433,23 +435,24 @@ export default function CirclesPage() {
               <motion.div initial={{ y: 50, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 50, opacity: 0, scale: 0.95 }}
                 className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-gray-900">Add Expense</h3>
+                  <h3 className="text-lg font-bold text-gray-900">{t("circles.addExpense")}</h3>
                   <button onClick={() => setIsAddExpenseOpen(false)} className="p-2 bg-gray-50 hover:bg-gray-100 rounded-full"><X className="w-4 h-4" /></button>
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</label>
-                    <input value={expDesc} onChange={(e) => setExpDesc(e.target.value)} placeholder="What was it for?"
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("circles.description")}</label>
+                    <input value={expDesc} onChange={(e) => setExpDesc(e.target.value)} placeholder="..."
                       className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</label>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("circles.amount")}</label>
                     <input value={expAmount} onChange={(e) => handleAmountChange(e, setExpAmount)} placeholder="Rp 0"
                       className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all font-semibold" />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">Category</label>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">{t("circles.category")}</label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
+                       {/* Omit category translation to maintain functionality with db, but we translate logic UI */}
                       {CATEGORIES.map((c) => {
                         const config = categoryConfig[c] || categoryConfig["Others"]
                         const Icon = config.icon
@@ -473,13 +476,13 @@ export default function CirclesPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</label>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("circles.date")}</label>
                     <input type="date" value={expDate} onChange={(e) => setExpDate(e.target.value)}
                       className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 transition-all" />
                   </div>
                   <button onClick={handleAddExpense} disabled={!expDesc || !expAmount}
                     className="w-full mt-4 py-3.5 bg-blue-600 text-white rounded-2xl font-semibold text-sm hover:bg-blue-700 disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-lg shadow-blue-500/20">
-                    Add Expense
+                    {t("circles.addExpense")}
                   </button>
                 </div>
               </motion.div>
@@ -516,15 +519,15 @@ export default function CirclesPage() {
       {/* Header */}
       <div className="flex flex-col @md:flex-row @md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">Financial Circles</h2>
-          <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium">Collective Financial Intelligence — understand how your social circle impacts your financial future</p>
+          <h2 className="text-2xl @md:text-3xl font-semibold text-gray-900 tracking-tight">{t("circles.title")}</h2>
+          <p className="text-gray-500 text-xs @md:text-sm mt-1 font-medium">{t("circles.subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setIsJoinOpen(true)} className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 text-xs font-semibold text-gray-600 transition-all">
-            <LogIn className="w-4 h-4" /> Join Circle
+            <LogIn className="w-4 h-4" /> {t("circles.joinCircle")}
           </button>
           <button onClick={() => setIsCreateOpen(true)} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-xl text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all">
-            <Plus className="w-4 h-4" /> Create Circle
+            <Plus className="w-4 h-4" /> {t("circles.createCircle")}
           </button>
         </div>
       </div>
@@ -539,9 +542,9 @@ export default function CirclesPage() {
             <Users className="w-8 h-8 text-blue-100" />
           </div>
           <div className="text-center @md:text-left">
-            <h3 className="text-xl font-bold text-white">Collective Financial Intelligence</h3>
+            <h3 className="text-xl font-bold text-white">{t("circles.title")}</h3>
             <p className="text-sm text-blue-100/70 mt-1 max-w-lg">
-              Understand how your social circle influences your financial decisions. Get AI-powered insights, detect behavioral patterns, and simulate your financial future together.
+              {t("circles.subtitle")}
             </p>
           </div>
         </div>
@@ -553,14 +556,14 @@ export default function CirclesPage() {
           <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <Users className="w-10 h-10 text-blue-300" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Circles Yet</h3>
-          <p className="text-sm text-gray-500 max-w-sm mx-auto">Create your first Financial Circle or join one with an invite code to start tracking collective finances.</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("circles.noCircles")}</h3>
+          <p className="text-sm text-gray-500 max-w-sm mx-auto">{t("circles.createFirst")}</p>
           <div className="flex items-center justify-center gap-3 mt-6">
             <button onClick={() => setIsCreateOpen(true)} className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-semibold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20">
-              Create Circle
+              {t("circles.createCircle")}
             </button>
             <button onClick={() => setIsJoinOpen(true)} className="px-6 py-3 bg-gray-50 text-gray-700 rounded-2xl font-semibold text-sm hover:bg-gray-100 border border-gray-200 transition-all">
-              Join with Code
+              {t("circles.join")}
             </button>
           </div>
         </div>
@@ -583,7 +586,7 @@ export default function CirclesPage() {
                     <div className="text-3xl group-hover:scale-110 transition-transform">{circle.emoji}</div>
                     <div>
                       <h3 className="font-semibold text-gray-900 tracking-tight">{circle.name}</h3>
-                      <p className="text-xs text-gray-400 mt-0.5">{circle.memberCount} members</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{circle.memberCount} {t("circles.members")}</p>
                     </div>
                   </div>
                   <span className={cn("text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider", idc.badge)}>
@@ -593,7 +596,7 @@ export default function CirclesPage() {
 
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-[10px] text-gray-400 font-medium">Total Spend</p>
+                    <p className="text-[10px] text-gray-400 font-medium">{t("circles.totalSpend")}</p>
                     <p className="text-sm font-bold text-gray-900 mt-0.5">{formatRp(circle.totalSpend)}</p>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3">
@@ -603,7 +606,7 @@ export default function CirclesPage() {
                 </div>
 
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
-                  <span className="text-xs text-gray-400">View details</span>
+                  <span className="text-xs text-gray-400">{t("circles.viewDetail")}</span>
                   <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
                 </div>
               </motion.div>
@@ -623,17 +626,16 @@ export default function CirclesPage() {
                 <div className="w-16 h-16 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
                   <UserPlus className="w-8 h-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Create Financial Circle</h3>
-                <p className="text-sm text-gray-500 mt-1">Start tracking finances collectively</p>
+                <h3 className="text-xl font-bold text-gray-900">{t("circles.createCircle")}</h3>
               </div>
               <div className="space-y-5">
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Circle Name</label>
-                  <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Family Finance"
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("circles.circleName")}</label>
+                  <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="..."
                     className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Choose Emoji</label>
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Emoji</label>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {EMOJIS.map((e) => (
                       <button key={e} onClick={() => setNewEmoji(e)}
@@ -646,7 +648,7 @@ export default function CirclesPage() {
                 </div>
                 <button onClick={handleCreate} disabled={!newName.trim()}
                   className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-xl shadow-blue-500/20 mt-2">
-                  Create Circle
+                  {t("circles.create")}
                 </button>
               </div>
             </motion.div>
@@ -664,13 +666,13 @@ export default function CirclesPage() {
               <div className="w-16 h-16 bg-green-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
                 <LogIn className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Join a Circle</h3>
-              <p className="text-sm text-gray-500 mb-8">Enter the 6-character invite code</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t("circles.joinCircle")}</h3>
+              <p className="text-sm text-gray-500 mb-8">{t("circles.enterInvite")}</p>
               <input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="e.g. ABC123" maxLength={6}
                 className="w-full px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-center text-2xl font-bold tracking-[0.5em] outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all uppercase" />
               <button onClick={handleJoin} disabled={joinCode.length < 6}
                 className="w-full mt-6 py-4 bg-green-600 text-white rounded-2xl font-bold text-sm hover:bg-green-700 disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-xl shadow-green-500/20">
-                Join Circle
+                {t("circles.join")}
               </button>
             </motion.div>
           </motion.div>
