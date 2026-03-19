@@ -57,9 +57,16 @@ export default function LeaderboardPage() {
   
   const myEntry = individualEntries.find((e) => e.isCurrentUser)
 
-  // Rearrange for podium: [2nd, 1st, 3rd]
-  const podiumOrderIndividual = top3Individual.length >= 3 ? [top3Individual[1], top3Individual[0], top3Individual[2]] : top3Individual
-  const podiumOrderCircle = top3Circle.length >= 3 ? [top3Circle[1], top3Circle[0], top3Circle[2]] : top3Circle
+  // Rearrange for podium: [2nd, 1st, 3rd] if 3 entries
+  // If 2 entries: [2nd, 1st]. If 1 entry: [1st].
+  const getPodiumOrder = (top: any[]) => {
+    if (top.length === 3) return [top[1], top[0], top[2]];
+    if (top.length === 2) return [top[1], top[0]];
+    return top;
+  };
+
+  const podiumOrderIndividual = getPodiumOrder(top3Individual);
+  const podiumOrderCircle = getPodiumOrder(top3Circle);
 
   const trendIcon = (trend: string) => {
     if (trend === "up") return <TrendingUp className="w-3.5 h-3.5 text-green-500" />
@@ -181,10 +188,10 @@ export default function LeaderboardPage() {
       )}
 
       {/* Podium */}
-      {((mode === "individual" && top3Individual.length >= 3) || (mode === "circle" && top3Circle.length >= 3)) && (
+      {((mode === "individual" && top3Individual.length > 0) || (mode === "circle" && top3Circle.length > 0)) && (
         <div className="flex items-end justify-center gap-4 py-8">
           {(mode === "individual" ? podiumOrderIndividual : podiumOrderCircle).map((entry: any, i) => {
-            const config = PODIUM_CONFIG[i]
+            const config = PODIUM_CONFIG.find(c => c.rank === entry.rank) || PODIUM_CONFIG[1]
             const name = entry.displayName || `${entry.emoji} ${entry.name}`
             const sub = mode === "individual" ? `Level ${entry.level}` : `${entry.memberCount} Members`
             const score = mode === "individual" ? entry.healthScore : entry.averageHealthScore
@@ -202,8 +209,8 @@ export default function LeaderboardPage() {
                 {/* Podium Block */}
                 <div className={cn("w-24 @md:w-32 rounded-t-2xl flex flex-col items-center justify-start pt-4 relative",
                   config.height,
-                  i === 1 ? "bg-gradient-to-b from-amber-100 to-amber-50 border border-amber-200/50"
-                    : i === 0 ? "bg-gradient-to-b from-gray-100 to-gray-50 border border-gray-200/50"
+                  entry.rank === 1 ? "bg-gradient-to-b from-amber-100 to-amber-50 border border-amber-200/50"
+                    : entry.rank === 2 ? "bg-gradient-to-b from-gray-100 to-gray-50 border border-gray-200/50"
                       : "bg-gradient-to-b from-amber-100/60 to-amber-50/40 border border-amber-200/30")}>
                   <span className="text-2xl mb-1">{config.medal}</span>
                   <span className="text-xs font-bold text-gray-700">{score}</span>
