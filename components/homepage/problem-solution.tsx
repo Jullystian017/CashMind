@@ -92,7 +92,7 @@ export const ProblemSolution = () => {
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 <span className="text-red-500 font-semibold tracking-wider text-xs uppercase">The Reality</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
+            <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-tight leading-tight">
               Why Financial Independence <br className="hidden md:block" /> Feels Out of Reach
             </h2>
           </motion.div>
@@ -152,7 +152,7 @@ export const ProblemSolution = () => {
                 <ShieldCheck className="w-4 h-4 text-blue-600" />
                 <span className="text-blue-600 font-semibold tracking-wider text-xs uppercase">The Innovation</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
+            <h2 className="text-3xl md:text-5xl font-semibold text-gray-900 tracking-tight leading-tight">
               Empowering Your Wealth <br className="hidden md:block" /> with Artificial Intelligence
             </h2>
           </motion.div>
@@ -176,7 +176,7 @@ export const ProblemSolution = () => {
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 \${sol.color} relative z-10`}>
                   <sol.iconReal className={`w-7 h-7 \${sol.textColor}`} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">{sol.title}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3 relative z-10">{sol.title}</h3>
                 <p className="text-gray-600 leading-relaxed relative z-10">{sol.description}</p>
                  
                 {/* Subtle gradient hover effect */}
