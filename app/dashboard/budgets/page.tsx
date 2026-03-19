@@ -7,7 +7,7 @@ import { cn, formatRp } from "@/lib/utils"
 import {
     Wallet, UtensilsCrossed, Car, Gamepad2, ShoppingBag,
     GraduationCap, HeartPulse, Zap, Home, Smartphone, Plane,
-    Plus, Pencil, ChevronRight, AlertTriangle, CheckCircle2,
+    Plus, Pencil, ChevronRight, ChevronLeft, AlertTriangle, CheckCircle2,
     X, ReceiptText, ChevronDown, Calendar as CalendarIcon, Loader2
 } from "lucide-react"
 import { getBudgets, upsertBudget } from "@/app/actions/budgets"
@@ -100,29 +100,32 @@ export default function BudgetsPage() {
     const [mounted, setMounted] = useState(false)
     const [txLoading, setTxLoading] = useState(false)
 
-    const [currentMonthKey, setCurrentMonthKey] = useState(() => {
-        const now = new Date()
-        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-    })
+    // Sync with Transactions style states
+    const now = new Date()
+    const [selectedMonth, setSelectedMonth] = useState(now.getMonth())
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear())
+    const [pickerYear, setPickerYear] = useState(now.getFullYear())
+
+    const currentMonthKey = useMemo(() => {
+        return `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
+    }, [selectedMonth, selectedYear])
 
     const displayMonth = useMemo(() => {
-        const [year, month] = currentMonthKey.split("-").map(Number)
-        const date = new Date(year, month - 1, 1)
+        const date = new Date(selectedYear, selectedMonth, 1)
         return date.toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })
-    }, [currentMonthKey, locale])
+    }, [selectedMonth, selectedYear, locale])
 
-    const months = useMemo(() => {
-        const options = []
-        const now = new Date()
-        for (let i = -6; i <= 6; i++) {
-            const d = new Date(now.getFullYear(), now.getMonth() + i, 1)
-            options.push({
-                key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
-                label: d.toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })
-            })
-        }
-        return options
-    }, [locale])
+    // Grid-style months for the picker
+    const pickerMonths = useMemo(() => {
+        return Array.from({ length: 12 }, (_, i) => {
+            const d = new Date(pickerYear, i, 1)
+            return {
+                month: i,
+                label: d.toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { month: 'short' })
+            }
+        })
+    }, [pickerYear, locale])
+
 
     const fetchData = async () => {
         setLoading(true)
@@ -211,11 +214,11 @@ export default function BudgetsPage() {
                             <div className="relative">
                                 <button
                                     onClick={() => setIsMonthPickerOpen(!isMonthPickerOpen)}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-[10px] @md:text-xs font-semibold text-gray-500 hover:bg-white hover:border-blue-200 hover:text-blue-600 transition-all shadow-sm"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-100 text-[10px] @md:text-xs font-semibold text-gray-500 hover:bg-white hover:border-blue-200 hover:text-blue-600 transition-all shadow-sm active:scale-95"
                                 >
-                                    <CalendarIcon className="w-3 h-3" />
-                                    {displayMonth}
-                                    <ChevronDown className={cn("w-3 h-3 transition-transform duration-200", isMonthPickerOpen && "rotate-180")} />
+                                    <CalendarIcon className="w-3 h-3 text-gray-400" />
+                                    <span className="capitalize leading-none">{displayMonth}</span>
+                                    <ChevronDown className={cn("w-3 h-3 transition-transform duration-200 text-gray-400", isMonthPickerOpen && "rotate-180")} />
                                 </button>
 
                                 <AnimatePresence>
@@ -226,24 +229,70 @@ export default function BudgetsPage() {
                                                 initial={{ opacity: 0, y: 8 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: 8 }}
-                                                className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl border border-gray-100 shadow-xl z-50 overflow-hidden py-1"
+                                                className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl border border-gray-100 shadow-xl z-50 overflow-hidden"
                                             >
-                                                {months.map((m) => (
+                                                {/* Year Selector Header */}
+                                                <div className="flex items-center justify-between px-3 py-2 bg-gray-50/50 border-b border-gray-100">
                                                     <button
-                                                        key={m.key}
-                                                        onClick={() => {
-                                                            setCurrentMonthKey(m.key)
+                                                        onClick={(e) => { e.stopPropagation(); setPickerYear(y => y - 1); }}
+                                                        className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-blue-600 transition-all"
+                                                    >
+                                                        <ChevronLeft className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <span className="text-xs font-bold text-gray-700 tracking-tight">{pickerYear}</span>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setPickerYear(y => y + 1); }}
+                                                        className="p-1.5 rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-blue-600 transition-all"
+                                                    >
+                                                        <ChevronRight className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+
+                                                {/* Months Grid */}
+                                                <div className="p-2 grid grid-cols-3 gap-1">
+                                                    {pickerMonths.map((m) => {
+                                                        const isSelected = selectedMonth === m.month && selectedYear === pickerYear
+                                                        const isCurrentMonth = now.getMonth() === m.month && now.getFullYear() === pickerYear
+                                                        
+                                                        return (
+                                                            <button
+                                                                key={m.month}
+                                                                onClick={() => {
+                                                                    setSelectedMonth(m.month)
+                                                                    setSelectedYear(pickerYear)
+                                                                    setIsMonthPickerOpen(false)
+                                                                }}
+                                                                className={cn(
+                                                                    "px-2 py-3 rounded-xl text-[10px] font-semibold transition-all text-center border capitalize",
+                                                                    isSelected 
+                                                                        ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20" 
+                                                                        : isCurrentMonth
+                                                                            ? "bg-blue-50 text-blue-600 border-blue-100"
+                                                                            : "text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-900"
+                                                                )}
+                                                            >
+                                                                {m.label}
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
+
+                                                {/* Quick Jumps */}
+                                                <div className="px-2 pb-2 mt-1">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            const d = new Date()
+                                                            setSelectedMonth(d.getMonth())
+                                                            setSelectedYear(d.getFullYear())
+                                                            setPickerYear(d.getFullYear())
                                                             setIsMonthPickerOpen(false)
                                                         }}
-                                                        className={cn(
-                                                            "w-full px-4 py-2.5 text-left text-sm transition-colors flex items-center justify-between",
-                                                            currentMonthKey === m.key ? "bg-blue-50 text-blue-600 font-semibold" : "text-gray-600 hover:bg-gray-50 font-medium"
-                                                        )}
+                                                        className="w-full py-2 rounded-xl text-[9px] font-bold text-blue-600 bg-blue-50/50 hover:bg-blue-50 transition-colors uppercase tracking-widest"
                                                     >
-                                                        {m.label}
-                                                        {currentMonthKey === m.key && <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />}
+                                                        {t("common.today") || "Today"}
                                                     </button>
-                                                ))}
+                                                </div>
                                             </motion.div>
                                         </>
                                     )}
@@ -468,55 +517,57 @@ export default function BudgetsPage() {
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 className="fixed inset-0 z-[210] flex items-center justify-center p-4"
                             >
-                                <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div
-                                            className="w-10 h-10 rounded-2xl flex items-center justify-center"
-                                            style={{ backgroundColor: `${editingBudget.color}15`, color: editingBudget.color }}
-                                        >
-                                            <editingBudget.icon className="w-5 h-5" />
+                                {editingBudget && (
+                                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div
+                                                className="w-10 h-10 rounded-2xl flex items-center justify-center"
+                                                style={{ backgroundColor: `${editingBudget.color}15`, color: editingBudget.color }}
+                                            >
+                                                <editingBudget.icon className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-base font-semibold text-gray-900">{t("budgets.editBudget")}</h3>
+                                                <p className="text-[10px] font-semibold text-gray-400">{getCategoryLabel(editingBudget.name)}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="text-base font-semibold text-gray-900">{t("budgets.editBudget")}</h3>
-                                            <p className="text-[10px] font-semibold text-gray-400">{getCategoryLabel(editingBudget.name)}</p>
-                                        </div>
-                                    </div>
 
-                                    <div className="mb-2">
-                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2">{t("budgets.setLimit")} (Rp)</label>
-                                        <div className="relative">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                value={editDisplayValue}
-                                                onChange={(e) => {
-                                                    setEditDisplayValue(formatThousands(e.target.value))
-                                                }}
-                                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-lg font-semibold text-gray-900 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all"
-                                                placeholder="2.000.000"
-                                            />
+                                        <div className="mb-2">
+                                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-2">{t("budgets.setLimit")} (Rp)</label>
+                                            <div className="relative">
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">Rp</span>
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    value={editDisplayValue}
+                                                    onChange={(e) => {
+                                                        setEditDisplayValue(formatThousands(e.target.value))
+                                                    }}
+                                                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-lg font-semibold text-gray-900 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                                    placeholder="2.000.000"
+                                                />
+                                            </div>
+                                            <p className="text-[10px] font-medium text-gray-400 mt-2">
+                                                {t("budgets.spent")}: <span className="font-semibold text-gray-600">{formatRp(editingBudget.spent)}</span>
+                                            </p>
                                         </div>
-                                        <p className="text-[10px] font-medium text-gray-400 mt-2">
-                                            {t("budgets.spent")}: <span className="font-semibold text-gray-600">{formatRp(editingBudget.spent)}</span>
-                                        </p>
-                                    </div>
 
-                                    <div className="flex gap-3 mt-6">
-                                        <button
-                                            onClick={() => setEditingBudget(null)}
-                                            className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
-                                        >
-                                            {t("common.cancel")}
-                                        </button>
-                                        <button
-                                            onClick={handleSaveEdit}
-                                            className="flex-1 px-4 py-2.5 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
-                                        >
-                                            {t("common.save")}
-                                        </button>
+                                        <div className="flex gap-3 mt-6">
+                                            <button
+                                                onClick={() => setEditingBudget(null)}
+                                                className="flex-1 px-4 py-2.5 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+                                            >
+                                                {t("common.cancel")}
+                                            </button>
+                                            <button
+                                                onClick={handleSaveEdit}
+                                                className="flex-1 px-4 py-2.5 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
+                                            >
+                                                {t("common.save")}
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </motion.div>
                         </>
                     )}
