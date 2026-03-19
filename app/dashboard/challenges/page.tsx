@@ -11,6 +11,7 @@ import {
   cancelChallenge,
   getUserBadges,
   getUserXpAndLevel,
+  generateAIChallenge,
   type ChallengeTemplate,
   type UserBadge,
 } from "@/app/actions/challenges";
@@ -48,6 +49,7 @@ export default function ChallengesPage() {
   const [selectedChallenge, setSelectedChallenge] = useState<any | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -110,6 +112,24 @@ export default function ChallengesPage() {
       showToast(t("common.cancel"));
       setSelectedChallenge(null);
       await fetchAll();
+    }
+  };
+  
+  const handleGenerateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const { data, error } = await generateAIChallenge();
+      if (error) {
+        showToast(`❌ ${error}`);
+      } else if (data) {
+        showToast(`✨ ${t("challenges.mindyTitle")} ${t("common.success")}`);
+        setIsGenerateModalOpen(false);
+        await fetchAll();
+      }
+    } catch (err) {
+      showToast("❌ Unexpected error");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -567,10 +587,18 @@ export default function ChallengesPage() {
               </p>
               <div className="space-y-4">
                 <button
-                  onClick={() => { setIsGenerateModalOpen(false); showToast("✨ " + t("ai.thinking")); }}
-                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl active:scale-[0.98]"
+                  onClick={handleGenerateAI}
+                  disabled={isGenerating}
+                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-xl active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70"
                 >
-                  {t("challenges.generate")}
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      {t("ai.thinking")}...
+                    </>
+                  ) : (
+                    t("challenges.generate")
+                  )}
                 </button>
                 <button
                   onClick={() => setIsGenerateModalOpen(false)}

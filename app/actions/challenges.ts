@@ -2,6 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createNotification } from "@/app/actions/notifications";
+import { getFinancialContext, buildContextPrompt } from "@/app/actions/ai-context";
+import { chatWithMindy } from "@/lib/ai";
 
 // ─── Types ───
 export type ChallengeTemplate = {
@@ -122,6 +124,100 @@ export async function getChallengeTemplates(): Promise<{ data: ChallengeTemplate
 
     if (error) return { data: null, error: error.message };
     return { data: data as ChallengeTemplate[], error: null };
+}
+
+/**
+ * Generate a personalized AI challenge using Mindy AI
+ */
+export async function generateAIChallenge(): Promise<{ data: ChallengeTemplate | null; error: string | null }> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { data: null, error: "Not authenticated" };
+
+    // 1. Check restriction: One week limit
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("last_ai_challenge_at")
+        .eq("id", user.id)
+        .single();
+
+    if (profile?.last_ai_challenge_at) {
+        const lastGen = new Date(profile.last_ai_challenge_at);
+        const now = new Date();
+        const diffMs = now.getTime() - lastGen.getTime();
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+        if (diffDays < 7) {
+            const remaining = Math.ceil(7 - diffDays);
+            return { 
+                data: null, 
+                error: `Mindy is still analyzing your recent data. Please come back in ${remaining} ${remaining === 1 ? 'day' : 'days'} for a new challenge!` 
+            };
+        }
+    }
+
+    // 2. Gather context
+    const contextRes = await getFinancialContext();
+    if (contextRes.error || !contextRes.data) return { data: null, error: "Cloud not gather financial data for Mindy" };
+    
+    const contextPrompt = await buildContextPrompt(contextRes.data);
+
+    // 3. Prompt AI
+    const systemPrompt = `You are a specialized JSON generator for financial challenges. 
+Return ONLY a raw JSON object with NO markdown formatting or commentary.
+The JSON must follow this exact structure:
+{
+  "title": "Short catchy title",
+  "difficulty": "EASY" | "MEDIUM" | "HARD",
+  "xp_reward": number (50 for EASY, 120 for MEDIUM, 300 for HARD),
+  "category": "Food & Drinks" | "Transport" | "Shopping" | "Entertainment" | "Utilities",
+  "limit_amount": number (integer, realistic target based on spending history),
+  "duration_days": 7,
+  "description": "Short encouraging description"
+}`;
+
+    const userPrompt = `${contextPrompt}\n\nBased on my spending habits above, generate ONE unique and personalized financial challenge for next week. Focus on my highest spending category to help me save.`;
+
+    try {
+        const aiResponse = await chatWithMindy([
+            { role: "user", text: userPrompt }
+        ], systemPrompt);
+
+        // Sanitize response (remove markdown if any)
+        const jsonStr = aiResponse.replace(/```json\s*/g, '').replace(/```/g, '').trim();
+        const challengeData = JSON.parse(jsonStr);
+
+        // 4. Insert into challenge_templates
+        const { data: newTpl, error: insErr } = await supabase
+            .from("challenge_templates")
+            .insert({
+                title: challengeData.title,
+                difficulty: challengeData.difficulty,
+                xp_reward: challengeData.xp_reward,
+                category: challengeData.category,
+                limit_amount: challengeData.limit_amount,
+                duration_days: challengeData.duration_days,
+                description: challengeData.description,
+                is_ai_generated: true,
+                user_id: user.id
+            })
+            .select()
+            .single();
+
+        if (insErr) return { data: null, error: insErr.message };
+
+        // 5. Update last_ai_challenge_at
+        await supabase
+            .from("profiles")
+            .update({ last_ai_challenge_at: new Date().toISOString() })
+            .eq("id", user.id);
+
+        return { data: newTpl as ChallengeTemplate, error: null };
+
+    } catch (err: any) {
+        console.error("AI Challenge Generation Error:", err);
+        return { data: null, error: "Mindy is feeling a bit tired. Please try again in a moment." };
+    }
 }
 
 /**
