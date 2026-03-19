@@ -12,7 +12,7 @@ const contactInfo = [
     {
         icon: Mail,
         title: "Email Us",
-        details: "jullystian01@gmail.com",
+        details: "cashmind@gmail.com",
         subDetails: "We'll respond within 24 hours.",
         color: "text-blue-600",
         bg: "bg-blue-50",

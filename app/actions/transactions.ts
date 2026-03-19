@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { checkTransactionAnomaly } from "./anomaly";
 
 export type TransactionStatus = "success" | "pending" | "failed";
 export type TransactionType = "income" | "expense";
@@ -89,6 +90,16 @@ export async function createTransaction(input: {
     .single();
 
   if (error) return { data: null, error: error.message };
+
+  // Fire-and-forget: run anomaly detection for expense transactions
+  if (input.type === "expense" && user.id && data) {
+    checkTransactionAnomaly(user.id, {
+      amount: input.amount,
+      category: input.category,
+      date: input.date,
+    }).catch(() => {}); // silently ignore errors
+  }
+
   return { data: rowToTransaction(data as TransactionRow), error: null };
 }
 

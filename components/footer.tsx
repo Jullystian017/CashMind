@@ -50,7 +50,7 @@ export function Footer() {
                                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
                                     <Mail className="w-4 h-4 text-blue-600" />
                                 </div>
-                                jullystian01@gmail.com
+                                cashmind@gmail.com
                             </li>
                             <li className="flex items-center gap-3 text-gray-500 text-sm font-medium">
                                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">

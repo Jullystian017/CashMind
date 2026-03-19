@@ -43,6 +43,7 @@ import { useSearchParams } from "next/navigation"
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction } from "@/app/actions/transactions"
 import { parseReceipt } from "@/app/actions/ocr"
 import { useTranslation } from "@/lib/i18n/useTranslation"
+import { suggestCategory } from "@/lib/smart-categorize"
 
 // Types
 type TransactionStatus = 'success' | 'pending' | 'failed'
@@ -174,6 +175,7 @@ export default function TransactionsPage() {
     const [category, setCategory] = useState(expenseCategories[0])
     const [date, setDate] = useState(new Date().toISOString().split('T')[0])
     const [note, setNote] = useState("")
+    const [isAutoDetected, setIsAutoDetected] = useState(false)
 
     // Reset Form
     const resetForm = () => {
@@ -184,6 +186,7 @@ export default function TransactionsPage() {
         setCategory(expenseCategories[0])
         setDate(new Date().toISOString().split('T')[0])
         setNote("")
+        setIsAutoDetected(false)
     }
 
     // Effect to switch default category when type changes
@@ -192,6 +195,16 @@ export default function TransactionsPage() {
             setCategory(type === 'expense' ? expenseCategories[0] : incomeCategories[0])
         }
     }, [type, editingTransaction])
+
+    // Smart Auto-Categorization: suggest category from description
+    useEffect(() => {
+        if (editingTransaction || type !== 'expense') return
+        const suggested = suggestCategory(description)
+        if (suggested && expenseCategories.includes(suggested)) {
+            setCategory(suggested)
+            setIsAutoDetected(true)
+        }
+    }, [description, type, editingTransaction])
 
     // Load editing data
     useEffect(() => {
@@ -386,6 +399,7 @@ export default function TransactionsPage() {
                         
                         if (expenseCategories.includes(result.data.category)) {
                             setCategory(result.data.category)
+                            setIsAutoDetected(true)
                         } else {
                             setCategory("Others")
                         }
@@ -533,7 +547,7 @@ export default function TransactionsPage() {
                             </AnimatePresence>
                         </div>
                     </div>
-                    <p className="text-gray-500 text-sm mt-2 font-medium">{t("transactions.manageSubtitle")}</p>
+                    <p className="text-gray-500 text-sm mt-2 font-medium whitespace-nowrap"> {t("transactions.manageSubtitle")}</p>
                 </div>
 
                 <div className="flex items-center justify-end w-full">
@@ -1091,7 +1105,14 @@ export default function TransactionsPage() {
 
                                     {/* Category Selection */}
                                     <div>
-                                        <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 block mb-3 px-1">{t("dashboard.topCategories")}</label>
+                                        <div className="flex items-center gap-2 mb-3 px-1">
+                                            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">{t("dashboard.topCategories")}</label>
+                                            {isAutoDetected && (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 border border-blue-100 text-[9px] font-semibold text-blue-600 animate-in fade-in">
+                                                    <span>✨</span> Auto-detected
+                                                </span>
+                                            )}
+                                        </div>
                                         <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                                             {(type === 'expense' ? expenseCategories : incomeCategories).map((c: string) => {
                                                 const config = categoryConfig[c] || categoryConfig["Others"]
@@ -1101,7 +1122,7 @@ export default function TransactionsPage() {
                                                 return (
                                                     <button
                                                         key={c}
-                                                        onClick={() => setCategory(c)}
+                                                        onClick={() => { setCategory(c); setIsAutoDetected(false); }}
                                                         className={cn(
                                                             "flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all",
                                                             isSelected
