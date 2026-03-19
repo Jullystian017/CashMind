@@ -349,7 +349,7 @@ export default function DeepChatPage() {
                             </div>
                             <div>
                                 <h2 className="text-sm md:text-lg font-semibold text-gray-900 tracking-tight leading-tight">Mindy AI</h2>
-                                <p className="text-[10px] font-semibold text-green-500 uppercase tracking-wider">{t("ai.online")}</p>
+                                {/* Removed online status as per user request */}
                             </div>
                         </div>
                     </div>
@@ -370,19 +370,18 @@ export default function DeepChatPage() {
                                 </p>
 
                                 <div className="grid grid-cols-1 @sm:grid-cols-2 gap-4 w-full max-w-lg px-4 pb-12">
-                                    {quickActions.map((action) => (
-                                        <button
-                                            key={action.key}
-                                            onClick={() => sendMessage(t(`ai.quickActions.${action.key}`))}
-                                            className="flex flex-col items-start p-6 rounded-[24px] bg-white border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all text-left group active:scale-[0.98]"
-                                        >
-                                            <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mb-4 group-hover:bg-blue-100 transition-colors shadow-sm">
-                                                <action.icon className="w-6 h-6" />
-                                            </div>
-                                            <p className="text-sm md:text-base font-bold text-gray-800 mb-1 leading-tight">{t(`ai.quickActions.${action.key}`)}</p>
-                                            <p className="text-[11px] md:text-xs text-gray-400 font-semibold leading-relaxed line-clamp-2">{t(`ai.quickActions.${action.key}Desc`)}</p>
-                                        </button>
-                                    ))}
+                                {quickActions.map((action) => (
+                                    <button
+                                        key={action.key}
+                                        onClick={() => sendMessage(t(`ai.quickActions.${action.key}`))}
+                                        className="flex flex-row items-center gap-4 p-5 rounded-[22px] bg-white border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all text-left group active:scale-[0.98]"
+                                    >
+                                        <div className="w-10 h-10 shrink-0 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors shadow-sm">
+                                            <action.icon className="w-5 h-5" />
+                                        </div>
+                                        <p className="text-sm md:text-[15px] font-semibold text-gray-800 leading-tight">{t(`ai.quickActions.${action.key}`)}</p>
+                                    </button>
+                                ))}
                                 </div>
                             </div>
                         ) : (

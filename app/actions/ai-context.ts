@@ -25,6 +25,8 @@ export interface FinancialContext {
     splitBills: { title: string; totalAmount: number; status: string; participantCount: number; paidCount: number }[]
     badges: { name: string; description: string }[]
     activeChallengeDetails: { title: string; category: string; limit: number; spent: number; daysLeft: number }[]
+    // Circles
+    circles: { name: string; memberCount: number; totalSpend: number; identity: string }[]
 }
 
 export async function getFinancialContext(): Promise<{
@@ -53,7 +55,8 @@ export async function getFinancialContext(): Promise<{
             recentRes,
             subsRes,
             splitRes,
-            badgesRes
+            badgesRes,
+            circlesRes
         ] = await Promise.all([
             supabase.from("transactions").select("amount, type, category").eq("user_id", user.id).gte("date", firstDayCurrent),
             supabase.from("transactions").select("amount, type, category").eq("user_id", user.id).gte("date", firstDayPrev).lte("date", lastDayPrev),
@@ -64,7 +67,8 @@ export async function getFinancialContext(): Promise<{
             supabase.from("transactions").select("description, amount, type, category, date").eq("user_id", user.id).order("date", { ascending: false }).limit(15),
             supabase.from("subscriptions").select("name, price, billing, next_date").eq("user_id", user.id),
             supabase.from("split_bills").select("id, title, total_amount, status").eq("user_id", user.id),
-            supabase.from("user_badges").select("name, description").eq("user_id", user.id)
+            supabase.from("user_badges").select("name, description").eq("user_id", user.id),
+            supabase.from("circle_members").select("circle_id, finance_circles(name, monthly_budget)").eq("user_id", user.id)
         ])
 
         const txs = txsRes.data || []
@@ -210,6 +214,22 @@ export async function getFinancialContext(): Promise<{
             }
         })
 
+        // Circles Summary
+        const circlesRaw = (circlesRes.data || []) as any[]
+        const circles = await Promise.all(circlesRaw.map(async (c) => {
+            const circle = c.finance_circles
+            const { data: expenses } = await supabase.from("circle_expenses").select("amount").eq("circle_id", c.circle_id)
+            const { count: memberCount } = await supabase.from("circle_members").select("id", { count: 'exact' }).eq("circle_id", c.circle_id)
+            const totalSpend = (expenses || []).reduce((sum, e) => sum + Number(e.amount), 0)
+            
+            return {
+                name: circle.name,
+                memberCount: memberCount || 0,
+                totalSpend,
+                identity: totalSpend > (circle.monthly_budget || 0) ? "High Spend" : "Balanced"
+            }
+        }))
+
         return {
             data: {
                 totalBalance,
@@ -238,7 +258,8 @@ export async function getFinancialContext(): Promise<{
                 subscriptions,
                 splitBills,
                 badges: badgesRes.data || [],
-                activeChallengeDetails
+                activeChallengeDetails,
+                circles
             },
             error: null
         }
@@ -299,6 +320,13 @@ export async function buildContextPrompt(ctx: FinancialContext): Promise<string>
     if (ctx.badges.length > 0) {
         prompt += `\nBadges/Achievements:\n`
         ctx.badges.forEach(b => prompt += `- ${b.name}: ${b.description}\n`)
+    }
+
+    if (ctx.circles.length > 0) {
+        prompt += `\nFinancial Circles (Group spending):\n`
+        ctx.circles.forEach(c => {
+            prompt += `- ${c.name}: ${c.memberCount} members | Total shared spend: ${formatRp(c.totalSpend)} | Identity: ${c.identity}\n`
+        })
     }
 
     if (ctx.prevMonthTopCategories.length > 0) {
