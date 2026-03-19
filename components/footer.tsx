@@ -30,16 +30,10 @@ export function Footer() {
                         <p className="text-gray-500 text-sm leading-relaxed mb-8 max-w-sm">
                             Smart fintech solution for students and young professionals to manage their pocket money, track expenses, and plan their financial future.
                         </p>
-                        <div className="flex gap-3">
-                            {/* Interactive Social Icons */}
-                            <a href="https://github.com/Jullystian017/CashMind" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-900 hover:text-white transition-all duration-300 hover:-translate-y-1 shadow-sm">
-                                <Github className="w-4 h-4" />
-                            </a>
-                        </div>
                     </div>
 
                     {/* Links Columns */}
-                    <div className="md:col-span-4 lg:col-span-2 lg:col-start-6">
+                    <div className="md:col-span-6 lg:col-span-2 lg:col-start-8">
                         <h4 className="font-semibold text-gray-900 mb-6">Discovery</h4>
                         <ul className="space-y-4">
                             <li><Link href="/about" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">About Us</Link></li>
@@ -49,17 +43,7 @@ export function Footer() {
                         </ul>
                     </div>
 
-                    <div className="md:col-span-4 lg:col-span-2">
-                        <h4 className="font-semibold text-gray-900 mb-6">Product</h4>
-                        <ul className="space-y-4">
-                            <li><Link href="/dashboard" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">Dashboard</Link></li>
-                            <li><Link href="#" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">Budget Planner</Link></li>
-                            <li><Link href="#" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">Savings Goals</Link></li>
-                            <li><Link href="#" className="text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block text-sm font-medium transition-all">AI Coach (Mindy)</Link></li>
-                        </ul>
-                    </div>
-
-                    <div className="md:col-span-4 lg:col-span-3">
+                    <div className="md:col-span-6 lg:col-span-3 lg:col-start-10">
                         <h4 className="font-semibold text-gray-900 mb-6">Contact</h4>
                         <ul className="space-y-4">
                             <li className="flex items-center gap-3 text-gray-500 text-sm font-medium">
@@ -69,14 +53,14 @@ export function Footer() {
                                 jullystian01@gmail.com
                             </li>
                             <li className="flex items-center gap-3 text-gray-500 text-sm font-medium">
-                                <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-                                    <Phone className="w-4 h-4 text-emerald-600" />
+                                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                                    <Phone className="w-4 h-4 text-blue-600" />
                                 </div>
                                 +62 857-9805-1625
                             </li>
                             <li className="flex items-center gap-3 text-gray-500 text-sm font-medium">
-                                <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
-                                    <MapPin className="w-4 h-4 text-indigo-600" />
+                                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                                    <MapPin className="w-4 h-4 text-blue-600" />
                                 </div>
                                 Banyumas, Jawa Tengah
                             </li>
