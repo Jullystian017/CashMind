@@ -117,9 +117,13 @@ export async function checkTransactionAnomaly(
         title: alert.title,
         message: alert.message,
       });
+      return { alert };
     }
+
+    return null;
   } catch (error) {
     // Silently fail — anomaly detection should never break the main flow
     console.error("Anomaly detection error:", error);
+    return null;
   }
 }

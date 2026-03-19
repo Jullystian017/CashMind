@@ -65,7 +65,7 @@ export async function createTransaction(input: {
   paymentMethod: string;
   note?: string;
   goalId?: string;
-}): Promise<{ data: ReturnType<typeof rowToTransaction> | null; error: string | null }> {
+}): Promise<{ data: ReturnType<typeof rowToTransaction> | null; error: string | null; anomalyAlert?: { title: string; message: string } | null }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -91,16 +91,20 @@ export async function createTransaction(input: {
 
   if (error) return { data: null, error: error.message };
 
-  // Fire-and-forget: run anomaly detection for expense transactions
+  // Run anomaly detection for expense transactions
+  let anomalyAlert: { title: string; message: string } | null = null;
   if (input.type === "expense" && user.id && data) {
-    checkTransactionAnomaly(user.id, {
-      amount: input.amount,
-      category: input.category,
-      date: input.date,
-    }).catch(() => {}); // silently ignore errors
+    try {
+      const result = await checkTransactionAnomaly(user.id, {
+        amount: input.amount,
+        category: input.category,
+        date: input.date,
+      });
+      if (result?.alert) anomalyAlert = result.alert;
+    } catch { /* silently ignore */ }
   }
 
-  return { data: rowToTransaction(data as TransactionRow), error: null };
+  return { data: rowToTransaction(data as TransactionRow), error: null, anomalyAlert };
 }
 
 export async function updateTransaction(

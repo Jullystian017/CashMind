@@ -51,6 +51,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
     const [notifications, setNotifications] = useState<Notification[]>([])
     const [notificationsLoading, setNotificationsLoading] = useState(false)
+    const [expandedNotifId, setExpandedNotifId] = useState<string | null>(null)
     const [user, setUser] = useState<AuthUser | null>(null)
     const mounted = useMounted()
 
@@ -404,9 +405,12 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                             notifications.map((n) => (
                                                 <div
                                                     key={n.id}
-                                                    onClick={() => handleMarkAsRead(n.id)}
+                                                    onClick={() => {
+                                                        handleMarkAsRead(n.id)
+                                                        setExpandedNotifId(prev => prev === n.id ? null : n.id)
+                                                    }}
                                                     className={cn(
-                                                        "flex gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0",
+                                                        "flex gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-all border-b border-gray-50 last:border-0",
                                                         !n.is_read && "bg-blue-50/50"
                                                     )}
                                                 >
@@ -424,7 +428,10 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className={cn("text-sm font-medium", !n.is_read && "font-semibold text-gray-900")}>{n.title}</p>
-                                                        <p className="text-xs text-gray-500 truncate">{n.message}</p>
+                                                        <p className={cn(
+                                                            "text-xs text-gray-500 transition-all",
+                                                            expandedNotifId === n.id ? "" : "line-clamp-2"
+                                                        )}>{n.message}</p>
                                                         <p className="text-[10px] text-gray-400 mt-0.5">
                                                             {new Date(n.created_at).toLocaleDateString()}
                                                         </p>

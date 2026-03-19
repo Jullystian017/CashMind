@@ -35,7 +35,8 @@ import {
     UploadCloud,
     Loader2,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    AlertTriangle
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, formatRp } from "@/lib/utils"
@@ -176,6 +177,7 @@ export default function TransactionsPage() {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0])
     const [note, setNote] = useState("")
     const [isAutoDetected, setIsAutoDetected] = useState(false)
+    const [anomalyToast, setAnomalyToast] = useState<{ title: string; message: string } | null>(null)
 
     // Reset Form
     const resetForm = () => {
@@ -297,7 +299,7 @@ export default function TransactionsPage() {
                 resetForm()
             }
         } else {
-            const { data: newT, error: err } = await createTransaction({
+            const { data: newT, error: err, anomalyAlert } = await createTransaction({
                 description,
                 amount: amountNum,
                 category,
@@ -311,6 +313,11 @@ export default function TransactionsPage() {
                 setTransactions(prev => [newT, ...prev])
                 setIsModalOpen(false)
                 resetForm()
+                // Show anomaly alert toast if detected
+                if (anomalyAlert) {
+                    setAnomalyToast(anomalyAlert)
+                    setTimeout(() => setAnomalyToast(null), 8000)
+                }
             }
         }
     }
@@ -1171,6 +1178,46 @@ export default function TransactionsPage() {
                     )
                 }
             </AnimatePresence >
+
+            {/* Anomaly Alert Toast */}
+            <AnimatePresence>
+                {anomalyToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 80, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 80, scale: 0.95 }}
+                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                        className="fixed bottom-6 right-6 z-[200] w-full max-w-sm"
+                    >
+                        <div className="bg-white rounded-2xl border border-amber-200 shadow-2xl shadow-amber-500/10 overflow-hidden">
+                            <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-5 py-3 flex items-center gap-3 border-b border-amber-100">
+                                <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                                </div>
+                                <p className="text-sm font-semibold text-amber-900 flex-1">{anomalyToast.title.replace(/^[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}⚠️🚨📊]/u, '').trim()}</p>
+                                <button
+                                    onClick={() => setAnomalyToast(null)}
+                                    className="p-1.5 hover:bg-amber-200/50 rounded-lg transition-colors"
+                                >
+                                    <X className="w-4 h-4 text-amber-600" />
+                                </button>
+                            </div>
+                            <div className="px-5 py-3">
+                                <p className="text-xs text-gray-600 leading-relaxed">{anomalyToast.message}</p>
+                            </div>
+                            {/* Progress bar for auto-dismiss */}
+                            <div className="h-1 bg-amber-100">
+                                <motion.div
+                                    initial={{ width: "100%" }}
+                                    animate={{ width: "0%" }}
+                                    transition={{ duration: 8, ease: "linear" }}
+                                    className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"
+                                />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div >
     )
 }
