@@ -7,24 +7,28 @@ import { SectionBadge } from "@/components/ui/section-badge";
 
 const faqs = [
     {
-        question: "How secure is CashMind?",
-        answer: "CashMind uses bank-grade 256-bit encryption to protect your data. We never sell your personal information, and your bank credentials are never stored on our servers.",
+        question: "What is CashMind?",
+        answer: "CashMind is an AI-powered financial intelligence platform that helps you track spending, set smart budgets, and achieve your financial goals through personalized guidance and gamified experiences.",
     },
     {
-        question: "Can I cancel my subscription anytime?",
-        answer: "Yes, you can cancel your subscription at any time with a single click in your settings. Your data will remain accessible until the end of your billing period.",
+        question: "Who is Mindy and how does she help me?",
+        answer: "Mindy is your personal AI assistant. She analyzes your spending patterns to provide actionable insights, alerts you when you're nearing budget limits, and suggests personalized challenges to help you save more.",
     },
     {
-        question: "Is there a free version available?",
-        answer: "Absolutely! Our Starter plan is free forever and includes all the essential features you need to start tracking your finances.",
+        question: "How do Financial Circles work?",
+        answer: "Financial Circles are designed for shared expenses with friends, family, or roommates. You can track group spending, see who spent what, and manage collective budgets in one synchronized place.",
     },
     {
-        question: "How does the AI insights feature work?",
-        answer: "Our AI analyzes your spending patterns and compares them against market benchmarks to provide personalized tips on how to save and invest smarter.",
+        question: "What are Financial Challenges?",
+        answer: "Challenges are gamified tasks designed to build better money habits. From 'No Spend Weekends' to 'Subscription Cleanups,' completing these tasks earns you points for the global Leaderboard.",
     },
     {
-        question: "Can I export my financial data?",
-        answer: "Yes! If you're on the Pro plan, you can easily export all your transactions, budgets, and reports to PDF or CSV formats for your personal records.",
+        question: "What can I do with the Financial Simulator?",
+        answer: "The Simulator allows you to project your financial future. You can test scenarios like buying a home, starting a business, or retiring early to see how today's decisions impact your long-term wealth.",
+    },
+    {
+        question: "Is my financial data secure?",
+        answer: "Absolutely. We use industry-standard encryption and leverage Supabase's secure infrastructure for authentication and data storage. Your privacy and data integrity are our top priorities.",
     },
 ];
 
