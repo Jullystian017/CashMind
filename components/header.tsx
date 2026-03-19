@@ -1,8 +1,9 @@
 "use client"
 
-import { Search, Bell, Sparkles, Menu, ChevronDown, User, AlertTriangle, CheckCircle, CreditCard, Settings, LogOut, Loader2, Target, Trophy, ArrowRight } from "lucide-react"
+import { Search, Bell, Crown, Sparkles, Menu, ChevronDown, User, AlertTriangle, CheckCircle, CreditCard, Settings, LogOut, Loader2, Target, Trophy, ArrowRight, Zap } from "lucide-react"
 import { globalSearch, type SearchResult } from "@/app/actions/search"
 import { getNotifications, markAsRead, markAllAsRead, type Notification } from "@/app/actions/notifications"
+import { getUserPlan } from "@/app/actions/payment"
 import { cn } from "@/lib/utils"
 import { useRef, useEffect, useState } from "react"
 
@@ -53,6 +54,7 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
     const [notificationsLoading, setNotificationsLoading] = useState(false)
     const [expandedNotifId, setExpandedNotifId] = useState<string | null>(null)
     const [user, setUser] = useState<AuthUser | null>(null)
+    const [userPlan, setUserPlan] = useState<string>("starter")
     const mounted = useMounted()
 
     // Real-time search with debounce
@@ -103,6 +105,14 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
         })
         return () => subscription.unsubscribe()
     }, [])
+
+    useEffect(() => {
+        if (user) {
+            getUserPlan().then(({ data }) => {
+                if (mounted.current && data?.plan) setUserPlan(data.plan)
+            })
+        }
+    }, [user])
 
     const handleLogout = async () => {
         setProfileOpen(false)
@@ -463,22 +473,31 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                             className={cn(
                                 "flex items-center gap-2 rounded-full border transition-all duration-200 group flex-shrink-0",
                                 "w-10 h-10 lg:w-auto lg:pl-1 lg:pr-3 lg:py-1",
-                                profileOpen ? "bg-blue-50 border-blue-200" : "bg-gray-100 border-gray-200 hover:bg-gray-200"
+                                profileOpen 
+                                    ? "bg-blue-50 border-blue-200" 
+                                    : "bg-gray-100 border-gray-200 hover:bg-gray-200"
                             )}
                             title="Profile"
                             aria-label="Profile menu"
                             suppressHydrationWarning
                         >
                             <div className={cn(
-                                "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border mx-auto lg:mx-0",
-                                profileOpen ? "bg-blue-100 border-blue-200 text-blue-600" : "bg-gray-100 border-gray-200 text-gray-500"
+                                "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border mx-auto lg:mx-0 transition-all",
+                                profileOpen 
+                                    ? "bg-blue-100 border-blue-200 text-blue-600" 
+                                    : "bg-gray-100 border-gray-200 text-gray-500"
                             )}>
-                                <User className="w-4 h-4" />
+                                {userPlan === "pro" ? <Crown className="w-4 h-4" /> : <User className="w-4 h-4" />}
                             </div>
                             <div className="hidden lg:flex flex-col items-start leading-none">
-                                <span className="text-xs font-semibold text-gray-700 group-hover:text-gray-900 transition-colors truncate max-w-[120px]">
-                                    {user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}
-                                </span>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-semibold text-gray-700 group-hover:text-gray-900 transition-colors truncate max-w-[120px]">
+                                        {user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}
+                                    </span>
+                                    {userPlan === "pro" && (
+                                        <span className="text-[9px] font-bold text-white bg-blue-600 px-1.5 py-0.5 rounded-md uppercase tracking-wider shadow-sm">PRO</span>
+                                    )}
+                                </div>
                                 <span className="text-[10px] text-gray-400 font-medium mt-0.5 truncate max-w-[120px]">{user?.email ?? ""}</span>
                             </div>
                             <ChevronDown className={cn("w-3 h-3 text-gray-400 hidden lg:block transition-transform", profileOpen && "rotate-180 text-blue-600")} suppressHydrationWarning />
@@ -494,11 +513,21 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                 >
                                     <div className="p-4 border-b border-gray-100 bg-gray-50/50">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-11 h-11 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center">
-                                                <User className="w-5 h-5 text-blue-600" />
+                                            <div className={cn(
+                                                "w-11 h-11 rounded-full flex items-center justify-center border transition-all",
+                                                profileOpen
+                                                    ? "bg-blue-100 border-blue-200 text-blue-600"
+                                                    : "bg-gray-50 border-gray-200 text-gray-500"
+                                            )}>
+                                                {userPlan === "pro" ? <Crown className="w-5 h-5" /> : <User className="w-5 h-5" />}
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="text-sm font-semibold text-gray-900 truncate">{user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}</p>
+                                                <div className="flex items-center gap-1.5">
+                                                    <p className="text-sm font-semibold text-gray-900 truncate">{user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User"}</p>
+                                                    {userPlan === "pro" && (
+                                                        <span className="text-[9px] font-bold text-white bg-blue-600 px-1.5 py-0.5 rounded-md uppercase tracking-wider">PRO</span>
+                                                    )}
+                                                </div>
                                                 <p className="text-xs text-gray-500 truncate">{user?.email ?? ""}</p>
                                             </div>
                                         </div>
@@ -520,6 +549,18 @@ export function Header({ isAIPanelOpen, onAIPanelToggle, onMobileMenuOpen }: Hea
                                         </button>
                                     </div>
                                     <div className="p-2 border-t border-gray-100">
+                                        {userPlan === "starter" && (
+                                            <button
+                                                onClick={() => { setProfileOpen(false); router.push("/checkout"); }}
+                                                className="w-full flex items-center justify-between px-4 py-2.5 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all group mb-1"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <Zap className="w-4 h-4 text-blue-600" />
+                                                    <span className="text-sm font-semibold text-blue-700">{t("common.upgrade") || "Upgrade to Pro"}</span>
+                                                </div>
+                                                <ArrowRight className="w-3.5 h-3.5 text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+                                            </button>
+                                        )}
                                         <button
                                             onClick={handleLogout}
                                             className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
