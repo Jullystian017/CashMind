@@ -8,10 +8,10 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { getLeaderboard, type LeaderboardEntry } from "@/app/actions/leaderboard"
+import { getIndividualLeaderboard, getCircleLeaderboard, type LeaderboardEntry, type CircleLeaderboardEntry } from "@/app/actions/leaderboard"
 import { getMyCircles } from "@/app/actions/circles"
 
-type TimeRange = "week" | "month" | "all"
+type Mode = "individual" | "circle"
 type Scope = "global" | "circle"
 
 const PODIUM_CONFIG = [
@@ -21,34 +21,45 @@ const PODIUM_CONFIG = [
 ]
 
 export default function LeaderboardPage() {
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
-  const [myRank, setMyRank] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [mode, setMode] = useState<Mode>("individual")
   const [scope, setScope] = useState<Scope>("global")
-  const [timeRange, setTimeRange] = useState<TimeRange>("month")
+  
+  const [individualEntries, setIndividualEntries] = useState<LeaderboardEntry[]>([])
+  const [circleEntries, setCircleEntries] = useState<CircleLeaderboardEntry[]>([])
+  const [myRank, setMyRank] = useState(0)
+  const [myCircleRanks, setMyCircleRanks] = useState<number[]>([])
+  
+  const [loading, setLoading] = useState(true)
   const [circles, setCircles] = useState<any[]>([])
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null)
 
   const fetchData = async () => {
     setLoading(true)
-    const [lbRes, circleRes] = await Promise.all([
-      getLeaderboard(scope, timeRange, selectedCircleId || undefined),
-      getMyCircles()
-    ])
-    if (lbRes.data) setEntries(lbRes.data)
-    setMyRank(lbRes.myRank)
+    const circleRes = await getMyCircles()
     if (circleRes.data) setCircles(circleRes.data)
+
+    if (mode === "individual") {
+      const res = await getIndividualLeaderboard(scope, selectedCircleId || undefined)
+      if (res.data) setIndividualEntries(res.data)
+      setMyRank(res.myRank)
+    } else {
+      const res = await getCircleLeaderboard()
+      if (res.data) setCircleEntries(res.data)
+      setMyCircleRanks(res.myCircleRanks || [])
+    }
     setLoading(false)
   }
 
-  useEffect(() => { fetchData() }, [scope, timeRange, selectedCircleId])
+  useEffect(() => { fetchData() }, [mode, scope, selectedCircleId])
 
-  const top3 = entries.slice(0, 3)
-  const rest = entries.slice(3)
-  const myEntry = entries.find((e) => e.isCurrentUser)
+  const top3Individual = individualEntries.slice(0, 3)
+  const top3Circle = circleEntries.slice(0, 3)
+  
+  const myEntry = individualEntries.find((e) => e.isCurrentUser)
 
   // Rearrange for podium: [2nd, 1st, 3rd]
-  const podiumOrder = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3
+  const podiumOrderIndividual = top3Individual.length >= 3 ? [top3Individual[1], top3Individual[0], top3Individual[2]] : top3Individual
+  const podiumOrderCircle = top3Circle.length >= 3 ? [top3Circle[1], top3Circle[0], top3Circle[2]] : top3Circle
 
   const trendIcon = (trend: string) => {
     if (trend === "up") return <TrendingUp className="w-3.5 h-3.5 text-green-500" />
@@ -76,42 +87,47 @@ export default function LeaderboardPage() {
 
       {/* Filters */}
       <div className="flex flex-col @md:flex-row gap-3">
-        {/* Scope */}
-        <div className="flex bg-gray-100 rounded-xl p-1">
-          {(["global", "circle"] as Scope[]).map((s) => (
-            <button key={s} onClick={() => { setScope(s); if (s === "global") setSelectedCircleId(null) }}
-              className={cn("px-5 py-2 rounded-lg text-xs font-semibold transition-all",
-                scope === s ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700")}>
-              {s === "global" ? "Global" : "My Circle"}
-            </button>
-          ))}
+        {/* Mode Toggle: Pribadi vs Circle */}
+        <div className="flex bg-gray-100 rounded-xl p-1 shrink-0">
+          <button onClick={() => setMode("individual")}
+            className={cn("px-5 py-2 rounded-lg text-xs font-semibold transition-all flex border border-transparent items-center gap-2",
+              mode === "individual" ? "bg-white text-blue-700 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-700")}>
+            <Trophy className="w-3.5 h-3.5" /> Pribadi
+          </button>
+          <button onClick={() => setMode("circle")}
+            className={cn("px-5 py-2 rounded-lg text-xs font-semibold transition-all flex border border-transparent items-center gap-2",
+              mode === "circle" ? "bg-white text-indigo-700 shadow-sm border-gray-200" : "text-gray-500 hover:text-gray-700")}>
+            <Users className="w-3.5 h-3.5" /> Circle
+          </button>
         </div>
 
-        {/* Circle Selector */}
-        {scope === "circle" && (
+        {/* Scope (Only for Individual) */}
+        {mode === "individual" && (
+          <div className="flex bg-gray-100 rounded-xl p-1">
+            {(["global", "circle"] as Scope[]).map((s) => (
+              <button key={s} onClick={() => { setScope(s); if (s === "global") setSelectedCircleId(null) }}
+                className={cn("px-5 py-2 rounded-lg text-xs font-semibold transition-all",
+                  scope === s ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700")}>
+                {s === "global" ? "Global" : "My Circle"}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Circle Selector (Only for Individual -> Circle scope) */}
+        {mode === "individual" && scope === "circle" && (
           <select value={selectedCircleId || ""} onChange={(e) => setSelectedCircleId(e.target.value || null)}
             className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 outline-none focus:border-blue-400 transition-all">
             <option value="">Select Circle</option>
             {circles.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
           </select>
         )}
-
-        {/* Time Range */}
-        <div className="flex bg-gray-100 rounded-xl p-1">
-          {(["week", "month", "all"] as TimeRange[]).map((t) => (
-            <button key={t} onClick={() => setTimeRange(t)}
-              className={cn("px-4 py-2 rounded-lg text-xs font-semibold transition-all",
-                timeRange === t ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700")}>
-              {t === "week" ? "This Week" : t === "month" ? "This Month" : "All Time"}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* Your Position Card */}
-      {myEntry && (
+      {/* Your Position Card (Individual Mode) */}
+      {mode === "individual" && myEntry && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-[28px] text-white shadow-2xl shadow-blue-500/20 relative overflow-hidden">
+          className="bg-gradient-to-r from-blue-600 to-blue-800 p-6 rounded-[28px] text-white shadow-2xl shadow-blue-500/20 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-16 translate-x-16 blur-2xl" />
           <div className="relative z-10 flex flex-col @md:flex-row items-center gap-6">
             <div className="flex items-center gap-4">
@@ -119,22 +135,22 @@ export default function LeaderboardPage() {
                 #{myEntry.rank}
               </div>
               <div>
-                <p className="text-xs text-white/60 font-medium">Your Position</p>
+                <p className="text-xs text-white/80 font-medium">Your Position</p>
                 <h3 className="text-xl font-bold">{myEntry.displayName}</h3>
-                <p className="text-xs text-white/60 mt-0.5">Level {myEntry.level} — {myEntry.title}</p>
+                <p className="text-xs text-white/80 mt-0.5">Level {myEntry.level} — {myEntry.title}</p>
               </div>
             </div>
             <div className="flex gap-4 @md:ml-auto">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
-                <p className="text-[10px] text-white/50 font-medium">Health Score</p>
+                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">Health Score</p>
                 <p className="text-lg font-bold">{myEntry.healthScore}</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
-                <p className="text-[10px] text-white/50 font-medium">Savings Rate</p>
+                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">Savings Rate</p>
                 <p className="text-lg font-bold">{myEntry.savingsRate}%</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-center">
-                <p className="text-[10px] text-white/50 font-medium">Badges</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 text-center hidden @sm:block">
+                <p className="text-[10px] text-white/50 font-medium uppercase tracking-widest">Badges</p>
                 <p className="text-lg font-bold">{myEntry.badgesCount}</p>
               </div>
             </div>
@@ -142,21 +158,47 @@ export default function LeaderboardPage() {
         </motion.div>
       )}
 
+      {/* Your Circles Position Card (Circle Mode) */}
+      {mode === "circle" && myCircleRanks.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-indigo-600 to-purple-800 p-6 rounded-[28px] text-white shadow-2xl shadow-indigo-500/20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-16 translate-x-16 blur-2xl" />
+          <div className="relative z-10 flex flex-col items-start gap-2">
+            <p className="text-xs text-white/80 font-medium">Your Circle Rankings</p>
+            <div className="flex flex-wrap gap-4">
+               {circleEntries.filter(c => c.isYourCircle).map(c => (
+                 <div key={c.circleId} className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
+                    <div className="text-xl font-bold bg-white/20 w-8 h-8 flex items-center justify-center rounded-lg">#{c.rank}</div>
+                    <div>
+                      <h4 className="font-semibold text-sm">{c.emoji} {c.name}</h4>
+                      <p className="text-[10px] text-indigo-200">Avg Score: {c.averageHealthScore}</p>
+                    </div>
+                 </div>
+               ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Podium */}
-      {top3.length >= 3 && (
+      {((mode === "individual" && top3Individual.length >= 3) || (mode === "circle" && top3Circle.length >= 3)) && (
         <div className="flex items-end justify-center gap-4 py-8">
-          {podiumOrder.map((entry, i) => {
+          {(mode === "individual" ? podiumOrderIndividual : podiumOrderCircle).map((entry: any, i) => {
             const config = PODIUM_CONFIG[i]
+            const name = entry.displayName || `${entry.emoji} ${entry.name}`
+            const sub = mode === "individual" ? `Level ${entry.level}` : `${entry.memberCount} Members`
+            const score = mode === "individual" ? entry.healthScore : entry.averageHealthScore
+
             return (
               <motion.div key={entry.rank} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}
                 className="flex flex-col items-center">
                 {/* Avatar */}
                 <div className={cn("rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-br mb-3 ring-4 shadow-lg",
                   config.size, config.bg, config.ringColor)}>
-                  <span className={config.textSize}>{entry.displayName.charAt(0)}</span>
+                  <span className={config.textSize}>{mode === "individual" ? name.charAt(0) : entry.emoji}</span>
                 </div>
-                <p className="font-semibold text-gray-900 text-sm mb-0.5">{entry.displayName}</p>
-                <p className="text-[10px] text-gray-400 mb-2">Level {entry.level}</p>
+                <p className="font-semibold text-gray-900 text-sm mb-0.5">{name}</p>
+                <p className="text-[10px] text-gray-400 mb-2">{sub}</p>
                 {/* Podium Block */}
                 <div className={cn("w-24 @md:w-32 rounded-t-2xl flex flex-col items-center justify-start pt-4 relative",
                   config.height,
@@ -164,8 +206,8 @@ export default function LeaderboardPage() {
                     : i === 0 ? "bg-gradient-to-b from-gray-100 to-gray-50 border border-gray-200/50"
                       : "bg-gradient-to-b from-amber-100/60 to-amber-50/40 border border-amber-200/30")}>
                   <span className="text-2xl mb-1">{config.medal}</span>
-                  <span className="text-xs font-bold text-gray-700">{entry.healthScore}</span>
-                  <span className="text-[9px] text-gray-400 font-medium">Health Score</span>
+                  <span className="text-xs font-bold text-gray-700">{score}</span>
+                  <span className="text-[9px] text-gray-400 font-medium">Score</span>
                 </div>
               </motion.div>
             )
@@ -174,100 +216,142 @@ export default function LeaderboardPage() {
       )}
 
       {/* Score Explanation */}
-      <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <Shield className="w-4 h-4 text-blue-600" />
-          <h4 className="text-sm font-semibold text-gray-900">How Financial Health Score Works</h4>
+      {mode === "individual" && (
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Shield className="w-4 h-4 text-blue-600" />
+            <h4 className="text-sm font-semibold text-gray-900">How Financial Health Score Works</h4>
+          </div>
+          <div className="grid grid-cols-4 gap-3">
+            <div className="bg-emerald-50 rounded-xl p-3 text-center border border-emerald-100/50">
+              <p className="text-xs font-bold text-emerald-700">40%</p>
+              <p className="text-[10px] font-semibold text-emerald-600/80 mt-0.5 uppercase tracking-wide">Savings Rate</p>
+            </div>
+            <div className="bg-blue-50 rounded-xl p-3 text-center border border-blue-100/50">
+              <p className="text-xs font-bold text-blue-700">20%</p>
+              <p className="text-[10px] font-semibold text-blue-600/80 mt-0.5 uppercase tracking-wide">Budgeting</p>
+            </div>
+            <div className="bg-purple-50 rounded-xl p-3 text-center border border-purple-100/50">
+              <p className="text-xs font-bold text-purple-700">20%</p>
+              <p className="text-[10px] font-semibold text-purple-600/80 mt-0.5 uppercase tracking-wide">Goal Achievement</p>
+            </div>
+            <div className="bg-amber-50 rounded-xl p-3 text-center border border-amber-100/50">
+              <p className="text-xs font-bold text-amber-700">20%</p>
+              <p className="text-[10px] font-semibold text-amber-600/80 mt-0.5 uppercase tracking-wide">XP & Activity</p>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-blue-50 rounded-xl p-3 text-center">
-            <p className="text-xs font-bold text-blue-700">40%</p>
-            <p className="text-[10px] text-blue-500 mt-0.5">Savings Rate</p>
-          </div>
-          <div className="bg-indigo-50 rounded-xl p-3 text-center">
-            <p className="text-xs font-bold text-indigo-700">30%</p>
-            <p className="text-[10px] text-indigo-500 mt-0.5">Consistency</p>
-          </div>
-          <div className="bg-purple-50 rounded-xl p-3 text-center">
-            <p className="text-xs font-bold text-purple-700">30%</p>
-            <p className="text-[10px] text-purple-500 mt-0.5">Goal Achievement</p>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Rankings Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-gray-900">Full Rankings</h4>
-          <span className="text-xs text-gray-400">{entries.length} users</span>
+          <h4 className="text-sm font-semibold text-gray-900">{mode === "individual" ? "User Rankings" : "Circle Rankings"}</h4>
+          <span className="text-xs text-gray-400">{mode === "individual" ? individualEntries.length + " users" : circleEntries.length + " circles"}</span>
         </div>
-        <div className="divide-y divide-gray-50">
-          {entries.map((entry, i) => (
-            <motion.div key={entry.userId}
-              initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
-              className={cn("flex items-center gap-4 px-5 py-3.5 transition-colors",
-                entry.isCurrentUser ? "bg-blue-50/50" : "hover:bg-gray-50")}>
-              {/* Rank */}
-              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0",
-                entry.rank === 1 ? "bg-amber-100 text-amber-700"
-                  : entry.rank === 2 ? "bg-gray-100 text-gray-700"
-                    : entry.rank === 3 ? "bg-amber-50 text-amber-600"
-                      : "bg-gray-50 text-gray-400")}>
-                {entry.rank <= 3 ? (
-                  <span className="text-sm">{entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}</span>
-                ) : entry.rank}
-              </div>
+        
+        {mode === "individual" ? (
+          <div className="divide-y divide-gray-50">
+            {individualEntries.map((entry, i) => (
+              <motion.div key={entry.userId}
+                initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
+                className={cn("flex items-center gap-4 px-5 py-3.5 transition-colors",
+                  entry.isCurrentUser ? "bg-blue-50/50" : "hover:bg-gray-50")}>
+                {/* Rank */}
+                <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0",
+                  entry.rank === 1 ? "bg-amber-100 text-amber-700"
+                    : entry.rank === 2 ? "bg-gray-100 text-gray-700"
+                      : entry.rank === 3 ? "bg-amber-50 text-amber-600"
+                        : "bg-gray-50 text-gray-400")}>
+                  {entry.rank <= 3 ? (
+                    <span className="text-sm">{entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}</span>
+                  ) : entry.rank}
+                </div>
 
-              {/* User Info */}
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0",
-                  entry.isCurrentUser ? "bg-blue-600" : "bg-gray-300")}>
-                  {entry.displayName.charAt(0)}
+                {/* User Info */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0",
+                    entry.isCurrentUser ? "bg-blue-600" : "bg-gray-300")}>
+                    {entry.displayName.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className={cn("text-sm font-semibold truncate", entry.isCurrentUser ? "text-blue-700" : "text-gray-900")}>
+                      {entry.displayName}
+                      {entry.isCurrentUser && <span className="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">YOU</span>}
+                    </p>
+                    <p className="text-[10px] text-gray-400">Level {entry.level} • {entry.title}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className={cn("text-sm font-semibold truncate", entry.isCurrentUser ? "text-blue-700" : "text-gray-900")}>
-                    {entry.displayName}
-                    {entry.isCurrentUser && <span className="ml-2 text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">YOU</span>}
-                  </p>
-                  <p className="text-[10px] text-gray-400">Level {entry.level} • {entry.title}</p>
-                </div>
-              </div>
 
-              {/* Stats */}
-              <div className="hidden @md:flex items-center gap-6">
-                <div className="text-center w-16">
-                  <p className="text-xs font-bold text-gray-900">{entry.savingsRate}%</p>
-                  <p className="text-[9px] text-gray-400">Savings</p>
+                {/* Score */}
+                <div className="flex items-center gap-2">
+                  {trendIcon(entry.trend)}
+                  <div className={cn("px-3 py-1.5 rounded-lg text-xs font-bold",
+                    entry.healthScore >= 70 ? "bg-green-50 text-green-700"
+                      : entry.healthScore >= 40 ? "bg-amber-50 text-amber-700"
+                        : "bg-red-50 text-red-700")}>
+                    {entry.healthScore}
+                  </div>
                 </div>
-                <div className="text-center w-16">
-                  <p className="text-xs font-bold text-gray-900">{entry.challengesCompleted}</p>
-                  <p className="text-[9px] text-gray-400">Challenges</p>
-                </div>
-                <div className="text-center w-16">
-                  <p className="text-xs font-bold text-gray-900">{entry.badgesCount}</p>
-                  <p className="text-[9px] text-gray-400">Badges</p>
-                </div>
+              </motion.div>
+            ))}
+            {individualEntries.length === 0 && (
+              <div className="p-12 text-center text-sm text-gray-500">
+                No users found.
               </div>
-
-              {/* Health Score */}
-              <div className="flex items-center gap-2">
-                {trendIcon(entry.trend)}
-                <div className={cn("px-3 py-1.5 rounded-lg text-xs font-bold",
-                  entry.healthScore >= 70 ? "bg-green-50 text-green-700"
-                    : entry.healthScore >= 40 ? "bg-amber-50 text-amber-700"
-                      : "bg-red-50 text-red-700")}>
-                  {entry.healthScore}
+            )}
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {circleEntries.map((entry, i) => (
+              <motion.div key={entry.circleId}
+                initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
+                className={cn("flex items-center gap-4 px-5 py-3.5 transition-colors",
+                  entry.isYourCircle ? "bg-indigo-50/50" : "hover:bg-gray-50")}>
+                {/* Rank */}
+                <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0",
+                  entry.rank === 1 ? "bg-amber-100 text-amber-700"
+                    : entry.rank === 2 ? "bg-gray-100 text-gray-700"
+                      : entry.rank === 3 ? "bg-amber-50 text-amber-600"
+                        : "bg-gray-50 text-gray-400")}>
+                  {entry.rank <= 3 ? (
+                    <span className="text-sm">{entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}</span>
+                  ) : entry.rank}
                 </div>
-              </div>
-            </motion.div>
-          ))}
 
-          {entries.length === 0 && (
-            <div className="p-12 text-center text-sm text-gray-500">
-              No data available. Start tracking your finances to appear on the leaderboard.
-            </div>
-          )}
-        </div>
+                {/* Circle Info */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-9 h-9 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center text-lg shrink-0">
+                    {entry.emoji}
+                  </div>
+                  <div className="min-w-0">
+                    <p className={cn("text-sm font-semibold truncate", entry.isYourCircle ? "text-indigo-700" : "text-gray-900")}>
+                      {entry.name}
+                      {entry.isYourCircle && <span className="ml-2 text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-bold">YOUR CIRCLE</span>}
+                    </p>
+                    <p className="text-[10px] text-gray-400">{entry.memberCount} Members Active</p>
+                  </div>
+                </div>
+
+                {/* Score */}
+                <div className="flex items-center gap-2">
+                  {trendIcon(entry.trend)}
+                  <div className={cn("px-3 py-1.5 rounded-lg text-xs font-bold",
+                    entry.averageHealthScore >= 70 ? "bg-green-50 text-green-700"
+                      : entry.averageHealthScore >= 40 ? "bg-amber-50 text-amber-700"
+                        : "bg-red-50 text-red-700")}>
+                    {entry.averageHealthScore} <span className="text-[10px] font-medium opacity-70">AVG</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            {circleEntries.length === 0 && (
+              <div className="p-12 text-center text-sm text-gray-500">
+                No circles found. Create one to get started!
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

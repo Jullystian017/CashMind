@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type FinancialScoreData = {
     score: number;
@@ -16,23 +17,21 @@ export type FinancialScoreData = {
 };
 
 /**
- * Calculates the user's financial score (0-100)
+ * Core logic to calculate financial score for any given user.
+ * Uses the admin client to bypass RLS.
  */
-export async function getFinancialScore(): Promise<{ data: FinancialScoreData | null; error: string | null }> {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { data: null, error: "Not authenticated" };
-
+export async function calculateScoreForUser(userId: string): Promise<FinancialScoreData | null> {
+    const supabaseAdmin = createAdminClient();
     try {
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
         // 1. Fetch Stats (Transactions)
-        const { data: txs } = await supabase
+        const { data: txs } = await supabaseAdmin
             .from("transactions")
             .select("amount, type, category")
-            .eq("user_id", user.id)
+            .eq("user_id", userId)
             .gte("date", firstDay);
 
         let income = 0;
@@ -43,23 +42,23 @@ export async function getFinancialScore(): Promise<{ data: FinancialScoreData | 
         });
 
         // 2. Fetch Budgets
-        const { data: budgets } = await supabase
+        const { data: budgets } = await supabaseAdmin
             .from("budgets")
             .select("*")
-            .eq("user_id", user.id)
+            .eq("user_id", userId)
             .eq("month_year", monthKey);
 
         // 3. Fetch Goals
-        const { data: goals } = await supabase
+        const { data: goals } = await supabaseAdmin
             .from("goals")
             .select("current_amount, target_amount")
-            .eq("user_id", user.id);
+            .eq("user_id", userId);
 
         // 4. Fetch Challenges (XP)
-        const { data: challenges } = await supabase
+        const { data: challenges } = await supabaseAdmin
             .from("user_challenges")
             .select("xp_earned")
-            .eq("user_id", user.id)
+            .eq("user_id", userId)
             .eq("status", "completed");
 
         const totalXp = (challenges || []).reduce((sum, c) => sum + (c.xp_earned || 0), 0);
@@ -70,14 +69,11 @@ export async function getFinancialScore(): Promise<{ data: FinancialScoreData | 
         const hasNoData = (!txs || txs.length === 0) && (!budgets || budgets.length === 0) && (!goals || goals.length === 0) && totalXp === 0;
         if (hasNoData) {
             return {
-                data: {
-                    score: 0,
-                    status: "Beginner",
-                    trend: "+0.0%",
-                    isUp: true,
-                    breakdown: { savings: 0, budget: 0, goals: 0, activity: 0 }
-                },
-                error: null
+                score: 0,
+                status: "Beginner",
+                trend: "+0.0%",
+                isUp: true,
+                breakdown: { savings: 0, budget: 0, goals: 0, activity: 0 }
             };
         }
 
@@ -125,21 +121,35 @@ export async function getFinancialScore(): Promise<{ data: FinancialScoreData | 
         else if (totalScore >= 40) status = "Good";
 
         return {
-            data: {
-                score: totalScore,
-                status,
-                trend: "+5.2%", // Mock trend for now
-                isUp: true,
-                breakdown: {
-                    savings: Math.round(savingsScore),
-                    budget: Math.round(budgetScore),
-                    goals: Math.round(goalScore),
-                    activity: Math.round(activityScore)
-                }
-            },
-            error: null
+            score: totalScore,
+            status,
+            trend: "+5.2%", // Mock trend for now
+            isUp: true,
+            breakdown: {
+                savings: Math.round(savingsScore),
+                budget: Math.round(budgetScore),
+                goals: Math.round(goalScore),
+                activity: Math.round(activityScore)
+            }
         };
     } catch (err: any) {
-        return { data: null, error: err.message };
+        console.error("Error calculating score:", err);
+        return null;
     }
+}
+
+/**
+ * Gets the financial score for the currently authenticated user (used by Dashboard)
+ */
+export async function getFinancialScore(): Promise<{ data: FinancialScoreData | null; error: string | null }> {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { data: null, error: "Not authenticated" };
+
+    const scoreData = await calculateScoreForUser(user.id);
+    if (!scoreData) {
+        return { data: null, error: "Failed to calculate score" };
+    }
+    
+    return { data: scoreData, error: null };
 }
