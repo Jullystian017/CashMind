@@ -45,7 +45,9 @@
     "about": "About",
     "features": "Features",
     "pricing": "Pricing",
-    "contact": "Contact"
+    "contact": "Contact",
+    "circles": "Financial Circles",
+    "leaderboard": "Leaderboard"
   },
   "header": {
     "searchPlaceholder": "Search transactions, targets, challenges...",
@@ -128,6 +130,7 @@
     "sidebarFinancial": "Financial Management",
     "sidebarGrowth": "Growth & Simulation",
     "sidebarUtilities": "Utilities",
+    "sidebarSocial": "Social",
     "futureSimulator": "Future Simulator",
     "collapseSidebar": "Collapse Sidebar"
   },

@@ -45,7 +45,9 @@
     "about": "Tentang",
     "features": "Fitur",
     "pricing": "Harga",
-    "contact": "Kontak"
+    "contact": "Kontak",
+    "circles": "Financial Circles",
+    "leaderboard": "Leaderboard"
   },
   "header": {
     "searchPlaceholder": "Cari transaksi, target, tantangan...",
@@ -141,6 +143,7 @@
     "sidebarFinancial": "Manajemen Keuangan",
     "sidebarGrowth": "Pertumbuhan & Simulasi",
     "sidebarUtilities": "Utilitas",
+    "sidebarSocial": "Sosial",
     "futureSimulator": "Simulator Masa Depan",
     "collapseSidebar": "Tutup Sidebar"
   },

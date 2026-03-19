@@ -25,7 +25,9 @@ import {
     Sparkles,
     Trophy,
     Award,
-    Rocket
+    Rocket,
+    Users,
+    Medal
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -52,12 +54,14 @@ const getMenuCategories = (t: (key: string) => string) => [
         items: [
             { name: t("dashboard.futureSimulator"), icon: Rocket, href: "/dashboard/simulation" },
             { name: t("nav.challenges"), icon: Trophy, href: "/dashboard/challenges" },
+            { name: t("nav.leaderboard") || "Leaderboard", icon: Medal, href: "/dashboard/leaderboard" },
             { name: t("nav.aiAdvisor"), icon: Bot, href: "/dashboard/ai" },
         ]
     },
     {
-        title: t("dashboard.sidebarUtilities"),
+        title: t("dashboard.sidebarSocial") || "Social",
         items: [
+            { name: t("nav.circles") || "Financial Circles", icon: Users, href: "/dashboard/circles" },
             { name: t("nav.splitBill"), icon: TrendingUp, href: "/dashboard/split-bill" },
             { name: t("nav.export"), icon: ReceiptText, href: "/dashboard/export" },
         ]
