@@ -531,7 +531,7 @@
     "generating": "Memproses...",
     "done": "Selesai",
     "noData": "Tidak ada transaksi untuk periode ini.",
-    "ready": "transaksi siap diekspor",
+    "transactionsReady": "{count} transaksi siap diekspor",
     "income": "Pendapatan",
     "expense": "Pengeluaran",
     "balance": "Saldo Bersih",
@@ -562,7 +562,15 @@
     "indicator_income": "Total Pendapatan",
     "indicator_expense": "Total Pengeluaran",
     "indicator_balance": "Saldo Bersih",
-    "indicator_count": "Total Transaksi"
+    "indicator_count": "Total Transaksi",
+    "fullHistory": "Riwayat Penuh",
+    "table_date": "Tanggal",
+    "table_desc": "Deskripsi",
+    "table_category": "Kategori",
+    "table_type": "Tipe",
+    "table_amount": "Jumlah",
+    "table_method": "Metode",
+    "table_status": "Status"
   },
   "errors": {
     "generic": "Terjadi kesalahan. Coba lagi.",
