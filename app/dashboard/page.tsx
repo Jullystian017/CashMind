@@ -45,8 +45,9 @@ import { FinancialCalendarModal } from "@/components/financial-calendar-modal"
 import { FinancialScoreModal } from "@/components/financial-score-modal"
 import Link from "next/link"
 import { getGoals } from "@/app/actions/goals"
-import { getDashboardStats, getRecentTransactions, getChartData, getCategorySpending } from "@/app/actions/transactions"
-import { getFinancialScore, type FinancialScoreData } from "@/app/actions/financial-score"
+import { getChartData } from "@/app/actions/transactions"
+import { type FinancialScoreData } from "@/app/actions/financial-score"
+import { getAggregatedDashboardData } from "@/app/actions/dashboard"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/useTranslation"
 
@@ -171,26 +172,28 @@ export default function DashboardOverview() {
         if (mounted.current && data) setGoals(data)
     }
 
-    const fetchDashboardData = async () => {
+    const fetchChartDataOnly = async () => {
+        const { data } = await getChartData(chartView)
+        if (mounted.current && data && data.length > 0) {
+            setRealChartData(aggregateChartData(data, chartView))
+        }
+    }
+
+    const fetchInitialDashboardData = async () => {
         setLoading(true)
         const now = new Date()
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
-        const [statsRes, txRes, spendingRes, chartRes, scoreRes] = await Promise.all([
-            getDashboardStats(),
-            getRecentTransactions(7),
-            getCategorySpending(monthKey),
-            getChartData(chartView),
-            getFinancialScore()
-        ])
+        const { data } = await getAggregatedDashboardData(monthKey)
 
-        if (mounted.current) {
-            if (statsRes.data) setStatsData(statsRes.data)
-            if (txRes.data) setRecentTx(txRes.data)
+        if (mounted.current && data) {
+            if (data.statsData) setStatsData(data.statsData)
+            if (data.recentTransactions) setRecentTx(data.recentTransactions)
+            if (data.financialScore) setFinancialScore(data.financialScore)
 
-            if (spendingRes.data) {
-                const total = Object.values(spendingRes.data).reduce((a: any, b: any) => a + b, 0)
-                const formatted = Object.entries(spendingRes.data).map(([name, value]: [string, any]) => {
+            if (data.spendingData) {
+                const total = Object.values(data.spendingData).reduce((a: any, b: any) => a + b, 0)
+                const formatted = Object.entries(data.spendingData).map(([name, value]: [string, any]) => {
                     const config = categoryConfig[name] || categoryConfig["Others"]
                     return {
                         name,
@@ -201,20 +204,6 @@ export default function DashboardOverview() {
                     }
                 }).sort((a, b) => b.value - a.value)
                 setCatSpending(formatted)
-            }
-
-            if (chartRes.data) {
-                // Basic aggregation for chartRes.data
-                // If period is weekly, group by day name
-                // If period is monthly, group by month name
-                // For now, if no data, it falls back to mock
-                if (chartRes.data.length > 0) {
-                    setRealChartData(aggregateChartData(chartRes.data, chartView))
-                }
-            }
-
-            if (scoreRes.data) {
-                setFinancialScore(scoreRes.data)
             }
         }
         setLoading(false)
@@ -261,8 +250,14 @@ export default function DashboardOverview() {
     useEffect(() => {
         mounted.current = true
         fetchGoals()
-        fetchDashboardData()
+        fetchInitialDashboardData()
         return () => { mounted.current = false }
+    }, [])
+
+    useEffect(() => {
+        if (mounted.current) {
+            fetchChartDataOnly()
+        }
     }, [chartView])
 
     const formatIndoDate = (dateStr: string) => {
