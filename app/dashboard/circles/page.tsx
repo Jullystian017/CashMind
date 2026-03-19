@@ -6,20 +6,35 @@ import {
   TrendingUp, TrendingDown, Target, DollarSign,
   AlertTriangle, Sparkles, ChevronRight,
   PieChart, BarChart3, Calendar, Shield, ShoppingBag,
-  Zap, LogIn, UserPlus
+  Zap, LogIn, UserPlus,
+  Trash2, UtensilsCrossed, Car, Gamepad2, Home, HeartPulse, GraduationCap, MoreHorizontal, ShoppingCart
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, formatRp } from "@/lib/utils"
 import {
-  createCircle, joinCircle, getMyCircles, getCircleDetail, addCircleExpense, leaveCircle,
+  createCircle, joinCircle, getMyCircles, getCircleDetail, addCircleExpense, leaveCircle, deleteCircleExpense,
   type FinanceCircle, type CircleExpense
 } from "@/app/actions/circles"
 
 // ─── Category Options ───
 const CATEGORIES = [
-  "Food & Drinks", "Transport", "Shopping", "Entertainment",
+  "Food & Groceries", "Dining Out", "Transport", "Shopping", "Entertainment",
   "Utilities", "Health", "Education", "Housing", "Others"
 ]
+
+const categoryConfig: Record<string, { icon: any, color: string }> = {
+    "Food & Groceries": { icon: ShoppingCart, color: "#3b82f6" },
+    "Dining Out": { icon: UtensilsCrossed, color: "#f59e0b" },
+    "Transport": { icon: Car, color: "#f97316" },
+    "Shopping": { icon: ShoppingBag, color: "#ec4899" },
+    "Entertainment": { icon: Gamepad2, color: "#a855f7" },
+    "Education": { icon: GraduationCap, color: "#0ea5e9" },
+    "Health": { icon: HeartPulse, color: "#10b981" },
+    "Housing": { icon: Home, color: "#6366f1" },
+    "Utilities": { icon: Zap, color: "#ef4444" },
+    "Others": { icon: MoreHorizontal, color: "#94a3b8" },
+}
+
 const EMOJIS = ["👨‍👩‍👧‍👦", "👥", "🏠", "💼", "🎓", "❤️", "🌟", "🚀", "💰", "🎯", "🏆", "🌍"]
 
 const identityConfig = {
@@ -51,8 +66,14 @@ export default function CirclesPage() {
   // Add expense form
   const [expDesc, setExpDesc] = useState("")
   const [expAmount, setExpAmount] = useState("")
-  const [expCategory, setExpCategory] = useState("Food & Drinks")
+  const [expCategory, setExpCategory] = useState("Food & Groceries")
   const [expDate, setExpDate] = useState(new Date().toISOString().split("T")[0])
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    const raw = e.target.value.replace(/\D/g, "");
+    if (!raw) setter("");
+    else setter(parseInt(raw, 10).toLocaleString("id-ID"));
+  }
 
   // Toast
   const [toast, setToast] = useState<string | null>(null)
@@ -120,7 +141,7 @@ export default function CirclesPage() {
     if (error) { showToast(`❌ ${error}`); return }
     showToast("✅ Expense added!")
     setIsAddExpenseOpen(false)
-    setExpDesc(""); setExpAmount(""); setExpCategory("Food & Drinks")
+    setExpDesc(""); setExpAmount(""); setExpCategory("Food & Groceries")
     await fetchDetail(selectedCircleId)
   }
 
@@ -131,6 +152,14 @@ export default function CirclesPage() {
     setCircleDetail(null)
     await fetchCircles()
     showToast("Left circle")
+  }
+
+  const handleDeleteExpense = async (id: string) => {
+    if (!selectedCircleId || !confirm("Hapus pengeluaran ini?")) return
+    const { error } = await deleteCircleExpense(id)
+    if (error) { showToast(`❌ ${error}`); return }
+    showToast("✅ Expense deleted!")
+    await fetchDetail(selectedCircleId)
   }
 
   const copyCode = (code: string) => {
@@ -183,11 +212,7 @@ export default function CirclesPage() {
                 <h3 className="text-xl font-bold">{identity.label}</h3>
               </div>
             </div>
-            <div className="grid grid-cols-2 @md:grid-cols-4 gap-4 mt-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-                <p className="text-xs text-white/60 font-medium">Savings Rate</p>
-                <p className="text-2xl font-bold mt-1">{stats.savingsRate}%</p>
-              </div>
+            <div className="grid grid-cols-1 @md:grid-cols-3 gap-4 mt-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
                 <p className="text-xs text-white/60 font-medium">Total Spend</p>
                 <p className="text-2xl font-bold mt-1">{formatRp(stats.totalSpend)}</p>
@@ -197,8 +222,8 @@ export default function CirclesPage() {
                 <p className="text-2xl font-bold mt-1">{stats.essentialRatio}%</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-                <p className="text-xs text-white/60 font-medium">Budget Used</p>
-                <p className="text-2xl font-bold mt-1">{stats.budgetUsed}%</p>
+                <p className="text-xs text-white/60 font-medium">Lifestyle Focus</p>
+                <p className="text-2xl font-bold mt-1">{stats.lifestyleRatio || 0}%</p>
               </div>
             </div>
           </div>
@@ -381,7 +406,12 @@ export default function CirclesPage() {
                     <p className="text-sm font-medium text-gray-900 truncate">{exp.description}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{exp.category} • {new Date(exp.date).toLocaleDateString()}</p>
                   </div>
-                  <span className="text-sm font-semibold text-red-600">-{formatRp(exp.amount)}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-semibold text-red-600">-{formatRp(exp.amount)}</span>
+                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete Expense">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}
@@ -414,15 +444,33 @@ export default function CirclesPage() {
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</label>
-                    <input value={expAmount} onChange={(e) => setExpAmount(e.target.value)} placeholder="Rp 0"
-                      className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
+                    <input value={expAmount} onChange={(e) => handleAmountChange(e, setExpAmount)} placeholder="Rp 0"
+                      className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all font-semibold" />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</label>
-                    <select value={expCategory} onChange={(e) => setExpCategory(e.target.value)}
-                      className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 transition-all">
-                      {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">Category</label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {CATEGORIES.map((c) => {
+                        const config = categoryConfig[c] || categoryConfig["Others"]
+                        const Icon = config.icon
+                        const isSelected = expCategory === c
+                        return (
+                          <button
+                            key={c}
+                            onClick={() => setExpCategory(c)}
+                            className={cn(
+                              "flex items-center gap-2 px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-all border",
+                              isSelected ? "bg-blue-50 border-blue-200 text-blue-700 shadow-sm" : "bg-white border-gray-100 text-gray-600 hover:bg-gray-50"
+                            )}
+                          >
+                            <div className={cn("w-6 h-6 rounded-lg flex items-center justify-center")} style={{ color: config.color, backgroundColor: `${config.color}15` }}>
+                              <Icon className="w-3 h-3" />
+                            </div>
+                            <span className="truncate">{c}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</label>
@@ -519,8 +567,10 @@ export default function CirclesPage() {
       ) : (
         <div className="grid grid-cols-1 @md:grid-cols-2 @[1200px]:grid-cols-3 gap-6">
           {circles.map((circle, i) => {
-            const savingsRate = circle.monthly_budget > 0 ? Math.max(0, Math.round(((circle.monthly_budget - circle.totalSpend) / circle.monthly_budget) * 100)) : 50
-            const identityType = savingsRate >= 40 ? "efficient" : savingsRate >= 20 ? "balanced" : "high_consumption"
+            // Just mock it slightly for the grid icon based on some random logic to avoid computing heavy here
+            // Next iteration we should fetch Identity per circle in getMyCircles
+            const isHighScore = circle.totalSpend > 5000000;
+            const identityType = isHighScore ? "high_consumption" : circle.totalSpend > 2000000 ? "balanced" : "efficient";
             const idc = identityConfig[identityType]
 
             return (
@@ -547,23 +597,10 @@ export default function CirclesPage() {
                     <p className="text-sm font-bold text-gray-900 mt-0.5">{formatRp(circle.totalSpend)}</p>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-[10px] text-gray-400 font-medium">Savings Rate</p>
-                    <p className="text-sm font-bold text-gray-900 mt-0.5">{savingsRate}%</p>
+                    <p className="text-[10px] text-gray-400 font-medium">Status</p>
+                    <p className="text-sm font-bold text-gray-900 mt-0.5 capitalize">{identityType.replace("_", " ")}</p>
                   </div>
                 </div>
-
-                {circle.monthly_budget > 0 && (
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-gray-400 font-medium">Budget Progress</span>
-                      <span className="text-[10px] font-semibold text-gray-600">{formatRp(circle.totalSpend)} / {formatRp(circle.monthly_budget)}</span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2">
-                      <div className={cn("h-2 rounded-full transition-all", circle.totalSpend > circle.monthly_budget ? "bg-red-500" : "bg-blue-500")}
-                        style={{ width: `${Math.min(100, (circle.totalSpend / circle.monthly_budget) * 100)}%` }} />
-                    </div>
-                  </div>
-                )}
 
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
                   <span className="text-xs text-gray-400">View details</span>
@@ -606,11 +643,6 @@ export default function CirclesPage() {
                       </button>
                     ))}
                   </div>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Monthly Budget (Optional)</label>
-                  <input value={newBudget} onChange={(e) => setNewBudget(e.target.value)} placeholder="Rp 0"
-                    className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
                 </div>
                 <button onClick={handleCreate} disabled={!newName.trim()}
                   className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-xl shadow-blue-500/20 mt-2">

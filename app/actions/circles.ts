@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // ─── Types ───
 export type FinanceCircle = {
@@ -137,6 +138,7 @@ export async function getMyCircles(): Promise<{
   error: string | null;
 }> {
   const supabase = await createClient();
+  const supabaseAdmin = createAdminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { data: null, error: "Not authenticated" };
 
@@ -159,6 +161,16 @@ export async function getMyCircles(): Promise<{
     .order("created_at", { ascending: false });
 
   if (cErr || !circles) return { data: null, error: cErr?.message ?? "Error" };
+
+  // Construct global map of REAL NAMES
+  const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
+  const allUsersMap = new Map<string, string>();
+  if (authData?.users) {
+    authData.users.forEach((u) => {
+      const name = u.user_metadata?.full_name || u.user_metadata?.name || `User ${u.id.substring(0, 6)}`;
+      allUsersMap.set(u.id, name);
+    });
+  }
 
   // Enrich with stats
   const enriched = await Promise.all(
@@ -184,7 +196,7 @@ export async function getMyCircles(): Promise<{
         members: (members || []).map((m) => ({
           user_id: m.user_id,
           email: "",
-          full_name: "",
+          full_name: allUsersMap.get(m.user_id) || `User ${m.user_id.substring(0, 6)}`,
         })),
       } as FinanceCircle & { memberCount: number; totalSpend: number; members: any[] };
     })
@@ -203,11 +215,10 @@ export async function getCircleDetail(circleId: string): Promise<{
     expenses: CircleExpense[];
     stats: {
       totalSpend: number;
-      budgetUsed: number;
-      savingsRate: number;
+      essentialRatio: number;
+      lifestyleRatio: number;
       categoryBreakdown: { category: string; amount: number; percent: number }[];
       memberSpending: { userId: string; name: string; amount: number; percent: number }[];
-      essentialRatio: number;
       weekendSpendRatio: number;
       monthlyTrend: { month: string; amount: number }[];
     };
@@ -218,6 +229,7 @@ export async function getCircleDetail(circleId: string): Promise<{
   error: string | null;
 }> {
   const supabase = await createClient();
+  const supabaseAdmin = createAdminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { data: null, error: "Not authenticated" };
 
@@ -251,11 +263,24 @@ export async function getCircleDetail(circleId: string): Promise<{
   const allExpenses = expenses || [];
   const allMembers = members || [];
 
+  // Construct global map of REAL NAMES
+  const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
+  const allUsersMap = new Map<string, string>();
+  if (authData?.users) {
+    authData.users.forEach((u) => {
+      const name = u.user_metadata?.full_name || u.user_metadata?.name || `User ${u.id.substring(0, 6)}`;
+      allUsersMap.set(u.id, name);
+    });
+  }
+
+  // Update members list with real names
+  const enrichedMembers = allMembers.map((m) => ({
+    ...m,
+    full_name: allUsersMap.get(m.user_id) || `User ${m.user_id.substring(0, 6)}`,
+  }));
+
   // ── Compute Stats ──
   const totalSpend = allExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
-  const budget = Number(circle.monthly_budget) || 0;
-  const budgetUsed = budget > 0 ? Math.round((totalSpend / budget) * 100) : 0;
-  const savingsRate = budget > 0 ? Math.max(0, Math.round(((budget - totalSpend) / budget) * 100)) : 50;
 
   // Category breakdown
   const catMap = new Map<string, number>();
@@ -278,29 +303,48 @@ export async function getCircleDetail(circleId: string): Promise<{
   const memberSpending = Array.from(memberMap.entries())
     .map(([userId, amount]) => ({
       userId,
-      name: userId.substring(0, 8),
+      name: allUsersMap.get(userId) || `User ${userId.substring(0, 6)}`,
       amount,
       percent: totalSpend > 0 ? Math.round((amount / totalSpend) * 100) : 0,
     }))
     .sort((a, b) => b.amount - a.amount);
 
-  // Essential vs Non-essential
-  const essentialCategories = ["Food & Drinks", "Transport", "Utilities", "Health", "Education", "Housing"];
+  // 1️⃣ Non-Essential Spending Ratio
+  const essentialCategories = ["Food & Groceries", "Food & Drinks", "Transport", "Utilities", "Health", "Education", "Housing"];
   const essentialSpend = allExpenses
     .filter((e) => essentialCategories.includes(e.category))
     .reduce((sum, e) => sum + Number(e.amount), 0);
-  const essentialRatio = totalSpend > 0 ? Math.round((essentialSpend / totalSpend) * 100) : 50;
+  const essentialRatioRaw = totalSpend > 0 ? (essentialSpend / totalSpend) : 0.5;
+  const essentialRatio = Math.round(essentialRatioRaw * 100);
+  
+  const nonEssentialRatioRaw = 1 - essentialRatioRaw;
 
-  // Weekend spending ratio
-  const weekendSpend = allExpenses
-    .filter((e) => {
-      const day = new Date(e.date).getDay();
-      return day === 0 || day === 6;
-    })
+  // 2️⃣ Benchmark Comparison
+  const AVG_LIFESTYLE = 0.28; // Rata-rata benchmark (28%)
+  const lifestyleCategories = ["Entertainment", "Shopping", "Dining Out", "Others"];
+  const lifestyleSpend = allExpenses
+    .filter((e) => lifestyleCategories.includes(e.category))
     .reduce((sum, e) => sum + Number(e.amount), 0);
-  const weekendSpendRatio = totalSpend > 0 ? Math.round((weekendSpend / totalSpend) * 100) : 0;
+  const lifestyleRatioRaw = totalSpend > 0 ? (lifestyleSpend / totalSpend) : 0;
+  
+  // Benchmark gap: scale ke 0 -> 1. Capped at max 0.3 difference = 1.0 gap penalty
+  const benchmarkGap = Math.max(0, Math.min(1, (lifestyleRatioRaw - AVG_LIFESTYLE) / 0.3));
 
-  // Monthly trend (last 6 months)
+  // ── 💣 FORMULA FINAL (COMBINE) ──
+  // Bobot disesuaikan karena 1 metrik income dihapus
+  const identityScore = (nonEssentialRatioRaw * 0.6) + (benchmarkGap * 0.4);
+
+  // ── 🧠 Output Label ──
+  let identity: { type: "efficient" | "balanced" | "high_consumption"; label: string; color: string };
+  if (identityScore >= 0.55) {
+    identity = { type: "high_consumption", label: "High Consumption Circle", color: "red" };
+  } else if (identityScore >= 0.30) {
+    identity = { type: "balanced", label: "Balanced Circle", color: "amber" };
+  } else {
+    identity = { type: "efficient", label: "Efficient Circle", color: "emerald" };
+  }
+
+  // Monthly trend (last 6 months) untuk Bonus Trend Behavior
   const monthlyMap = new Map<string, number>();
   allExpenses.forEach((e) => {
     const month = e.date.substring(0, 7); // YYYY-MM
@@ -311,85 +355,69 @@ export async function getCircleDetail(circleId: string): Promise<{
     .sort((a, b) => a.month.localeCompare(b.month))
     .slice(-6);
 
-  // ── Financial Identity ──
-  let identity: { type: "efficient" | "balanced" | "high_consumption"; label: string; color: string };
-  if (savingsRate >= 40) {
-    identity = { type: "efficient", label: "Efficient Circle", color: "emerald" };
-  } else if (savingsRate >= 20) {
-    identity = { type: "balanced", label: "Balanced Circle", color: "amber" };
-  } else {
-    identity = { type: "high_consumption", label: "High Consumption Circle", color: "red" };
-  }
+  // Weekend spending ratio
+  const weekendSpend = allExpenses
+    .filter((e) => {
+      const day = new Date(e.date).getDay();
+      return day === 0 || day === 6;
+    })
+    .reduce((sum, e) => sum + Number(e.amount), 0);
+  const weekendSpendRatio = totalSpend > 0 ? Math.round((weekendSpend / totalSpend) * 100) : 0;
 
   // ── Generate Insights ──
   const insights: string[] = [];
-  const topCategory = categoryBreakdown[0];
-  if (topCategory) {
+  
+  // Insight Benchmark (Kelas Naik)
+  if (totalSpend > 0) {
     insights.push(
-      `Your circle spends ${topCategory.percent}% on ${topCategory.category}, ${topCategory.percent > 30 ? "higher" : "within"} the average range.`
+      `Circle kamu menghabiskan ${Math.round(lifestyleRatioRaw * 100)}% untuk lifestyle, ${lifestyleRatioRaw > AVG_LIFESTYLE ? 'lebih tinggi' : 'lebih rendah'} dari rata-rata ${Math.round(AVG_LIFESTYLE * 100)}%.`
     );
   }
-  if (essentialRatio < 50) {
-    insights.push(
-      `Non-essential spending makes up ${100 - essentialRatio}% of total. Consider reallocating to essential needs.`
-    );
-  }
-  if (budget > 0 && budgetUsed > 80) {
-    insights.push(
-      `Budget is ${budgetUsed}% consumed. At this pace, you'll exceed the limit before month end.`
-    );
-  }
+
+  // Insight Bonus Trend Behavior (AI-ish)
   if (monthlyTrend.length >= 2) {
     const last = monthlyTrend[monthlyTrend.length - 1];
     const prev = monthlyTrend[monthlyTrend.length - 2];
-    if (last && prev) {
+    if (last && prev && prev.amount > 0) {
       const change = Math.round(((last.amount - prev.amount) / prev.amount) * 100);
-      if (change > 10) {
-        insights.push(`Spending increased ${change}% compared to last month. Review discretionary costs.`);
-      } else if (change < -10) {
-        insights.push(`Great progress! Spending decreased ${Math.abs(change)}% compared to last month.`);
-      }
+      insights.push(`📊 **Behavior Trend**: Spending kamu ${change > 0 ? 'naik' : 'turun'} ${Math.abs(change)}% dalam bulan terakhir.`);
     }
   }
+
   if (insights.length === 0) {
-    insights.push("Add more expenses to generate personalized insights for your circle.");
+    insights.push("Kumpulkan lebih banyak data pengeluaran agar AI kami dapat menganalisa kebiasaan Circle-mu.");
   }
 
   // ── Behavioral Patterns ──
   const behavioralPatterns: string[] = [];
   if (weekendSpendRatio > 40) {
-    behavioralPatterns.push(`⚠️ Weekend spending spike detected: ${weekendSpendRatio}% of all spending occurs on weekends.`);
+    behavioralPatterns.push(`⚡ High Weekend Activity: ${weekendSpendRatio}% pengeluaran grup terfokus di akhir pekan. Awas impulsif!`);
   }
-  const lifestyleCategories = ["Entertainment", "Shopping"];
-  const lifestyleSpend = allExpenses
-    .filter((e) => lifestyleCategories.includes(e.category))
-    .reduce((sum, e) => sum + Number(e.amount), 0);
-  const lifestyleRatio = totalSpend > 0 ? Math.round((lifestyleSpend / totalSpend) * 100) : 0;
+  const lifestyleRatio = Math.round(lifestyleRatioRaw * 100);
   if (lifestyleRatio > 25) {
-    behavioralPatterns.push(`🛍️ Lifestyle spending is ${lifestyleRatio}% of total — higher than the recommended 20%.`);
+    behavioralPatterns.push(`🍹 Lifestyle Bias: ${lifestyleRatio}% alokasi dana memprioritaskan gaya hidup di atas kebutuhan.`);
   }
   if (categoryBreakdown.length >= 3) {
     const singleCatDominance = categoryBreakdown[0]?.percent || 0;
     if (singleCatDominance > 50) {
-      behavioralPatterns.push(`📊 Over-concentration: ${categoryBreakdown[0].category} accounts for ${singleCatDominance}% of all spending.`);
+      behavioralPatterns.push(`🎯 Konsentrasi Tinggi: Lebih dari separuh uang habis hanya untuk kategori ${categoryBreakdown[0].category}.`);
     }
   }
   if (behavioralPatterns.length === 0) {
-    behavioralPatterns.push("✅ No concerning behavioral patterns detected. Keep up the good habits!");
+    behavioralPatterns.push("🌱 Stabil: Grup tidak menunjukkan pola belanja ekstrem yang membahayakan finansial kolektif.");
   }
 
   return {
     data: {
       circle: circle as FinanceCircle,
-      members: allMembers as CircleMember[],
+      members: enrichedMembers,
       expenses: allExpenses as CircleExpense[],
       stats: {
         totalSpend,
-        budgetUsed,
-        savingsRate,
+        essentialRatio,
+        lifestyleRatio,
         categoryBreakdown,
         memberSpending,
-        essentialRatio,
         weekendSpendRatio,
         monthlyTrend,
       },
@@ -399,10 +427,12 @@ export async function getCircleDetail(circleId: string): Promise<{
     },
     error: null,
   };
+
+
 }
 
 /**
- * Add expense to circle
+ * Add expense to circle AND personal transactions
  */
 export async function addCircleExpense(input: {
   circleId: string;
@@ -415,7 +445,8 @@ export async function addCircleExpense(input: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { data: null, error: "Not authenticated" };
 
-  const { data, error } = await supabase
+  // 1. Insert into circle_expenses
+  const { data: expenseData, error: expenseError } = await supabase
     .from("circle_expenses")
     .insert({
       circle_id: input.circleId,
@@ -428,8 +459,38 @@ export async function addCircleExpense(input: {
     .select()
     .single();
 
-  if (error) return { data: null, error: error.message };
-  return { data: data as CircleExpense, error: null };
+  if (expenseError) return { data: null, error: expenseError.message };
+
+  // 2. Fetch circle name for the note (optional but nice)
+  const { data: circle } = await supabase
+    .from("finance_circles")
+    .select("name")
+    .eq("id", input.circleId)
+    .single();
+
+  const circleName = circle?.name || "a Financial Circle";
+
+  // 3. Mirror the expense to the standard `transactions` table
+  const { error: txError } = await supabase
+    .from("transactions")
+    .insert({
+      user_id: user.id,
+      description: `[Circle] ${input.description}`, // Prefix to show it came from a circle
+      amount: input.amount,
+      category: input.category,
+      date: input.date,
+      type: "expense",
+      status: "success",
+      payment_method: "cash",
+      note: `Auto-synced from ${circleName}`
+    });
+    
+  // We log the error but don't strictly fail the circle expense creation if it fails
+  if (txError) {
+    console.error("Failed to sync circle expense to personal transactions:", txError.message);
+  }
+
+  return { data: expenseData as CircleExpense, error: null };
 }
 
 /**
@@ -444,6 +505,24 @@ export async function leaveCircle(circleId: string): Promise<{ error: string | n
     .from("circle_members")
     .delete()
     .eq("circle_id", circleId)
+    .eq("user_id", user.id);
+
+  return { error: error?.message ?? null };
+}
+
+/**
+ * Delete an expense
+ */
+export async function deleteCircleExpense(expenseId: string): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  // Only allow deletion if the user is the creator
+  const { error } = await supabase
+    .from("circle_expenses")
+    .delete()
+    .eq("id", expenseId)
     .eq("user_id", user.id);
 
   return { error: error?.message ?? null };
