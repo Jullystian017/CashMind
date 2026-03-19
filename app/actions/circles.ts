@@ -310,7 +310,7 @@ export async function getCircleDetail(circleId: string): Promise<{
     .sort((a, b) => b.amount - a.amount);
 
   // 1️⃣ Non-Essential Spending Ratio
-  const essentialCategories = ["Food & Groceries", "Food & Drinks", "Transport", "Utilities", "Health", "Education", "Housing"];
+  const essentialCategories = ["Transport", "Utilities", "Health", "Education", "Home & Bills"];
   const essentialSpend = allExpenses
     .filter((e) => essentialCategories.includes(e.category))
     .reduce((sum, e) => sum + Number(e.amount), 0);
@@ -321,7 +321,7 @@ export async function getCircleDetail(circleId: string): Promise<{
 
   // 2️⃣ Benchmark Comparison
   const AVG_LIFESTYLE = 0.28; // Rata-rata benchmark (28%)
-  const lifestyleCategories = ["Entertainment", "Shopping", "Dining Out", "Others"];
+  const lifestyleCategories = ["Entertainment", "Shopping", "Gadgets", "Travel", "Food & Drinks", "Others"];
   const lifestyleSpend = allExpenses
     .filter((e) => lifestyleCategories.includes(e.category))
     .reduce((sum, e) => sum + Number(e.amount), 0);

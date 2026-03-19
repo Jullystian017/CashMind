@@ -7,7 +7,8 @@ import {
   AlertTriangle, Sparkles, ChevronRight,
   PieChart, BarChart3, Calendar, Shield, ShoppingBag,
   Zap, LogIn, UserPlus,
-  Trash2, UtensilsCrossed, Car, Gamepad2, Home, HeartPulse, GraduationCap, MoreHorizontal, ShoppingCart
+  Trash2, UtensilsCrossed, Car, Gamepad2, Home, HeartPulse, GraduationCap, MoreHorizontal, ShoppingCart,
+  Smartphone, Plane
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn, formatRp } from "@/lib/utils"
@@ -19,19 +20,20 @@ import { useTranslation } from "@/lib/i18n/useTranslation"
 
 // ─── Category Options ───
 const CATEGORIES = [
-  "Food & Groceries", "Dining Out", "Transport", "Shopping", "Entertainment",
-  "Utilities", "Health", "Education", "Housing", "Others"
+  "Food & Drinks", "Transport", "Shopping", "Entertainment", "Education",
+  "Health", "Home & Bills", "Gadgets", "Travel", "Utilities", "Others"
 ]
 
 const categoryConfig: Record<string, { icon: any, color: string }> = {
-    "Food & Groceries": { icon: ShoppingCart, color: "#3b82f6" },
-    "Dining Out": { icon: UtensilsCrossed, color: "#f59e0b" },
+    "Food & Drinks": { icon: UtensilsCrossed, color: "#3b82f6" },
     "Transport": { icon: Car, color: "#f97316" },
     "Shopping": { icon: ShoppingBag, color: "#ec4899" },
     "Entertainment": { icon: Gamepad2, color: "#a855f7" },
     "Education": { icon: GraduationCap, color: "#0ea5e9" },
     "Health": { icon: HeartPulse, color: "#10b981" },
-    "Housing": { icon: Home, color: "#6366f1" },
+    "Home & Bills": { icon: Home, color: "#6366f1" },
+    "Gadgets": { icon: Smartphone, color: "#14b8a6" },
+    "Travel": { icon: Plane, color: "#f59e0b" },
     "Utilities": { icon: Zap, color: "#ef4444" },
     "Others": { icon: MoreHorizontal, color: "#94a3b8" },
 }
@@ -68,7 +70,7 @@ export default function CirclesPage() {
   // Add expense form
   const [expDesc, setExpDesc] = useState("")
   const [expAmount, setExpAmount] = useState("")
-  const [expCategory, setExpCategory] = useState("Food & Groceries")
+  const [expCategory, setExpCategory] = useState("Food & Drinks")
   const [expDate, setExpDate] = useState(new Date().toISOString().split("T")[0])
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
@@ -143,7 +145,7 @@ export default function CirclesPage() {
     if (error) { showToast(`❌ ${error}`); return }
     showToast("✅ Expense added!")
     setIsAddExpenseOpen(false)
-    setExpDesc(""); setExpAmount(""); setExpCategory("Food & Groceries")
+    setExpDesc(""); setExpAmount(""); setExpCategory("Food & Drinks")
     await fetchDetail(selectedCircleId)
   }
 
@@ -433,25 +435,25 @@ export default function CirclesPage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[100]" onClick={() => setIsAddExpenseOpen(false)}>
               <motion.div initial={{ y: 50, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 50, opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between mb-6">
+                className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-gray-900">{t("circles.addExpense")}</h3>
                   <button onClick={() => setIsAddExpenseOpen(false)} className="p-2 bg-gray-50 hover:bg-gray-100 rounded-full"><X className="w-4 h-4" /></button>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("circles.description")}</label>
                     <input value={expDesc} onChange={(e) => setExpDesc(e.target.value)} placeholder="..."
-                      className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
+                      className="w-full mt-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all" />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("circles.amount")}</label>
                     <input value={expAmount} onChange={(e) => handleAmountChange(e, setExpAmount)} placeholder="Rp 0"
-                      className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all font-semibold" />
+                      className="w-full mt-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all font-semibold" />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">{t("circles.category")}</label>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
+                    <div className="grid grid-cols-3 gap-2 mt-2">
                        {/* Omit category translation to maintain functionality with db, but we translate logic UI */}
                       {CATEGORIES.map((c) => {
                         const config = categoryConfig[c] || categoryConfig["Others"]
@@ -478,10 +480,10 @@ export default function CirclesPage() {
                   <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("circles.date")}</label>
                     <input type="date" value={expDate} onChange={(e) => setExpDate(e.target.value)}
-                      className="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 transition-all" />
+                      className="w-full mt-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-400 transition-all" />
                   </div>
                   <button onClick={handleAddExpense} disabled={!expDesc || !expAmount}
-                    className="w-full mt-4 py-3.5 bg-blue-600 text-white rounded-2xl font-semibold text-sm hover:bg-blue-700 disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-lg shadow-blue-500/20">
+                    className="w-full mt-4 py-3 bg-blue-600 text-white rounded-2xl font-semibold text-sm hover:bg-blue-700 disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-lg shadow-blue-500/20">
                     {t("circles.addExpense")}
                   </button>
                 </div>
