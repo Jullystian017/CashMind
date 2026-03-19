@@ -578,7 +578,7 @@ export default function TransactionsPage() {
                                             initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                             animate={{ opacity: 1, scale: 1, y: 0 }}
                                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                            className="absolute top-full right-0 mt-3 w-64 bg-white rounded-3xl border border-gray-100 shadow-2xl z-50 overflow-hidden p-2"
+                                            className="absolute top-full left-0 mt-3 w-64 bg-white rounded-3xl border border-gray-100 shadow-2xl z-50 overflow-hidden p-2"
                                         >
                                             <div className="max-h-[360px] overflow-y-auto custom-scrollbar space-y-1">
                                                 <button
