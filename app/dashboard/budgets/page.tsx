@@ -359,89 +359,115 @@ export default function BudgetsPage() {
             </div>
 
             <div>
-                <h3 className="text-lg font-semibold text-gray-900 tracking-tight mb-4">{t("dashboard.topCategories")}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 tracking-tight mb-4">{t("budgets.listTitle")}</h3>
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
                         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3 gap-4">
-                        {budgets.map((cat, i) => {
-                            const pct = getPercent(cat.spent, cat.limit)
-                            const status = getStatusBadge(pct)
-                            const isOver = pct >= 100
-                            const remaining = cat.limit - cat.spent
-                            const StatusIcon = status.icon
+                    <div className={cn(
+                        "grid gap-4",
+                        budgets.length > 0 ? "grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3" : "grid-cols-1"
+                    )}>
+                        {budgets.length > 0 ? (
+                            budgets.map((cat, i) => {
+                                const pct = getPercent(cat.spent, cat.limit)
+                                const status = getStatusBadge(pct)
+                                const isOver = pct >= 100
+                                const remaining = cat.limit - cat.spent
+                                const StatusIcon = status.icon
 
-                            return (
-                                <motion.div
-                                    key={cat.id}
-                                    initial={{ opacity: 0, y: 16 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: i * 0.06 }}
-                                    className={cn(
-                                        "bg-white rounded-3xl border shadow-sm p-5 transition-all cursor-pointer group hover:shadow-md",
-                                        isOver ? "border-rose-100 hover:border-rose-200" : "border-gray-100 hover:border-gray-200"
-                                    )}
-                                    onClick={() => setSelectedCategory(selectedCategory?.id === cat.id ? null : cat)}
+                                return (
+                                    <motion.div
+                                        key={cat.id}
+                                        initial={{ opacity: 0, y: 16 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.06 }}
+                                        className={cn(
+                                            "bg-white rounded-3xl border shadow-sm p-5 transition-all cursor-pointer group hover:shadow-md",
+                                            isOver ? "border-rose-100 hover:border-rose-200" : "border-gray-100 hover:border-gray-200"
+                                        )}
+                                        onClick={() => setSelectedCategory(selectedCategory?.id === cat.id ? null : cat)}
+                                    >
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div
+                                                    className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+                                                    style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
+                                                >
+                                                    <cat.icon className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-semibold text-gray-900">{getCategoryLabel(cat.name)}</h4>
+                                                    <p className="text-[10px] font-semibold text-gray-400">
+                                                        {formatRp(cat.spent)} <span className="text-gray-300">/</span> {formatRp(cat.limit)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className={cn("flex items-center gap-1 px-2.5 py-1 rounded-full border text-[9px] font-semibold", status.color)}>
+                                                <StatusIcon className="w-2.5 h-2.5" />
+                                                {status.label}
+                                            </div>
+                                        </div>
+
+                                        <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden mb-3">
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${Math.min(pct, 100)}%` }}
+                                                transition={{ duration: 0.6, delay: i * 0.06 + 0.2 }}
+                                                className={cn("h-full rounded-full", getBarColor(pct))}
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[11px] font-semibold text-gray-900">
+                                                {isOver
+                                                    ? <span>{t("budgets.overLimit")} {formatRp(Math.abs(remaining))}</span>
+                                                    : <span>{t("budgets.remaining")} {formatRp(remaining)}</span>
+                                                }
+                                            </span>
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setEditingBudget(cat)
+                                                        setEditDisplayValue(formatThousands(cat.limit.toString()))
+                                                    }}
+                                                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                                                    title={t("budgets.editBudget")}
+                                                >
+                                                    <Pencil className="w-3.5 h-3.5" />
+                                                </button>
+                                                <div className="p-1.5 rounded-lg text-gray-300 group-hover:text-gray-500 transition-colors">
+                                                    <ChevronRight className="w-3.5 h-3.5" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )
+                            })
+                        ) : (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-[32px] border border-dashed border-gray-200 text-center"
+                            >
+                                <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-6">
+                                    <Wallet className="w-8 h-8 text-gray-300" />
+                                </div>
+                                <h3 className="text-base font-semibold text-gray-900 mb-2">{t("budgets.noBudgets")}</h3>
+                                <p className="text-xs text-gray-500 font-medium max-w-xs mb-8 leading-relaxed">
+                                    {t("budgets.noBudgetsDesc")}
+                                </p>
+                                <button
+                                    onClick={() => setIsAddOpen(true)}
+                                    className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 active:scale-95 group"
                                 >
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div
-                                                className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
-                                                style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
-                                            >
-                                                <cat.icon className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-semibold text-gray-900">{getCategoryLabel(cat.name)}</h4>
-                                                <p className="text-[10px] font-semibold text-gray-400">
-                                                    {formatRp(cat.spent)} <span className="text-gray-300">/</span> {formatRp(cat.limit)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className={cn("flex items-center gap-1 px-2.5 py-1 rounded-full border text-[9px] font-semibold", status.color)}>
-                                            <StatusIcon className="w-2.5 h-2.5" />
-                                            {status.label}
-                                        </div>
-                                    </div>
-
-                                    <div className="relative h-2.5 bg-gray-100 rounded-full overflow-hidden mb-3">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${Math.min(pct, 100)}%` }}
-                                            transition={{ duration: 0.6, delay: i * 0.06 + 0.2 }}
-                                            className={cn("h-full rounded-full", getBarColor(pct))}
-                                        />
-                                    </div>
-
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[11px] font-semibold text-gray-900">
-                                            {isOver
-                                                ? <span>{t("budgets.overLimit")} {formatRp(Math.abs(remaining))}</span>
-                                                : <span>{t("budgets.remaining")} {formatRp(remaining)}</span>
-                                            }
-                                        </span>
-                                        <div className="flex items-center gap-1">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setEditingBudget(cat)
-                                                    setEditDisplayValue(formatThousands(cat.limit.toString()))
-                                                }}
-                                                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                                                title={t("budgets.editBudget")}
-                                            >
-                                                <Pencil className="w-3.5 h-3.5" />
-                                            </button>
-                                            <div className="p-1.5 rounded-lg text-gray-300 group-hover:text-gray-500 transition-colors">
-                                                <ChevronRight className="w-3.5 h-3.5" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )
-                        })}
+                                    <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+                                    <span>{t("budgets.addBudget")}</span>
+                                </button>
+                            </motion.div>
+                        )}
                     </div>
                 )}
             </div>

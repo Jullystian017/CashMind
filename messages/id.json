@@ -81,8 +81,8 @@
       "education": "Pendidikan"
     },
     "insights": {
-      "progressive": "Dengan pendapatan yang tumbuh dari {from} → {to}/bln, Anda akan mengumpulkan {netWorth} dalam {years} tahun. Rasio tabungan meningkat dari {fromRate}% ke {toRate}%.",
-      "stable": "Dengan perilaku saat ini, Anda akan mengumpulkan {netWorth} dalam {years} tahun dengan rasio tabungan {rate}%."
+      "progressive": "Dengan pertumbuhan pendapatan {from} → {to}/bln, proyeksi kekayaan Anda mencapai {netWorth} dalam {years} tahun. Rasio tabungan meningkat dari {fromRate}% ke {toRate}%.",
+      "stable": "Dengan perilaku saat ini, proyeksi kekayaan Anda mencapai {netWorth} dalam {years} tahun dengan rasio tabungan {rate}%."
     },
     "sendResetLink": "Kirim Link Reset",
     "emailSent": "Email reset telah dikirim. Cek inbox kamu.",
@@ -213,7 +213,9 @@
     "overLimit": "Melebihi Batas",
     "setLimit": "Atur Batas",
     "saveBudget": "Simpan Anggaran",
-    "editBudget": "Edit Anggaran"
+    "editBudget": "Edit Anggaran",
+    "noBudgetsDesc": "Masukkan budget untuk mulai mengelola pengeluaran Anda.",
+    "listTitle": "Kategori Anggaran"
   },
   "goals": {
     "title": "Target Tabungan",
@@ -368,7 +370,7 @@
       "streaming_desc": "Netflix, Disney+, Spotify"
     },
     "insights": {
-      "progressive": "Dengan pendapatan yang tumbuh dari {from} → {to}/bln, Anda akan mengumpulkan {netWorth} dalam {years} tahun. Rasio tabungan meningkat dari {fromRate}% ke {toRate}%.",
+      "progressive": "Dengan pertumbuhan pendapatan {from} → {to}/bln, proyeksi kekayaan Anda mencapai {netWorth} dalam {years} tahun. Rasio tabungan meningkat dari {fromRate}% ke {toRate}%.",
       "stable": "Dengan menabung secara konsisten selama {years} tahun, kekayaanmu diproyeksikan mencapai {netWorth}. Tingkat tabunganmu stabil di {rate}%."
     },
     "hideGuide": "Sembunyikan Panduan",
