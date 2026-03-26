@@ -26,7 +26,8 @@
     "done": "Done",
     "at": "at",
     "verified": "Verified",
-    "today": "Today"
+    "today": "Today",
+    "upgrade": "Upgrade to Pro"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -58,6 +59,10 @@
     "viewProfile": "View Profile",
     "toNavigate": "to navigate",
     "toSelect": "to select"
+  },
+  "notifications": {
+    "noNotifications": "No notifications yet",
+    "markAllRead": "Mark all as read"
   },
   "auth": {
     "login": "Login",
@@ -202,7 +207,9 @@
     "saveBudget": "Save Budget",
     "editBudget": "Edit Budget",
     "noBudgetsDesc": "Set your budget limits to start tracking your spending categories.",
-    "listTitle": "Budget Categories"
+    "listTitle": "Budget Categories",
+    "deleteConfirmTitle": "Delete Budget?",
+    "deleteConfirmDesc": "Are you sure you want to delete this budget category? This action cannot be undone."
   },
   "goals": {
     "title": "Savings Goals",

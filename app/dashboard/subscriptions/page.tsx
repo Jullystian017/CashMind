@@ -32,8 +32,8 @@ type Subscription = {
   paymentMethod?: string;
 };
 
-// Reference date for demo: "today" - upcoming = next 7 days from here
-const REFERENCE_DATE = "2026-10-03";
+// Reference date for upcoming bills shouldn't be hardcoded to a past/future demo date
+const REFERENCE_DATE = new Date().toISOString().slice(0, 10);
 
 function addDaysToDateStr(dateStr: string, days: number): string {
   const d = new Date(dateStr + "T12:00:00Z");

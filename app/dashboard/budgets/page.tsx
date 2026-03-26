@@ -8,9 +8,9 @@ import {
     Wallet, UtensilsCrossed, Car, Gamepad2, ShoppingBag,
     GraduationCap, HeartPulse, Zap, Home, Smartphone, Plane,
     Plus, Pencil, ChevronRight, ChevronLeft, AlertTriangle, CheckCircle2,
-    X, ReceiptText, ChevronDown, Calendar as CalendarIcon, Loader2
+    X, ReceiptText, ChevronDown, Calendar as CalendarIcon, Loader2, Trash2
 } from "lucide-react"
-import { getBudgets, upsertBudget } from "@/app/actions/budgets"
+import { getBudgets, upsertBudget, deleteBudget } from "@/app/actions/budgets"
 import { getCategorySpending, getTransactionsByCategory } from "@/app/actions/transactions"
 import { useTranslation } from "@/lib/i18n/useTranslation"
 
@@ -94,6 +94,7 @@ export default function BudgetsPage() {
     const [loading, setLoading] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState<BudgetCategory | null>(null)
     const [editingBudget, setEditingBudget] = useState<BudgetCategory | null>(null)
+    const [deleteConfirmBudget, setDeleteConfirmBudget] = useState<BudgetCategory | null>(null)
     const [editDisplayValue, setEditDisplayValue] = useState("")
     const [isAddOpen, setIsAddOpen] = useState(false)
     const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false)
@@ -438,6 +439,16 @@ export default function BudgetsPage() {
                                                 >
                                                     <Pencil className="w-3.5 h-3.5" />
                                                 </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setDeleteConfirmBudget(cat)
+                                                    }}
+                                                    className="p-1.5 rounded-lg hover:bg-rose-50 text-gray-400 hover:text-rose-500 transition-colors"
+                                                    title="Delete Budget"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
                                                 <div className="p-1.5 rounded-lg text-gray-300 group-hover:text-gray-500 transition-colors">
                                                     <ChevronRight className="w-3.5 h-3.5" />
                                                 </div>
@@ -594,6 +605,55 @@ export default function BudgetsPage() {
                                         </div>
                                     </div>
                                 )}
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {mounted && createPortal(
+                <AnimatePresence>
+                    {deleteConfirmBudget && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                onClick={() => setDeleteConfirmBudget(null)}
+                                className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[200]"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="fixed inset-0 z-[210] flex items-center justify-center p-4"
+                            >
+                                <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center">
+                                    <div className="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center mx-auto mb-4">
+                                        <AlertTriangle className="w-8 h-8 text-rose-500" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t("budgets.deleteConfirmTitle") || "Delete Budget?"}</h3>
+                                    <p className="text-sm text-gray-500 mb-6 font-medium">
+                                        {t("budgets.deleteConfirmDesc") || "Are you sure you want to delete this budget category? This action cannot be undone."}
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setDeleteConfirmBudget(null)}
+                                            className="flex-1 px-4 py-3 rounded-2xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+                                        >
+                                            {t("common.cancel") || "Cancel"}
+                                        </button>
+                                        <button
+                                            onClick={async () => {
+                                                await deleteBudget(deleteConfirmBudget.id)
+                                                fetchData()
+                                                setDeleteConfirmBudget(null)
+                                            }}
+                                            className="flex-1 px-4 py-3 rounded-2xl bg-rose-600 text-white text-sm font-bold hover:bg-rose-700 transition-colors shadow-lg shadow-rose-500/20"
+                                        >
+                                            {t("common.delete") || "Delete"}
+                                        </button>
+                                    </div>
+                                </div>
                             </motion.div>
                         </>
                     )}

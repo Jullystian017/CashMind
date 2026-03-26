@@ -26,7 +26,8 @@
     "done": "Selesai",
     "at": "pada",
     "verified": "Terverifikasi",
-    "today": "Hari Ini"
+    "today": "Hari Ini",
+    "upgrade": "Upgrade ke Pro"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -58,6 +59,10 @@
     "viewProfile": "Lihat Profil",
     "toNavigate": "untuk navigasi",
     "toSelect": "untuk memilih"
+  },
+  "notifications": {
+    "noNotifications": "Belum ada notifikasi",
+    "markAllRead": "Tandai semua dibaca"
   },
   "auth": {
     "login": "Masuk",
@@ -215,7 +220,9 @@
     "saveBudget": "Simpan Anggaran",
     "editBudget": "Edit Anggaran",
     "noBudgetsDesc": "Masukkan budget untuk mulai mengelola pengeluaran Anda.",
-    "listTitle": "Kategori Anggaran"
+    "listTitle": "Kategori Anggaran",
+    "deleteConfirmTitle": "Hapus Anggaran?",
+    "deleteConfirmDesc": "Yakin ingin menghapus kategori anggaran ini? Aksi ini tidak dapat diurungkan."
   },
   "goals": {
     "title": "Target Tabungan",

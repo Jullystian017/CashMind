@@ -84,6 +84,29 @@ export function LoginForm() {
         }
     }
 
+        const handleDemoSignIn = async () => {
+            setError(null)
+            setLoading(true)
+            try {
+                const supabase = createClient()
+                const { error: err } = await supabase.auth.signInWithPassword({ 
+                    email: "demo@cashmind.app", 
+                    password: "demoPassword123!" 
+                })
+                if (err) {
+                    setError("Demo account login failed. (Please ensure demo@cashmind.app exists)")
+                    setLoading(false)
+                    return
+                }
+                router.push("/dashboard")
+                router.refresh()
+            } catch {
+                setError("Something went wrong with demo login. Please try again.")
+            } finally {
+                setLoading(false)
+            }
+        }
+
     return (
         <div className="w-full max-w-md mx-auto pt-12 pb-8 px-6 lg:py-8 lg:px-0">
             {/* Logo */}
@@ -168,19 +191,30 @@ export function LoginForm() {
                         <span className="w-full border-t border-gray-200" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-gray-400">Or</span>
+                        <span className="bg-white px-2 text-gray-400">Or Quick Access</span>
                     </div>
                 </div>
 
-                <Button
-                    type="button"
-                    onClick={handleGoogleSignIn}
-                    variant="outline"
-                    className="w-full h-12 border-gray-200 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 transition-all"
-                >
-                    <GoogleIcon className="w-5 h-5" />
-                    Sign in with Google
-                </Button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Button
+                        type="button"
+                        onClick={handleGoogleSignIn}
+                        variant="outline"
+                        className="w-full h-12 border-gray-200 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                    >
+                        <GoogleIcon className="w-5 h-5" />
+                        Google
+                    </Button>
+
+                    <Button
+                        type="button"
+                        onClick={handleDemoSignIn}
+                        className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+                        Try Demo
+                    </Button>
+                </div>
             </form>
 
             <p className="mt-6 text-center text-sm text-gray-500">

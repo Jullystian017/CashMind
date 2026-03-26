@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { calculateScoreForUser } from "./financial-score"
 
 export interface FinancialContext {
     totalBalance: number
@@ -15,6 +16,7 @@ export interface FinancialContext {
     expenseTrend: string
     financialScore: number
     financialStatus: string
+    scoreBreakdown: { savings: number; budget: number; goals: number; activity: number } | null
     budgetAlerts: string[]
     goalProgress: { name: string; progress: number }[]
     activeChallenges: number
@@ -56,7 +58,8 @@ export async function getFinancialContext(): Promise<{
             subsRes,
             splitRes,
             badgesRes,
-            circlesRes
+            circlesRes,
+            scoreData
         ] = await Promise.all([
             supabase.from("transactions").select("amount, type, category").eq("user_id", user.id).gte("date", firstDayCurrent),
             supabase.from("transactions").select("amount, type, category").eq("user_id", user.id).gte("date", firstDayPrev).lte("date", lastDayPrev),
@@ -68,7 +71,8 @@ export async function getFinancialContext(): Promise<{
             supabase.from("subscriptions").select("name, price, billing, next_date").eq("user_id", user.id),
             supabase.from("split_bills").select("id, title, total_amount, status").eq("user_id", user.id),
             supabase.from("user_badges").select("name, description").eq("user_id", user.id),
-            supabase.from("circle_members").select("circle_id, finance_circles(name, monthly_budget)").eq("user_id", user.id)
+            supabase.from("circle_members").select("circle_id, finance_circles(name, monthly_budget)").eq("user_id", user.id),
+            calculateScoreForUser(user.id)
         ])
 
         const txs = txsRes.data || []
@@ -175,17 +179,10 @@ export async function getFinancialContext(): Promise<{
                 }
             })
 
-        // Financial score
-        let savingsScore = income > 0 ? Math.min(40, (((income - expense) / income) / 0.2) * 40) : 0
-        let budgetScore = 20 - (budgetAlerts.filter(a => a.includes("over")).length * 5)
-        let goalScore = goals.length > 0 ? Math.min(20, (goals.reduce((s, g) => s + g.progress, 0) / goals.length / 100) * 20) : 10
-        let activityScore = totalXp >= 2000 ? 20 : totalXp >= 1000 ? 16 : totalXp >= 500 ? 12 : totalXp >= 200 ? 8 : 4
-        const score = Math.max(0, Math.round(savingsScore + budgetScore + goalScore + activityScore))
-
-        let status = "Beginner"
-        if (score >= 80) status = "Master"
-        else if (score >= 60) status = "Excellent"
-        else if (score >= 40) status = "Good"
+        // Financial score logic uses the centralized calculateScoreForUser
+        const score = scoreData?.score || 0
+        const status = scoreData?.status || "Beginner"
+        const scoreBreakdown = scoreData?.breakdown || null
 
         // Subscriptions
         const subscriptions = (subsRes.data || []).map(s => ({
@@ -244,6 +241,7 @@ export async function getFinancialContext(): Promise<{
                 expenseTrend: calcTrend(expense, prevExpense),
                 financialScore: score,
                 financialStatus: status,
+                scoreBreakdown,
                 budgetAlerts,
                 goalProgress: goals,
                 activeChallenges,
@@ -278,6 +276,15 @@ export async function buildContextPrompt(ctx: FinancialContext): Promise<string>
     prompt += `Monthly Expense: ${formatRp(ctx.monthlyExpense)} (${ctx.expenseTrend} vs last month)\n`
     prompt += `Savings Rate: ${ctx.savingsRate}%\n`
     prompt += `Financial Score: ${ctx.financialScore}/100 (${ctx.financialStatus})\n`
+
+    if (ctx.scoreBreakdown) {
+        prompt += `\nFinancial Score Breakdown:\n`
+        prompt += `- Savings: ${ctx.scoreBreakdown.savings}/40 (Based on income-to-expense ratio. Target is 20%+)\n`
+        prompt += `- Budget: ${ctx.scoreBreakdown.budget}/20 (Measures how well they stay within monthly budget limits)\n`
+        prompt += `- Goals: ${ctx.scoreBreakdown.goals}/20 (Progress towards funding active savings goals)\n`
+        prompt += `- Activity: ${ctx.scoreBreakdown.activity}/20 (Points earned from challenges and regular app usage)\n`
+        prompt += `Note for AI: If the user asks how to improve their score, look at the breakdown above and suggest actionable steps based on which metrics are lacking (e.g. create a budget if budget score is 0, add saving goals, join challenges, or reduce expenses to increase savings).`
+    }
 
     if (ctx.topCategories.length > 0) {
         prompt += `\nTop Spending Categories:\n`
